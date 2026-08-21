@@ -45,7 +45,7 @@
             <p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ $value }}</p>
         </div>
         <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg {{ $c['bg'] }} {{ $c['text'] }}">
-            <i data-lucide="{{ $icon }}" class="h-5 w-5"></i>
+            <x-dashboard-icon name="{{ $icon }}" class="h-5 w-5" />
         </span>
     </div>
 
@@ -53,7 +53,7 @@
         <div class="mt-4 flex items-center gap-2 text-xs">
             @if ($change !== null)
                 <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold {{ $changeClasses }}">
-                    <i data-lucide="{{ $arrowIcon }}" class="h-3 w-3"></i>
+                    <x-dashboard-icon name="{{ $arrowIcon }}" class="h-3 w-3" />
                     {{ $change }}
                 </span>
             @endif

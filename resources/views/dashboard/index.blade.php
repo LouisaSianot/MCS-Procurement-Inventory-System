@@ -7,11 +7,11 @@
         | Fallback demo values are used only when variables are unset so
         | the view renders sensibly during development.
         |--------------------------------------------------------------- */
-        $totalOrders = $totalOrders ?? 128;
-        $ordersChange = $ordersChange ?? '+12%';
+        $totalOrders = $totalOrders ?? 0;
+        $ordersChange = $ordersChange ?? null;
         $ordersChangeDir = $ordersChangeDir ?? 'up';
 
-        $pendingApprovals = $pendingApprovals ?? 14;
+        $pendingApprovals = $pendingApprovals ?? 0;
 
         $totalPurchases = $totalPurchases ?? 56;
         $purchasesChange = $purchasesChange ?? '+8%';
@@ -37,13 +37,7 @@
         (object)['id'=>6,'name'=>'First Aid Kit','category'=>'Health & Safety','quantity'=>7,'minimum_stock'=>4,'status'=>'In Stock','supplier'=>'Medi Supplies PNG','last_received'=>'28 Jul 2026'],
         ]);
 
-        $recentOrders = $recentOrders ?? collect([
-        (object)['id'=>1,'number'=>'GE-00125','requester'=>'John Smith','date'=>'10 Aug 2026','amount'=>'K 4,500','status'=>'Pending','approval'=>'Pending Approval'],
-        (object)['id'=>2,'number'=>'GE-00124','requester'=>'Mary Doe','date'=>'9 Aug 2026','amount'=>'K 12,200','status'=>'Approved','approval'=>'Approved'],
-        (object)['id'=>3,'number'=>'GE-00123','requester'=>'Alex Wari','date'=>'8 Aug 2026','amount'=>'K 880','status'=>'Draft','approval'=>'Not Submitted'],
-        (object)['id'=>4,'number'=>'GE-00120','requester'=>'Head of School','date'=>'5 Aug 2026','amount'=>'K 23,400','status'=>'Approved','approval'=>'Approved'],
-        (object)['id'=>5,'number'=>'GE-00119','requester'=>'Sarah Tama','date'=>'3 Aug 2026','amount'=>'K 1,750','status'=>'Rejected','approval'=>'Rejected'],
-        ]);
+        $recentOrders = $recentOrders ?? collect();
 
         $recentPurchases = $recentPurchases ?? collect([
         (object)['id'=>1,'number'=>'PO-0045','ge_order'=>'GE-00120','supplier'=>'PNG Office Supplies','date'=>'6 Aug 2026','amount'=>'K 23,400','status'=>'Partially Received'],
@@ -223,19 +217,24 @@
                         <tbody>
                             @foreach ($recentOrders as $order)
                             <tr>
-                                <td class="font-mono text-xs font-semibold text-slate-900">{{ $order->number }}</td>
-                                <td>{{ $order->requester }}</td>
-                                <td class="text-slate-500">{{ $order->date }}</td>
-                                <td class="text-right font-medium tabular-nums">{{ $order->amount }}</td>
+                                <td class="font-mono text-xs font-semibold text-slate-900">{{ $order->order_number }}</td>
+                                <td>{{ $order->requester?->name ?? 'Unknown requester' }}</td>
+                                <td class="text-slate-500">{{ optional($order->order_date)->format('d M Y') }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $order->total_amount, 2) }}</td>
                                 <td><x-status-badge :status="$order->status" /></td>
-                                <td><x-status-badge :status="$order->approval" /></td>
+                                <td><x-status-badge :status="$order->approval_status" /></td>
                                 <td class="text-right">
-                                    <a href="{{ route('ge-orders.show', $order->id ?? 1) }}" class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700">
+                                    <a href="{{ route('ge-orders.show', $order) }}" class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700">
                                         View <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
                                     </a>
                                 </td>
                             </tr>
                             @endforeach
+                            @if ($recentOrders->isEmpty())
+                            <tr>
+                                <td colspan="7" class="px-5 py-10 text-center text-sm text-slate-500">No GE orders have been created yet.</td>
+                            </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>

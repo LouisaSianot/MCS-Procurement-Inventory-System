@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\ProfileController;
+use App\Models\GEOrder;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,7 +10,19 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard.index');
+    $recentOrders = GEOrder::with('requester')
+        ->latest('order_date')
+        ->latest('id')
+        ->limit(5)
+        ->get();
+
+    $totalOrders = GEOrder::whereMonth('order_date', now()->month)
+        ->whereYear('order_date', now()->year)
+        ->count();
+
+    $pendingApprovals = GEOrder::where('approval_status', GEOrder::APPROVAL_PENDING_APPROVAL)->count();
+
+    return view('dashboard.index', compact('recentOrders', 'totalOrders', 'pendingApprovals'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -21,10 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/create', fn() => view('dashboard.index'))->name('inventory.create');
     Route::get('/inventory/{id}', fn($id) => view('dashboard.index', ['inventory_item_id' => $id]))->name('inventory.show');
 
-    Route::get('/ge-orders', fn() => view('dashboard.index'))->name('ge-orders.index');
-    Route::get('/ge-orders/create', fn() => view('dashboard.index'))->name('ge-orders.create');
-    Route::get('/ge-orders/{id}', fn($id) => view('dashboard.index', ['ge_order_id' => $id]))->name('ge-orders.show');
-
     Route::get('/procurement', fn() => view('dashboard.index'))->name('procurement.index');
     Route::get('/procurement/create', fn() => view('dashboard.index'))->name('procurement.create');
     Route::get('/procurement/{id}', fn($id) => view('dashboard.index', ['purchase_id' => $id]))->name('procurement.show');
@@ -35,3 +44,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/ge_orders.php';
