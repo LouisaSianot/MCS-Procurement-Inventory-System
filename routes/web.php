@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Models\GEOrder;
+use App\Http\Controllers\GeOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
