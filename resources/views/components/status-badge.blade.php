@@ -1,43 +1,56 @@
-@props(['status' => null, 'class' => ''])
-
 @php
-$statusText = is_string($status) ? trim($status) : (string) ($status ?? 'Unknown');
-$normalized = strtolower($statusText);
+    /*
+    |-------------------------------------------------------------
+    | Status Badge — reusable pill-shaped status indicator
+    |-------------------------------------------------------------
+    | Usage:
+    |   <x-status-badge status="approved" />
+    |   <x-status-badge :status="$order->status" />
+    |
+    | Recognised statuses (case-insensitive) map to a colour.
+    | Unknown statuses fall back to a neutral grey badge.
+    */
+    $status = is_string($status) ? strtolower(trim($status)) : '';
+    $label  = $label ?? ucwords(str_replace(['_', '-'], ' ', $status));
 
-$palette = match (true) {
-str_contains($normalized, 'approved') || str_contains($normalized, 'completed') || str_contains($normalized, 'received') || str_contains($normalized, 'in stock') => [
-'bg' => 'bg-emerald-50',
-'text' => 'text-emerald-700',
-'ring' => 'ring-emerald-200',
-],
-str_contains($normalized, 'pending') || str_contains($normalized, 'draft') || str_contains($normalized, 'ordered') || str_contains($normalized, 'not submitted') => [
-'bg' => 'bg-amber-50',
-'text' => 'text-amber-700',
-'ring' => 'ring-amber-200',
-],
-str_contains($normalized, 'rejected') || str_contains($normalized, 'out of stock') || str_contains($normalized, 'error') || str_contains($normalized, 'not approved') => [
-'bg' => 'bg-rose-50',
-'text' => 'text-rose-700',
-'ring' => 'ring-rose-200',
-],
-str_contains($normalized, 'low stock') || str_contains($normalized, 'partially') || str_contains($normalized, 'warning') => [
-'bg' => 'bg-orange-50',
-'text' => 'text-orange-700',
-'ring' => 'ring-orange-200',
-],
-str_contains($normalized, 'info') || str_contains($normalized, 'delivery') || str_contains($normalized, 'submitted') => [
-'bg' => 'bg-sky-50',
-'text' => 'text-sky-700',
-'ring' => 'ring-sky-200',
-],
-default => [
-'bg' => 'bg-slate-100',
-'text' => 'text-slate-700',
-'ring' => 'ring-slate-200',
-],
-};
+    $styles = [
+        // GE orders
+        'draft'             => 'bg-slate-100 text-slate-600 ring-slate-200',
+        'pending approval'  => 'bg-amber-50 text-amber-700 ring-amber-200',
+        'pending'           => 'bg-amber-50 text-amber-700 ring-amber-200',
+        'approved'          => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'rejected'          => 'bg-rose-50 text-rose-700 ring-rose-200',
+        'cancelled'         => 'bg-rose-50 text-rose-700 ring-rose-200',
+        // Purchases / receipts
+        'ordered'           => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'partially received'=> 'bg-violet-50 text-violet-700 ring-violet-200',
+        'fully received'    => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'received'          => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'backorder'         => 'bg-amber-50 text-amber-700 ring-amber-200',
+        'complete'          => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'completed'         => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        // Inventory
+        'in stock'          => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'low stock'         => 'bg-amber-50 text-amber-700 ring-amber-200',
+        'out of stock'      => 'bg-rose-50 text-rose-700 ring-rose-200',
+        'normal stock'      => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        // GE order types
+        'stock'             => 'bg-brand-50 text-brand-700 ring-brand-200',
+        'non-stock'         => 'bg-slate-100 text-slate-600 ring-slate-200',
+        // Inventory movements
+        'stock received'    => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'stock issue'       => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'stock adjustment in' => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        'stock adjustment out'=> 'bg-rose-50 text-rose-700 ring-rose-200',
+        // Alerts
+        'info'              => 'bg-sky-50 text-sky-700 ring-sky-200',
+        'warning'           => 'bg-amber-50 text-amber-700 ring-amber-200',
+        'error'             => 'bg-rose-50 text-rose-700 ring-rose-200',
+        'success'           => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+    ];
+    $cls = $styles[$status] ?? 'bg-slate-100 text-slate-600 ring-slate-200';
 @endphp
 
-<span {{ $attributes->merge(['class' => 'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ' . $palette['bg'] . ' ' . $palette['text'] . ' ' . $palette['ring'] . ' ' . $class]) }}>
-    {{ $statusText ?: 'Unknown' }}
+<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset {{ $cls }}">
+    {{ $label }}
 </span>
