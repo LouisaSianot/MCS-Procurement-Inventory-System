@@ -54,5 +54,7 @@ class DatabaseSeeder extends Seeder
         User::whereIn('email', ['mkalua44@gmail.com', 'test@example.com'])
             ->get()
             ->each(fn(User $user) => $user->assignRole($superAdmin));
+
+        $this->call(GEOrderDemoSeeder::class);
     }
 }
