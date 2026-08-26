@@ -74,7 +74,7 @@
                     ['label' => 'Order Date', 'value' => optional($order->order_date ?? $order->created_at)->format('d M Y') ?? '—'],
                     ['label' => 'Supplier', 'value' => $order->supplier?->name ?? '—'],
                     ['label' => 'Account Code', 'value' => $order->account_code ?? '—'],
-                    ['label' => 'Inventory Flag', 'value' => strtoupper($order->inventory_flag ?? 'NONSTOCK')],
+                    ['label' => 'Inventory Flag', 'value' => strtoupper($order->inventory_flag ?? 'NON-STOCK')],
                     ['label' => 'PO Number', 'value' => $order->po_number ?? '—'],
                     ];
                     @endphp

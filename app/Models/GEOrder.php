@@ -56,7 +56,7 @@ class GEOrder extends Model
     public const APPROVAL_REJECTED        = 'rejected';
 
     public const INVENTORY_FLAG_STOCK    = 'STOCK';
-    public const INVENTORY_FLAG_NONSTOCK = 'NONSTOCK';
+    public const INVENTORY_FLAG_NONSTOCK = 'NON-STOCK';
 
     public function requester(): BelongsTo
     {

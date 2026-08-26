@@ -19,7 +19,7 @@ class UpdateGEOrderRequest extends FormRequest
         $order = $this->route('ge_order');
 
         return [
-            'inventory_flag' => ['required', Rule::in(['STOCK', 'NONSTOCK'])],
+            'inventory_flag' => ['required', Rule::in(['STOCK', 'NON-STOCK'])],
             'po_number'      => ['nullable', 'string', 'max:50'],
             'supplier_id'    => ['required', 'exists:suppliers,id'],
             'user_id'        => ['required', 'exists:users,id'],
@@ -30,7 +30,7 @@ class UpdateGEOrderRequest extends FormRequest
             'notes'          => ['nullable', 'string', 'max:2000'],
             'action'         => ['required', Rule::in(['save_draft', 'submit'])],
             'items'          => ['required', 'array', 'min:1'],
-            'items.*.item_id'      => ['nullable', 'integer'],
+            'items.*.item_id'      => ['nullable', 'integer', 'exists:items,id'],
             'items.*.item_id_text' => ['nullable', 'string', 'max:100'],
             'items.*.description'  => ['required', 'string', 'max:255'],
             'items.*.unit'         => ['nullable', 'string', 'max:30'],

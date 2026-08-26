@@ -107,7 +107,7 @@
                 <div>
                     <label for="inventory_flag" class="block text-sm font-medium text-slate-700">Inventory Flag <span class="text-rose-500">*</span></label>
                     <select id="inventory_flag" name="inventory_flag" required class="input mt-1.5 {{ $errors->has('inventory_flag') ? 'border-rose-400' : '' }}">
-                        @foreach (['STOCK' => 'STOCK — from inventory', 'NONSTOCK' => 'NONSTOCK — one-off purchase'] as $val => $lbl)
+                        @foreach (['STOCK' => 'STOCK — from inventory', 'NON-STOCK' => 'NON-STOCK — one-off purchase'] as $val => $lbl)
                         <option value="{{ $val }}" @if(old('inventory_flag')===$val) selected @endif>{{ $lbl }}</option>
                         @endforeach
                     </select>
@@ -118,7 +118,7 @@
                 <div>
                     <label for="po_number" class="block text-sm font-medium text-slate-700">PO Number</label>
                     <input id="po_number" type="text" name="po_number"
-                        value="{{ old('po_number') }}" placeholder="Optional — leave blank"
+                        value="{{ old('po_number', $geNumber) }}" placeholder="Defaults to GE number"
                         class="input mt-1.5 {{ $errors->has('po_number') ? 'border-rose-400' : '' }}">
                     @if ($errors->has('po_number'))<p class="mt-1 text-xs font-medium text-rose-600">{{ $errors->first('po_number') }}</p>@endif
                 </div>

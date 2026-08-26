@@ -100,7 +100,7 @@
                 <div>
                     <label for="inventory_flag" class="block text-sm font-medium text-slate-700">Inventory Flag <span class="text-rose-500">*</span></label>
                     <select id="inventory_flag" name="inventory_flag" required class="input mt-1.5 {{ $errors->has('inventory_flag') ? 'border-rose-400' : '' }}">
-                        @foreach (['STOCK' => 'STOCK — from inventory', 'NONSTOCK' => 'NONSTOCK — one-off purchase'] as $val => $lbl)
+                        @foreach (['STOCK' => 'STOCK — from inventory', 'NON-STOCK' => 'NON-STOCK — one-off purchase'] as $val => $lbl)
                         <option value="{{ $val }}" @if($inventoryFlag===$val) selected @endif>{{ $lbl }}</option>
                         @endforeach
                     </select>

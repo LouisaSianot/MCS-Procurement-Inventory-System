@@ -95,7 +95,7 @@ class GEOrderController extends Controller
                 'branch_id'      => $data['branch_id'],
                 'account_code'   => $data['account_code'],
                 'inventory_flag' => $data['inventory_flag'],
-                'po_number'      => $data['po_number'] ?? null,
+                'po_number'      => $data['po_number'] ?? $data['order_number'],
                 'order_date'     => $data['order_date'],
                 'description'    => $data['description'],
                 'notes'          => $data['notes'] ?? null,
