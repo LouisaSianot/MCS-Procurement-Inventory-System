@@ -40,6 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/receiving', fn() => view('dashboard.index'))->name('receiving.index');
     Route::get('/reports', fn() => view('dashboard.index'))->name('reports.index');
     Route::get('/reports/activity', fn() => view('dashboard.index'))->name('reports.activity');
+    
+    //Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 require __DIR__ . '/auth.php';

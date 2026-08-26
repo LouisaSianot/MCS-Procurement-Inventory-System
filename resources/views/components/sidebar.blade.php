@@ -70,6 +70,16 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
                     <span class="collapsible-label">Receiving</span>
                 </a>
             </li>
+
+            @if (Route::has('suppliers.index'))
+            <li>
+                <a href="{{ route('suppliers.index') }}" aria-current="{{ str_starts_with($current, 'suppliers') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="truck" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Suppliers</span>
+                </a>
+            </li>
+            @endif
+
             <li>
                 <a href="{{ route('inventory.index') }}" aria-current="{{ str_starts_with($current, 'inventory') ? 'page' : 'false' }}" class="nav-link">
                     <i data-lucide="boxes" class="nav-link-icon"></i>
@@ -88,6 +98,24 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
             System
         </p>
         <ul class="space-y-1">
+
+            @if (Route::has('assets.index'))
+            <li>
+                <a href="{{ route('assets.index') }}" aria-current="{{ str_starts_with($current, 'assets') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="package" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Assets</span>
+                </a>
+            </li>
+            @endif
+            @if (Route::has('users.index'))
+            <li>
+                <a href="{{ route('users.index') }}" aria-current="{{ str_starts_with($current, 'users') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="users" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Users &amp; Roles</span>
+                </a>
+            </li>
+            @endif
+
         </ul>
     </nav>
 
