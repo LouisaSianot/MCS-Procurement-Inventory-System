@@ -298,7 +298,7 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
-                <td>${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select>` : `<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Item description" class="input py-2" required>`}</td>
+                <td>${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select><input type="hidden" name="items[${index}][description]" data-field="description-hidden" value="${data.description ?? (data.item_name ?? '')}">` : `<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Item description" class="input py-2" required>`}</td>
                 <td><input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="—" class="input py-2 w-24 ${stock ? 'bg-slate-50' : ''}" ${stock ? 'readonly' : ''}></td>
                 <td><input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="unit" class="input py-2 w-24"></td>
                 <td class="text-right"><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input py-2 w-24 text-right tabular-nums" required></td>
@@ -320,8 +320,10 @@
                     const opt = sel.selectedOptions[0];
                     const uom = row.querySelector('[data-field="unit"]');
                     const idText = row.querySelector('[data-field="item_id_text"]');
+                    const hiddenDesc = row.querySelector('[data-field="description-hidden"]');
                     if (uom && opt?.dataset.uom) uom.value = opt.dataset.uom;
                     if (idText) idText.value = sel.value;
+                    if (hiddenDesc) hiddenDesc.value = opt?.dataset.description ?? '';
                 });
             }
 
@@ -335,8 +337,9 @@
             document.getElementById('add-item-btn')?.addEventListener('click', () => addRow());
             inventoryFlagEl?.addEventListener('change', () => {
                 const existing = Array.from(tbody.querySelectorAll('tr[data-item-row]')).map((r) => ({
-                    item_id: r.querySelector('[data-field="item_id_text"]')?.value || '',
-                    description: r.querySelector('[data-field="description"]')?.value || '',
+                    item_id: r.querySelector('[data-field="item_id_text"]')?.value || r.querySelector('[data-field="item_id"]')?.value || '',
+                    description: r.querySelector('[data-field="description"]')?.value || r.querySelector('[data-field="description-hidden"]')?.value || '',
+                    item_name: r.querySelector('[data-field="item_id"]')?.selectedOptions[0]?.dataset?.description || '',
                     unit: r.querySelector('[data-field="unit"]')?.value || '',
                     quantity: r.querySelector('[data-field="quantity"]')?.value || '',
                     unit_price: r.querySelector('[data-field="unit_price"]')?.value || '',

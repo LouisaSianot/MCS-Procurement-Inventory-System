@@ -40,8 +40,8 @@ class StoreGEOrderRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'items.required'        => 'At least one order item is required.',
-            'items.*.description.required' => 'Each item needs a description.',
+            'items.required' => 'At least one order item is required.',
+            'items.*.description.required' => 'Item needs description.',
             'items.*.quantity.required'    => 'Each item needs a quantity.',
             'items.*.quantity.min'         => 'Quantity must be greater than zero.',
             'items.*.unit_price.required'  => 'Each item needs a unit price.',
