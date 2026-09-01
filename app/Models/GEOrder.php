@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GEOrder extends Model
@@ -86,6 +87,11 @@ class GEOrder extends Model
     public function items(): HasMany
     {
         return $this->hasMany(GEOrderItem::class, 'ge_order_id');
+    }
+
+    public function purchaseOrder(): HasOne
+    {
+        return $this->hasOne(PurchaseOrder::class, 'ge_order_id');
     }
 
     public function isEditable(): bool

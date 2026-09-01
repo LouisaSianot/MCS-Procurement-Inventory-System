@@ -36,6 +36,21 @@
                 Edit
             </a>
             @endif
+            @if (($order->status ?? null) === \App\Models\GEOrder::STATUS_APPROVED)
+                @if ($order->purchaseOrder)
+                <a href="{{ route('procurement.show', $order->purchaseOrder) }}" class="btn btn-primary">
+                    <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                    View Purchase Order
+                </a>
+                @else
+                    @can('create', \App\Models\PurchaseOrder::class)
+                    <a href="{{ route('procurement.create', ['ge_order_id' => $order->id]) }}" class="btn btn-primary">
+                        <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                        Create Purchase Order
+                    </a>
+                    @endcan
+                @endif
+            @endif
         </x-slot>
     </x-page-header>
 

@@ -61,7 +61,7 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
             <li>
                 <a href="{{ route('procurement.index') }}" aria-current="{{ str_starts_with($current, 'procurement') ? 'page' : 'false' }}" class="nav-link">
                     <i data-lucide="shopping-cart" class="nav-link-icon"></i>
-                    <span class="collapsible-label">Procurement</span>
+                    <span class="collapsible-label">Purchase Orders</span>
                 </a>
             </li>
             <li>
