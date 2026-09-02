@@ -321,6 +321,7 @@
                             <option value="">Select item…</option>
                             ${itemOptions}
                         </select>
+                        <input type="hidden" name="items[${index}][description]" data-field="description-hidden" value="${data.description ?? (data.item_name ?? '')}">
                     ` : `
                         <input type="text" name="items[${index}][description]" data-field="description"
                                value="${data.description ?? ''}" placeholder="Item description"
@@ -385,15 +386,17 @@
                     row.remove();
                     recalcTotal();
                 });
-                // When STOCK flag is on, selecting an item auto-fills UOM + item id text.
+                // When STOCK flag is on, selecting an item auto-fills UOM, item id text, and description.
                 const sel = row.querySelector('.item-select');
                 if (sel) {
                     sel.addEventListener('change', () => {
                         const opt = sel.selectedOptions[0];
                         const uom = row.querySelector('[data-field="unit"]');
                         const idText = row.querySelector('[data-field="item_id_text"]');
+                        const hiddenDesc = row.querySelector('[data-field="description-hidden"]');
                         if (uom && opt?.dataset.uom) uom.value = opt.dataset.uom;
                         if (idText) idText.value = sel.value;
+                        if (hiddenDesc) hiddenDesc.value = opt?.dataset.description ?? '';
                     });
                 }
             }
@@ -436,8 +439,9 @@
             // When inventory flag changes, rebuild all rows (STOCK toggles description vs item select).
             inventoryFlagEl?.addEventListener('change', () => {
                 const existing = Array.from(tbody.querySelectorAll('tr[data-item-row]')).map((r) => ({
-                    item_id: r.querySelector('[data-field="item_id_text"]')?.value || '',
-                    description: r.querySelector('[data-field="description"]')?.value || '',
+                    item_id: r.querySelector('[data-field="item_id_text"]')?.value || r.querySelector('[data-field="item_id"]')?.value || '',
+                    description: r.querySelector('[data-field="description"]')?.value || r.querySelector('[data-field="description-hidden"]')?.value || '',
+                    item_name: r.querySelector('[data-field="item_id"]')?.selectedOptions[0]?.dataset?.description || '',
                     unit: r.querySelector('[data-field="unit"]')?.value || '',
                     quantity: r.querySelector('[data-field="quantity"]')?.value || '',
                     unit_price: r.querySelector('[data-field="unit_price"]')?.value || '',

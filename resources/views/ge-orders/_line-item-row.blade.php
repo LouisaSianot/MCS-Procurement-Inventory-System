@@ -15,12 +15,13 @@
             <select name="items[{{ $i }}][item_id]" data-field="item_id" class="input py-2 item-select" required>
                 <option value="">Select item…</option>
                 @foreach ($items as $inv)
-                    <option value="{{ $inv->id }}" data-uom="{{ $inv->uom }}"
+                    <option value="{{ $inv->id }}" data-uom="{{ $inv->uom }}" data-description="{{ $inv->name }}"
                         @if((string)($item['item_id'] ?? '') === (string)$inv->id) selected @endif>
                         {{ $inv->name }}
                     </option>
                 @endforeach
             </select>
+            <input type="hidden" name="items[{{ $i }}][description]" data-field="description-hidden" value="{{ $item['description'] ?? ($item['item_name'] ?? '') }}">
         @else
             <input type="text" name="items[{{ $i }}][description]" data-field="description"
                    value="{{ $item['description'] ?? '' }}" placeholder="Item description"

@@ -112,7 +112,9 @@ class GEOrderController extends Controller
 
         return redirect()
             ->route('ge-orders.show', $order)
-            ->with('success', $isSubmit ? 'GE Order submitted for approval.' : 'GE Order saved as draft.');
+            ->with('success', $isSubmit
+                ? 'GE Order ' . $order->order_number . ' has been submitted successfully for approval.'
+                : 'GE Order ' . $order->order_number . ' saved as draft.');
     }
 
     public function show(GEOrder $ge_order)
@@ -176,7 +178,9 @@ class GEOrderController extends Controller
 
         return redirect()
             ->route('ge-orders.show', $ge_order)
-            ->with('success', $isSubmit ? 'GE Order submitted for approval.' : 'GE Order updated.');
+            ->with('success', $isSubmit
+                ? 'GE Order ' . $ge_order->order_number . ' has been submitted successfully for approval.'
+                : 'GE Order ' . $ge_order->order_number . ' updated.');
     }
 
     public function destroy(GEOrder $ge_order)
@@ -201,7 +205,7 @@ class GEOrderController extends Controller
 
         return redirect()
             ->route('ge-orders.show', $ge_order)
-            ->with('success', 'GE Order submitted for approval.');
+            ->with('success', 'GE Order ' . $ge_order->order_number . ' has been submitted successfully for approval.');
     }
 
     public function approve(Request $request, GEOrder $ge_order)
@@ -263,10 +267,16 @@ class GEOrderController extends Controller
             $price = (float) ($row['unit_price'] ?? 0);
             $total = $qty * $price;
 
+            $description = trim((string) ($row['description'] ?? ''));
+            if ($description === '' && ! empty($row['item_id'])) {
+                $item = Item::find((int) $row['item_id']);
+                $description = $item?->description ?? ($row['item_id_text'] ?? '');
+            }
+
             GEOrderItem::create([
                 'ge_order_id'  => $order->id,
                 'item_id'      => ! empty($row['item_id']) ? (int) $row['item_id'] : null,
-                'description'  => $row['description'] ?? ($row['item_id_text'] ?? ''),
+                'description'  => $description !== '' ? $description : 'Item',
                 'unit'         => $row['unit'] ?? null,
                 'quantity'     => $qty,
                 'unit_price'   => $price,

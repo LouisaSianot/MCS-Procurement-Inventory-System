@@ -16,4 +16,14 @@ class Branch extends Model
     {
         return $this->hasMany(GEOrder::class, 'branch_id');
     }
+
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function itemBranches(): HasMany
+    {
+        return $this->hasMany(ItemBranch::class);
+    }
 }
