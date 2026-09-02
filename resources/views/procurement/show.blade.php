@@ -2,6 +2,9 @@
     <x-page-header title="Purchase Order {{ $purchaseOrder->po_number }}" description="Supplier order details and copied GE Order line items." :breadcrumbs="[['label' => 'Purchase Orders', 'url' => route('procurement.index')], ['label' => $purchaseOrder->po_number]]">
         <x-slot name="actions">
             <a href="{{ route('procurement.index') }}" class="btn btn-secondary"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Purchase Orders</a>
+            @if (in_array($purchaseOrder->status, [App\Models\PurchaseOrder::STATUS_ORDERED, App\Models\PurchaseOrder::STATUS_PARTIALLY_RECEIVED], true))
+            @can('create', App\Models\PurchaseReceipt::class)<a href="{{ route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]) }}" class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Receive</a>@endcan
+            @endif
             @can('update', $purchaseOrder)<a href="{{ route('procurement.edit', $purchaseOrder) }}" class="btn btn-primary"><i data-lucide="pencil" class="h-4 w-4"></i> Edit</a>@endcan
         </x-slot>
     </x-page-header>
