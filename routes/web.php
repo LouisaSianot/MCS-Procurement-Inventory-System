@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ReportsController;
 use App\Models\GEOrder;
 use App\Http\Controllers\GeOrderController;
 use Illuminate\Support\Facades\Route;
@@ -41,8 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/{itemBranch}', [InventoryController::class, 'show'])->name('inventory.show');
 
-    Route::get('/reports', fn() => view('dashboard.index'))->name('reports.index');
-    Route::get('/reports/activity', fn() => view('dashboard.index'))->name('reports.activity');
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
 
     //Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
