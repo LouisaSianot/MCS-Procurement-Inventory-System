@@ -45,6 +45,10 @@ class GEOrderController extends Controller
             'approved'  => GEOrder::where('status', 'approved')->count(),
             'rejected'  => GEOrder::where('status', 'rejected')->count(),
             'cancelled' => GEOrder::where('status', 'cancelled')->count(),
+            'backorder' => GEOrder::where('status', GEOrder::STATUS_BACKORDER)->count(),
+            'ordered'   => GEOrder::where('status', GEOrder::STATUS_ORDERED)->count(),
+            'received'  => GEOrder::where('status', GEOrder::STATUS_RECEIVED)->count(),
+            'complete'  => GEOrder::where('status', GEOrder::STATUS_COMPLETE)->count(),
         ];
 
         $requesters = User::orderBy('name')->get(['id', 'name']);

@@ -144,7 +144,7 @@
                 </div>
 
                 <div>
-                    <label for="branch_id" class="block text-sm font-medium text-slate-700">Branch / Department <span class="text-rose-500">*</span></label>
+                    <label for="branch_id" class="block text-sm font-medium text-slate-700">BranchID (Branch / Department) <span class="text-rose-500">*</span></label>
                     <select id="branch_id" name="branch_id" required class="input mt-1.5 {{ $errors->has('branch_id') ? 'border-rose-400' : '' }}">
                         @foreach ($branches as $b)
                         <option value="{{ $b->id }}" @if(old('branch_id', $order->branch_id) == $b->id) selected @endif>{{ $b->name }}</option>

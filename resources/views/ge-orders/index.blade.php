@@ -59,6 +59,7 @@
         ['label' => 'Pending', 'value' => $statusCounts['pending'] ?? 0, 'icon' => 'clock', 'color' => 'amber', 'filter' => ['status' => 'pending']],
         ['label' => 'Approved', 'value' => $statusCounts['approved'] ?? 0, 'icon' => 'check-circle', 'color' => 'emerald', 'filter' => ['status' => 'approved']],
         ['label' => 'Rejected', 'value' => $statusCounts['rejected'] ?? 0, 'icon' => 'x-circle', 'color' => 'rose', 'filter' => ['status' => 'rejected']],
+        ['label' => 'Backorder', 'value' => $statusCounts['backorder'] ?? 0, 'icon' => 'clock-3', 'color' => 'amber', 'filter' => ['status' => 'backorder']],
         ];
         $colorMap = [
         'brand' => 'bg-brand-50 text-brand-600',
@@ -103,7 +104,7 @@
                 </div>
                 <select name="status" class="input">
                     <option value="">All statuses</option>
-                    @foreach (['draft' => 'Draft', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'] as $val => $lbl)
+                    @foreach (['draft' => 'Draft', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled', 'ordered' => 'Ordered', 'received' => 'Received', 'backorder' => 'Backorder', 'complete' => 'Complete'] as $val => $lbl)
                     <option value="{{ $val }}" @if((string)$status===$val) selected @endif>{{ $lbl }}</option>
                     @endforeach
                 </select>

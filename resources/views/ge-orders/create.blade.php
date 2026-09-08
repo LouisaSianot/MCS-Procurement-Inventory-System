@@ -125,7 +125,7 @@
 
                 {{-- Supplier --}}
                 <div>
-                    <label for="supplier_id" class="block text-sm font-medium text-slate-700">Supplier <span class="text-rose-500">*</span></label>
+                    <label for="supplier_id" class="block text-sm font-medium text-slate-700">SupplierID (Supplier) <span class="text-rose-500">*</span></label>
                     <select id="supplier_id" name="supplier_id" required class="input mt-1.5 {{ $errors->has('supplier_id') ? 'border-rose-400' : '' }}">
                         <option value="">Select supplier…</option>
                         @foreach ($suppliers as $s)
@@ -137,7 +137,7 @@
 
                 {{-- Requester (Purchasing Officer) --}}
                 <div>
-                    <label for="user_id" class="block text-sm font-medium text-slate-700">Requester <span class="text-rose-500">*</span></label>
+                    <label for="user_id" class="block text-sm font-medium text-slate-700">UserID (Requester) <span class="text-rose-500">*</span></label>
                     <select id="user_id" name="user_id" required class="input mt-1.5 {{ $errors->has('user_id') ? 'border-rose-400' : '' }}">
                         @foreach ($users as $u)
                         <option value="{{ $u->id }}" @if(old('user_id', $defaultUserId)==$u->id) selected @endif>{{ $u->name }}</option>
@@ -157,7 +157,7 @@
 
                 {{-- Branch ID --}}
                 <div>
-                    <label for="branch_id" class="block text-sm font-medium text-slate-700">Branch / Department <span class="text-rose-500">*</span></label>
+                    <label for="branch_id" class="block text-sm font-medium text-slate-700">BranchID (Branch / Department) <span class="text-rose-500">*</span></label>
                     <select id="branch_id" name="branch_id" required class="input mt-1.5 {{ $errors->has('branch_id') ? 'border-rose-400' : '' }}">
                         @foreach ($branches as $b)
                         <option value="{{ $b->id }}" @if(old('branch_id', $defaultBranchId)==$b->id) selected @endif>{{ $b->name }}</option>
