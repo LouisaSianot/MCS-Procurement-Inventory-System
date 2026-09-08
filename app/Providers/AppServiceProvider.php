@@ -39,5 +39,14 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         Gate::before(fn($user) => $user->hasRole('super_admin') ? true : null);
+
+        Gate::define('manage-master-data', fn ($user) =>
+            $user->hasAnyRole(['Administrator', 'Purchasing Officer', 'Inventory Officer'])
+            || $user->can('master-data.manage')
+        );
+
+        Gate::define('manage-users', fn ($user) =>
+            $user->hasRole('Administrator') || $user->can('users.manage')
+        );
     }
 }

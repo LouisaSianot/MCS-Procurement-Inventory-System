@@ -26,4 +26,9 @@ class Branch extends Model
     {
         return $this->hasMany(ItemBranch::class);
     }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 }

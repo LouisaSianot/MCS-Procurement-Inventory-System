@@ -66,8 +66,8 @@ export default {
             },
 
             animation: {
-                'fade-in': 'fade-in 0.3s ease-out',
-                'slide-in': 'slide-in 0.25s ease-out',
+                'fade-in': 'fade-in 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
+                'slide-in': 'slide-in 0.2s cubic-bezier(0.23, 1, 0.32, 1)',
             },
         },
     },
