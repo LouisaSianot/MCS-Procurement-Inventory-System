@@ -1,58 +1,274 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MCS-Procurement-Inventory-System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[Optional badges: build / license / latest release]
 
-## About Laravel
+A Laravel-based Procurement and Inventory Management System for MCS. The app helps manage suppliers, products, purchase orders, stock levels, approvals, and basic reporting — suitable for small-to-medium organizations.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Table of contents
+- About
+- Key features
+- Tech stack
+- Architecture & ER diagram
+- API (example endpoints)
+- Installation & local dev (quickstart)
+- Environment variables
+- Database, migrations & seeding
+- Running & building assets
+- Testing
+- CI (GitHub Actions) example
+- Deployment checklist
+- Troubleshooting
+- Contributing
+- Security
+- License
+- Contact
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## About
+This repo contains the source code for MCS Procurement & Inventory System built with Laravel. It implements roles (admin, procurement_officer, inventory_clerk), purchase order workflows, inventory tracking, and basic reporting.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Key features
+- Supplier, product, and category management
+- Purchase order creation, approval, rejection
+- Inventory adjustments, stock movement & stock takes
+- Purchase history and stock-level reporting
+- User roles & permissions
+- CSV import/export (products, suppliers)
+- Email notifications for approvals (optional)
 
-## Learning Laravel
+## Tech stack
+- PHP 8.x, Laravel 9/10 (confirm version in composer.json)
+- MySQL / MariaDB (or PostgreSQL)
+- Redis (optional, for cache & queues)
+- NPM + Vite + TailwindCSS or Bootstrap
+- GitHub Actions for CI (example included)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Architecture & ER diagram
+Primary models:
+- User (roles)
+- Supplier
+- Category
+- Product (belongsTo Category)
+- PurchaseOrder (belongsTo Supplier, hasMany PurchaseOrderItem)
+- PurchaseOrderItem (belongsTo Product)
+- InventoryTransaction (product, qty, type, reference_id)
+- Role / Permission (optional: spatie/laravel-permission)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Mermaid ER diagram (GitHub supports mermaid in some renderers — view in a capable viewer or use the ASCII diagram below):
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```mermaid
+erDiagram
+  USERS ||--o{ PURCHASE_ORDERS : places
+  SUPPLIERS ||--o{ PURCHASE_ORDERS : supplies
+  PURCHASE_ORDERS ||--o{ PURCHASE_ORDER_ITEMS : contains
+  PRODUCTS ||--o{ PURCHASE_ORDER_ITEMS : referenced_in
+  CATEGORIES ||--o{ PRODUCTS : groups
+  PRODUCTS ||--o{ INVENTORY_TRANSACTIONS : recorded_in
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+ASCII overview:
+- users (id, name, email, role_id, ...)
+- suppliers (id, name, contact, email, address, ...)
+- categories (id, name, description)
+- products (id, sku, name, category_id, unit_price, stock_qty, reorder_point)
+- purchase_orders (id, supplier_id, created_by, status, total, approved_at)
+- purchase_order_items (id, purchase_order_id, product_id, qty, unit_price)
+- inventory_transactions (id, product_id, qty, type, reference_type, reference_id, note, created_by)
+
+## API (example endpoints)
+This section lists representative HTTP API endpoints and example requests/responses. Adjust to match your route definitions.
+
+Authentication (using sanctum / passport / JWT — update accordingly)
+- POST /api/auth/login
+  - Body: { "email": "user@example.com", "password": "secret" }
+  - Response: { "token": "..." }
+
+Suppliers
+- GET /api/suppliers
+- POST /api/suppliers
+  - Body: { "name": "...", "email": "...", "phone": "...", "address": "..." }
+
+Products
+- GET /api/products
+- POST /api/products
+  - Body: { "sku": "P-001", "name": "Widget", "category_id": 1, "unit_price": 9.99, "stock_qty": 100 }
+
+Purchase Orders
+- GET /api/purchase-orders
+- POST /api/purchase-orders
+  - Body: { "supplier_id": 1, "items": [{ "product_id": 1, "qty": 10, "unit_price": 9.5 }], "notes": "Urgent" }
+- POST /api/purchase-orders/{id}/approve
+  - Body: { "approved_by": 2, "comment": "Ok" }
+
+Inventory adjustments
+- POST /api/inventory/adjustments
+  - Body: { "product_id": 1, "qty": -5, "type": "adjust", "note": "damage" }
+
+Example cURL (create a PO):
+```bash
+curl -X POST https://your-host/api/purchase-orders \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "supplier_id": 1,
+    "items": [{"product_id": 1, "qty": 10, "unit_price": 9.5}],
+    "notes": "Urgent"
+  }'
+```
+
+Responses should follow consistent structure — e.g., { "success": true, "data": {...}, "errors": null }
+
+Authentication & authorization
+- Protect API routes via middleware (auth:sanctum or auth:api).
+- Apply role checks for sensitive actions (approve PO, inventory adjustments).
+
+## Installation & local dev (quickstart)
+1. Clone
+   git clone https://github.com/LouisaSianot/MCS-Procurement-Inventory-System.git
+   cd MCS-Procurement-Inventory-System
+
+2. Install PHP dependencies
+   composer install
+
+3. Install JS dependencies
+   npm install
+
+4. Copy env and generate key
+   cp .env.example .env
+   php artisan key:generate
+
+5. Configure .env (DB settings, MAIL, etc.) — see next section
+
+6. Run migrations & seeders
+   php artisan migrate --seed
+
+7. Build frontend assets (development)
+   npm run dev
+
+8. Serve app
+   php artisan serve
+
+## Environment variables (important)
+- APP_NAME, APP_ENV, APP_KEY, APP_URL
+- DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD
+- MAIL_MAILER, MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM_ADDRESS
+- QUEUE_CONNECTION (database/redis)
+- CACHE_DRIVER (redis/file)
+- BROADCAST_DRIVER (pusher/log)
+- SANCTUM_STATEFUL_DOMAINS / SESSION_DOMAIN (if using sanctum)
+
+Document any additional custom env keys in config/*.php and .env.example.
+
+## Database, migrations & seeders
+- Migrations live in database/migrations.
+- Seeders live in database/seeders. Recommended seeders:
+  - RolesAndPermissionsSeeder
+  - UsersTableSeeder (admin user)
+  - SuppliersSeeder
+  - CategoriesSeeder
+  - ProductsSeeder
+
+Run:
+php artisan migrate --seed
+
+If you change migrations on a shared environment, use:
+php artisan migrate --force
+
+## Running & building assets
+- Dev build: npm run dev
+- Production build: npm run build
+- Hot reload: npm run hot (Vite)
+
+Ensure public/storage is linked:
+php artisan storage:link
+
+## Testing
+Run the test suite:
+php artisan test
+
+Tips:
+- Use an in-memory or dedicated test database.
+- Configure parallel testing (pest or phpunit) if supported.
+- Include DB transactions in tests where needed.
+
+## CI (GitHub Actions) example
+Add `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping --silent"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: mbstring, bcmath, intl, pdo_mysql
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install composer dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Copy env
+        run: cp .env.example .env
+      - name: Generate app key
+        run: php artisan key:generate
+      - name: Configure DB
+        run: |
+          php artisan migrate --env=testing --no-interaction
+      - name: Run tests
+        run: php artisan test --verbose
+```
+
+## Deployment checklist
+- Use supported PHP version and matching extensions.
+- Set APP_ENV=production and APP_DEBUG=false.
+- Ensure storage and bootstrap/cache are writable.
+- Configure queue workers (Supervisor) if QUEUE_CONNECTION != sync.
+- Run composer install --no-dev --optimize-autoloader.
+- Run php artisan config:cache, route:cache, view:cache.
+- Run php artisan migrate --force.
+- Ensure backups (DB dump) and monitoring are in place.
+- Configure SSL, domain, and email provider.
+
+## Troubleshooting
+- 500 error: check storage/logs/laravel.log and webserver logs.
+- Mail not sending: verify MAIL_* env values and queue processing.
+- Permission issues: ensure web user can write to storage/ and bootstrap/cache.
 
 ## Contributing
+- Fork the repo and open PRs against main.
+- Follow PSR-12 coding standards.
+- Add tests for new features or bug fixes.
+- Document new env variables and migrations in the PR description.
+- If opening a large or breaking change, open an issue first to discuss.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Security
+If you discover a security vulnerability, please contact the maintainer privately (email) before opening a public issue.
 
 ## License
+MIT — see the LICENSE file.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Contact
+Maintainer: Louisa Sianot — https://github.com/LouisaSianot
