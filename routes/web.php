@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/inventory/{itemBranch}', [InventoryController::class, 'show'])->name('inventory.show');
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export/{format}', [ReportsController::class, 'export'])->whereIn('format', ['xlsx', 'pdf'])->name('reports.export');
 
     //Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

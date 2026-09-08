@@ -1,5 +1,10 @@
 <x-app-layout title="Reports">
-    <x-page-header title="Reports" description="Read-only procurement and inventory reporting from current transactional data." />
+    <x-page-header title="Reports" description="Read-only procurement and inventory reporting from current transactional data.">
+        <x-slot name="actions">
+            <a href="{{ route('reports.export', array_filter(['format' => 'pdf', ...$filters])) }}" class="btn btn-secondary"><i data-lucide="file-text" class="h-4 w-4"></i> Export PDF</a>
+            <a href="{{ route('reports.export', array_filter(['format' => 'xlsx', ...$filters])) }}" class="btn btn-secondary"><i data-lucide="sheet" class="h-4 w-4"></i> Export Excel</a>
+        </x-slot>
+    </x-page-header>
 
     <div class="card mb-6 overflow-hidden">
         <form method="GET" action="{{ route('reports.index') }}" class="border-b border-slate-200 p-5">

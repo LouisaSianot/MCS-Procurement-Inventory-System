@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PurchaseReceiptsExport;
 use App\Http\Requests\StorePurchaseReceiptRequest;
 use App\Models\GEOrder;
 use App\Models\InventoryMovement;
@@ -9,9 +10,11 @@ use App\Models\ItemBranch;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseReceipt;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PurchaseReceiptController extends Controller
 {
@@ -23,6 +26,19 @@ class PurchaseReceiptController extends Controller
             ->paginate(15);
 
         return view('receiving.index', compact('receipts'));
+    }
+
+    public function export(string $format)
+    {
+        $this->authorize('viewAny', PurchaseReceipt::class);
+        $receipts = PurchaseReceipt::with(['purchaseOrder.supplier', 'receiver'])->latest('received_at')->latest('id')->get();
+        $filename = 'purchase-receipts-'.now()->format('Y-m-d');
+
+        if ($format === 'xlsx') {
+            return Excel::download(new PurchaseReceiptsExport($receipts), "{$filename}.xlsx");
+        }
+
+        return Pdf::loadView('receiving.exports.pdf', compact('receipts'))->setPaper('a4', 'landscape')->download("{$filename}.pdf");
     }
 
     public function create(Request $request)
