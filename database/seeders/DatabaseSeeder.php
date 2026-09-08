@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
             'ge-orders.approve',
             'ge-orders.reject',
             'ge-orders.cancel',
+            'master-data.manage',
+            'users.manage',
         ])->map(fn(string $name) => Permission::firstOrCreate([
             'name' => $name,
             'guard_name' => 'web',
@@ -40,6 +42,12 @@ class DatabaseSeeder extends Seeder
             'guard_name' => 'web',
         ]);
         $superAdmin->syncPermissions($permissions);
+
+        $administrator = Role::firstOrCreate(['name' => 'Administrator', 'guard_name' => 'web']);
+        $administrator->syncPermissions($permissions);
+        Role::firstOrCreate(['name' => 'Purchasing Officer', 'guard_name' => 'web'])->syncPermissions(['master-data.manage']);
+        Role::firstOrCreate(['name' => 'Inventory Officer', 'guard_name' => 'web'])->syncPermissions(['master-data.manage']);
+        Role::firstOrCreate(['name' => 'EndUser', 'guard_name' => 'web']);
 
         $user = User::firstOrCreate([
             'email' => 'test@example.com',

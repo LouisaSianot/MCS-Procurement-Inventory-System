@@ -1,6 +1,8 @@
 <x-app-layout title="Purchase Receipts">
     <x-page-header title="Purchase Receipts" description="Record supplier deliveries and post stock receipts.">
         <x-slot name="actions">
+            <a href="{{ route('receiving.export', 'pdf') }}" class="btn btn-secondary"><i data-lucide="file-text" class="h-4 w-4"></i> Export PDF</a>
+            <a href="{{ route('receiving.export', 'xlsx') }}" class="btn btn-secondary"><i data-lucide="sheet" class="h-4 w-4"></i> Export Excel</a>
             @can('create', App\Models\PurchaseReceipt::class)
             <a href="{{ route('receiving.create') }}" class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Receive Purchase</a>
             @endcan

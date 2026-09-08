@@ -38,7 +38,7 @@
         : ($changeDirection === 'flat' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-600');
 @endphp
 
-<div class="card card-hover animate-fade-in p-5">
+<div class="card card-hover p-5">
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <p class="truncate text-sm font-medium text-slate-500">{{ $title }}</p>

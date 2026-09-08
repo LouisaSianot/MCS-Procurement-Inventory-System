@@ -117,6 +117,16 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
             @endif
 
         </ul>
+
+        @can('manage-master-data')
+        <p class="collapsible-label mt-6 px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Administration</p>
+        <ul class="space-y-1">
+            <li><a href="{{ route('admin.suppliers.index') }}" aria-current="{{ str_starts_with($current, 'admin.suppliers') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="truck" class="nav-link-icon"></i><span class="collapsible-label">Suppliers</span></a></li>
+            <li><a href="{{ route('admin.items.index') }}" aria-current="{{ str_starts_with($current, 'admin.items') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="boxes" class="nav-link-icon"></i><span class="collapsible-label">Items</span></a></li>
+            @can('manage-users')<li><a href="{{ route('admin.users.index') }}" aria-current="{{ str_starts_with($current, 'admin.users') || str_starts_with($current, 'admin.roles') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="users-round" class="nav-link-icon"></i><span class="collapsible-label">Users &amp; roles</span></a></li>
+            @endcan
+        </ul>
+        @endcan
     </nav>
 
     {{-- User profile + logout --}}

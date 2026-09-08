@@ -2,28 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PurchaseOrdersExport;
 use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\GEOrder;
 use App\Models\PurchaseOrder;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PurchaseOrderController extends Controller
 {
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'status']);
-        $orders = PurchaseOrder::with(['geOrder', 'supplier', 'creator'])
-            ->when($filters['search'] ?? null, function ($query, $search) {
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery->where('po_number', 'like', "%{$search}%")
-                        ->orWhereHas('geOrder', fn ($geOrders) => $geOrders->where('order_number', 'like', "%{$search}%"))
-                        ->orWhereHas('supplier', fn ($suppliers) => $suppliers->where('name', 'like', "%{$search}%"));
-                });
-            })
-            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+        $orders = $this->filteredOrders($filters)
             ->latest('order_date')
             ->paginate(15)
             ->withQueryString();
@@ -37,6 +32,20 @@ class PurchaseOrderController extends Controller
         ];
 
         return view('procurement.index', compact('orders', 'filters', 'statusCounts'));
+    }
+
+    public function export(Request $request, string $format)
+    {
+        $this->authorize('viewAny', PurchaseOrder::class);
+        $filters = $request->only(['search', 'status']);
+        $orders = $this->filteredOrders($filters)->latest('order_date')->get();
+        $filename = 'purchase-orders-'.now()->format('Y-m-d');
+
+        if ($format === 'xlsx') {
+            return Excel::download(new PurchaseOrdersExport($orders), "{$filename}.xlsx");
+        }
+
+        return Pdf::loadView('procurement.exports.pdf', compact('orders', 'filters'))->setPaper('a4', 'landscape')->download("{$filename}.pdf");
     }
 
     public function create(Request $request)
@@ -142,5 +151,18 @@ class PurchaseOrderController extends Controller
             ->whereDoesntHave('purchaseOrder')
             ->latest('approved_at')
             ->get();
+    }
+
+    private function filteredOrders(array $filters)
+    {
+        return PurchaseOrder::with(['geOrder', 'supplier', 'creator'])
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('po_number', 'like', "%{$search}%")
+                        ->orWhereHas('geOrder', fn ($geOrders) => $geOrders->where('order_number', 'like', "%{$search}%"))
+                        ->orWhereHas('supplier', fn ($suppliers) => $suppliers->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status));
     }
 }

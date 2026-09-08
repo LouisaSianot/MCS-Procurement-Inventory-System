@@ -15,6 +15,8 @@
 
     <x-page-header title="Purchase Orders" description="Create and track supplier purchase orders from approved GE Orders.">
         <x-slot name="actions">
+            <a href="{{ route('procurement.export', array_filter(['format' => 'pdf', 'search' => $search, 'status' => $status])) }}" class="btn btn-secondary"><i data-lucide="file-text" class="h-4 w-4"></i> Export PDF</a>
+            <a href="{{ route('procurement.export', array_filter(['format' => 'xlsx', 'search' => $search, 'status' => $status])) }}" class="btn btn-secondary"><i data-lucide="sheet" class="h-4 w-4"></i> Export Excel</a>
             @can('create', App\Models\PurchaseOrder::class)
             <a href="{{ route('procurement.create') }}" class="btn btn-primary">
                 <i data-lucide="plus" class="h-4 w-4"></i> Create Purchase Order

@@ -216,13 +216,13 @@ function initFlashDismiss() {
         .forEach((element) => {
             setTimeout(() => {
                 element.style.transition =
-                    'opacity 0.4s ease';
+                    'opacity 180ms cubic-bezier(0.23, 1, 0.32, 1)';
 
                 element.style.opacity = '0';
 
                 setTimeout(() => {
                     element.remove();
-                }, 400);
+                }, 180);
             }, 4500);
         });
 }
