@@ -50,6 +50,28 @@ class GEOrder extends Model
     public const STATUS_APPROVED  = 'approved';
     public const STATUS_REJECTED  = 'rejected';
     public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_ORDERED   = 'ordered';
+    public const STATUS_RECEIVED  = 'received';
+    public const STATUS_BACKORDER = 'backorder';
+    public const STATUS_COMPLETE  = 'complete';
+    public const ID_RANGE = [7001, 7999];
+
+    public function getUserIDAttribute(): int
+    {
+        return (int) $this->user_id;
+    }
+
+    public const STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_PENDING,
+        self::STATUS_APPROVED,
+        self::STATUS_REJECTED,
+        self::STATUS_CANCELLED,
+        self::STATUS_ORDERED,
+        self::STATUS_RECEIVED,
+        self::STATUS_BACKORDER,
+        self::STATUS_COMPLETE,
+    ];
 
     public const APPROVAL_NOT_SUBMITTED   = 'not submitted';
     public const APPROVAL_PENDING_APPROVAL = 'pending approval';

@@ -10,7 +10,14 @@ class Branch extends Model
 {
     use HasFactory;
 
+    public const ID_RANGE = [201, 299];
+
     protected $fillable = ['name'];
+
+    public function getBranchIDAttribute(): int
+    {
+        return (int) $this->getKey();
+    }
 
     public function geOrders(): HasMany
     {
