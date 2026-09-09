@@ -21,8 +21,12 @@ class UpdatePurchaseOrderRequest extends FormRequest
             'expected_delivery_date' => ['nullable', 'date', 'after_or_equal:order_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', Rule::in([
-                PurchaseOrder::STATUS_DRAFT, PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_BACKORDER,
-                PurchaseOrder::STATUS_PARTIALLY_RECEIVED, PurchaseOrder::STATUS_FULLY_RECEIVED, PurchaseOrder::STATUS_CANCELLED,
+                PurchaseOrder::STATUS_DRAFT,
+                PurchaseOrder::STATUS_ORDERED,
+                PurchaseOrder::STATUS_BACKORDER,
+                PurchaseOrder::STATUS_PARTIALLY_RECEIVED,
+                PurchaseOrder::STATUS_FULLY_RECEIVED,
+                PurchaseOrder::STATUS_CANCELLED,
             ])],
         ];
     }

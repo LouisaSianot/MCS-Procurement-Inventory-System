@@ -16,8 +16,12 @@ class PurchaseReceipt extends Model
     protected $table = 'purchase_receipts';
 
     protected $fillable = [
-        'receipt_number', 'purchase_order_id', 'received_by', 'received_at',
-        'supplier_delivery_reference', 'notes',
+        'receipt_number',
+        'purchase_order_id',
+        'received_by',
+        'received_at',
+        'supplier_delivery_reference',
+        'notes',
     ];
 
     protected $casts = ['received_at' => 'date'];
@@ -39,6 +43,6 @@ class PurchaseReceipt extends Model
 
     public static function generateNumber(): string
     {
-        return 'GRN-'.str_pad((string) ((int) static::max('id') + 1), 5, '0', STR_PAD_LEFT);
+        return 'GRN-' . str_pad((string) ((int) static::max('id') + 1), 5, '0', STR_PAD_LEFT);
     }
 }

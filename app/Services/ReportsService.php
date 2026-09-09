@@ -36,7 +36,7 @@ class ReportsService
                 ->get(),
 
             'procurementActivity' => (clone $purchaseOrders)
-                ->whereNotNull($orderTable.'.order_date')
+                ->whereNotNull($orderTable . '.order_date')
                 ->selectRaw("{$monthExpression} AS month_start")
                 ->selectRaw('COUNT(*) AS purchase_order_count')
                 ->selectRaw('COALESCE(SUM(total_amount), 0) AS procurement_value')
@@ -45,13 +45,13 @@ class ReportsService
                 ->get(),
 
             'supplierSummary' => (clone $purchaseOrders)
-                ->join($supplierTable, $supplierTable.'.id', '=', $orderTable.'.supplier_id')
-                ->select($supplierTable.'.id', $supplierTable.'.name')
-                ->selectRaw('COUNT('.$orderTable.'.id) AS purchase_order_count')
-                ->selectRaw('COALESCE(SUM('.$orderTable.'.total_amount), 0) AS procurement_value')
-                ->groupBy($supplierTable.'.id', $supplierTable.'.name')
+                ->join($supplierTable, $supplierTable . '.id', '=', $orderTable . '.supplier_id')
+                ->select($supplierTable . '.id', $supplierTable . '.name')
+                ->selectRaw('COUNT(' . $orderTable . '.id) AS purchase_order_count')
+                ->selectRaw('COALESCE(SUM(' . $orderTable . '.total_amount), 0) AS procurement_value')
+                ->groupBy($supplierTable . '.id', $supplierTable . '.name')
                 ->orderByDesc('procurement_value')
-                ->orderBy($supplierTable.'.name')
+                ->orderBy($supplierTable . '.name')
                 ->limit(10)
                 ->get(),
 
@@ -79,10 +79,10 @@ class ReportsService
         $orderTable = (new PurchaseOrder)->getTable();
 
         return PurchaseOrder::query()
-            ->when($filters['date_from'] ?? null, fn (Builder $query, string $dateFrom) => $query->whereDate($orderTable.'.order_date', '>=', $dateFrom))
-            ->when($filters['date_to'] ?? null, fn (Builder $query, string $dateTo) => $query->whereDate($orderTable.'.order_date', '<=', $dateTo))
-            ->when($filters['branch_id'] ?? null, fn (Builder $query, int $branchId) => $query->where($orderTable.'.branch_id', $branchId))
-            ->when($filters['supplier_id'] ?? null, fn (Builder $query, int $supplierId) => $query->where($orderTable.'.supplier_id', $supplierId));
+            ->when($filters['date_from'] ?? null, fn(Builder $query, string $dateFrom) => $query->whereDate($orderTable . '.order_date', '>=', $dateFrom))
+            ->when($filters['date_to'] ?? null, fn(Builder $query, string $dateTo) => $query->whereDate($orderTable . '.order_date', '<=', $dateTo))
+            ->when($filters['branch_id'] ?? null, fn(Builder $query, int $branchId) => $query->where($orderTable . '.branch_id', $branchId))
+            ->when($filters['supplier_id'] ?? null, fn(Builder $query, int $supplierId) => $query->where($orderTable . '.supplier_id', $supplierId));
     }
 
     private function filteredInventory(array $filters): Builder
@@ -91,7 +91,7 @@ class ReportsService
             ->whereNotNull('branch_id')
             ->whereHas('item')
             ->whereHas('branchRecord')
-            ->when($filters['branch_id'] ?? null, fn (Builder $query, int $branchId) => $query->where('branch_id', $branchId));
+            ->when($filters['branch_id'] ?? null, fn(Builder $query, int $branchId) => $query->where('branch_id', $branchId));
     }
 
     private function itemPurchasingSummary(array $filters)
@@ -100,13 +100,13 @@ class ReportsService
         $itemTable = (new \App\Models\Item)->getTable();
 
         return $this->filteredPurchaseOrders($filters)
-            ->join('purchase_order_items', 'purchase_order_items.purchase_order_id', '=', $orderTable.'.id')
-            ->leftJoin($itemTable, $itemTable.'.id', '=', 'purchase_order_items.item_id')
-            ->selectRaw('COALESCE('.$itemTable.'.description, purchase_order_items.description) AS item_name')
+            ->join('purchase_order_items', 'purchase_order_items.purchase_order_id', '=', $orderTable . '.id')
+            ->leftJoin($itemTable, $itemTable . '.id', '=', 'purchase_order_items.item_id')
+            ->selectRaw('COALESCE(' . $itemTable . '.description, purchase_order_items.description) AS item_name')
             ->selectRaw('MAX(purchase_order_items.unit) AS unit')
             ->selectRaw('COALESCE(SUM(purchase_order_items.quantity), 0) AS quantity_ordered')
             ->selectRaw('COALESCE(SUM(purchase_order_items.total), 0) AS procurement_value')
-            ->groupByRaw('COALESCE('.$itemTable.'.description, purchase_order_items.description)')
+            ->groupByRaw('COALESCE(' . $itemTable . '.description, purchase_order_items.description)')
             ->orderByDesc('procurement_value')
             ->orderBy('item_name')
             ->limit(10)

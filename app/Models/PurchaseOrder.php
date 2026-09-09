@@ -18,9 +18,17 @@ class PurchaseOrder extends Model
     protected $table = 'purchase_orders';
 
     protected $fillable = [
-        'po_number', 'ge_order_id', 'supplier_id', 'branch_id', 'user_id',
-        'order_date', 'expected_delivery_date', 'notes', 'status',
-        'total_amount', 'ordered_at',
+        'po_number',
+        'ge_order_id',
+        'supplier_id',
+        'branch_id',
+        'user_id',
+        'order_date',
+        'expected_delivery_date',
+        'notes',
+        'status',
+        'total_amount',
+        'ordered_at',
     ];
 
     protected $casts = [
@@ -79,6 +87,6 @@ class PurchaseOrder extends Model
 
     public static function generateNumber(): string
     {
-        return 'PO-'.str_pad((string) ((int) static::withTrashed()->max('id') + 1), 5, '0', STR_PAD_LEFT);
+        return 'PO-' . str_pad((string) ((int) static::withTrashed()->max('id') + 1), 5, '0', STR_PAD_LEFT);
     }
 }

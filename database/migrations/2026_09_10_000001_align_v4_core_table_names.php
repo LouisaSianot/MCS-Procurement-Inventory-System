@@ -26,7 +26,6 @@ return new class extends Migration
                 Schema::rename($from, $to);
             }
         }
-
     }
 
     public function down(): void

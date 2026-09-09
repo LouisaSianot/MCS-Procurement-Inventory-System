@@ -20,13 +20,13 @@ class InventoryController extends Controller
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($searchQuery) use ($search): void {
                     $itemBranchTable = (new ItemBranch)->getTable();
-                    $searchQuery->where($itemBranchTable.'.location', 'like', "%{$search}%")
-                        ->orWhere($itemBranchTable.'.item_id', $search)
-                        ->orWhereHas('item', fn ($itemQuery) => $itemQuery->where('description', 'like', "%{$search}%"));
+                    $searchQuery->where($itemBranchTable . '.location', 'like', "%{$search}%")
+                        ->orWhere($itemBranchTable . '.item_id', $search)
+                        ->orWhereHas('item', fn($itemQuery) => $itemQuery->where('description', 'like', "%{$search}%"));
                 });
             })
-            ->when($filters['branch'] ?? null, fn ($query, int $branchId) => $query->where('branch_id', $branchId))
-            ->when($filters['category'] ?? null, fn ($query, string $category) => $query->whereHas('item', fn ($itemQuery) => $itemQuery->where('category', $category)))
+            ->when($filters['branch'] ?? null, fn($query, int $branchId) => $query->where('branch_id', $branchId))
+            ->when($filters['category'] ?? null, fn($query, string $category) => $query->whereHas('item', fn($itemQuery) => $itemQuery->where('category', $category)))
             ->when($filters['status'] ?? null, function ($query, string $status): void {
                 match ($status) {
                     ItemBranch::STATUS_OUT_OF_STOCK => $query->where('current_stock', 0),
