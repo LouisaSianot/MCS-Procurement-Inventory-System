@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\UsesV4TableName;
 
 class PurchaseOrder extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use UsesV4TableName;
+
+    protected $table = 'purchase_orders';
 
     protected $fillable = [
         'po_number', 'ge_order_id', 'supplier_id', 'branch_id', 'user_id',

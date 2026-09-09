@@ -66,7 +66,7 @@ it('posts a stock receipt, updates branch stock, and completes the purchase orde
     $receipt = PurchaseReceipt::firstOrFail();
     $response->assertRedirect(route('receiving.show', $receipt));
     $this->assertDatabaseHas('purchase_receipt_items', ['purchase_receipt_id' => $receipt->id, 'purchase_order_item_id' => $line->id, 'quantity_received' => 5]);
-    $this->assertDatabaseHas('item_branches', ['item_id' => $item->id, 'branch' => $branch->name, 'current_stock' => 5]);
+    $this->assertDatabaseHas((new ItemBranch)->getTable(), ['item_id' => $item->id, 'branch' => $branch->name, 'current_stock' => 5]);
     $this->assertDatabaseHas('inventory_movements', ['type' => InventoryMovement::TYPE_RECEIPT, 'quantity' => 5, 'stock_after' => 5]);
     expect($purchaseOrder->fresh()->status)->toBe(PurchaseOrder::STATUS_FULLY_RECEIVED);
 });
@@ -84,7 +84,7 @@ it('does not create inventory movements for non-stock receipts', function () {
     ])->assertRedirect();
 
     $this->assertDatabaseCount('inventory_movements', 0);
-    $this->assertDatabaseCount('item_branches', 0);
+    $this->assertDatabaseCount((new ItemBranch)->getTable(), 0);
     expect($purchaseOrder->fresh()->status)->toBe(PurchaseOrder::STATUS_PARTIALLY_RECEIVED);
 });
 
@@ -101,5 +101,5 @@ it('rejects an over-receipt', function () {
         'items' => [['purchase_order_item_id' => $line->id, 'quantity_received' => 6, 'unit_cost' => 20]],
     ])->assertRedirect(route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]))->assertSessionHasErrors('items');
 
-    $this->assertDatabaseCount('purchase_receipts', 0);
+    $this->assertDatabaseCount((new PurchaseReceipt)->getTable(), 0);
 });

@@ -19,8 +19,9 @@ class InventoryController extends Controller
             ->whereHas('branchRecord')
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($searchQuery) use ($search): void {
-                    $searchQuery->where('item_branches.location', 'like', "%{$search}%")
-                        ->orWhere('item_branches.item_id', $search)
+                    $itemBranchTable = (new ItemBranch)->getTable();
+                    $searchQuery->where($itemBranchTable.'.location', 'like', "%{$search}%")
+                        ->orWhere($itemBranchTable.'.item_id', $search)
                         ->orWhereHas('item', fn ($itemQuery) => $itemQuery->where('description', 'like', "%{$search}%"));
                 });
             })

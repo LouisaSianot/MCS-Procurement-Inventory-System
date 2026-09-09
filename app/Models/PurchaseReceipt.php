@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\UsesV4TableName;
 
 class PurchaseReceipt extends Model
 {
     use HasFactory;
+    use UsesV4TableName;
+
+    protected $table = 'purchase_receipts';
 
     protected $fillable = [
         'receipt_number', 'purchase_order_id', 'received_by', 'received_at',

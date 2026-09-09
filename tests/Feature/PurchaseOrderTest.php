@@ -27,7 +27,7 @@ it('creates a purchase order from an approved GE order and copies its items', fu
 
     $purchaseOrder = PurchaseOrder::firstOrFail();
     $response->assertRedirect(route('procurement.show', $purchaseOrder));
-    $this->assertDatabaseHas('purchase_orders', ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40]);
+    $this->assertDatabaseHas($purchaseOrder->getTable(), ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40]);
     $this->assertDatabaseHas('purchase_order_items', ['purchase_order_id' => $purchaseOrder->id, 'description' => 'Copy Paper', 'total' => 40]);
 });
 
