@@ -54,8 +54,6 @@ class GEOrder extends Model
     public const STATUS_RECEIVED  = 'received';
     public const STATUS_BACKORDER = 'backorder';
     public const STATUS_COMPLETE  = 'complete';
-    public const ID_RANGE = [7001, 7999];
-
     public function getUserIDAttribute(): int
     {
         return (int) $this->user_id;
