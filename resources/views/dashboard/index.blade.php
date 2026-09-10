@@ -67,7 +67,7 @@
         @can('ge-orders.create')
         <a href="{{ $safeRoute('ge-orders.create') }}" class="btn btn-primary">
             <i data-lucide="plus" class="h-4 w-4"></i>
-            Create GE Order
+            <span>New GE Order</span>
         </a>
         @endcan
     </div>
