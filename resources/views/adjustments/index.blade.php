@@ -1,0 +1,5 @@
+<x-app-layout title="Stock Adjustments">
+    <x-page-header title="Stock Adjustments" description="Record justified stock increases and decreases."><x-slot name="actions"><a href="{{ route('adjustments.create') }}" class="btn btn-primary">Record adjustment</a></x-slot></x-page-header>
+    <section class="card overflow-hidden"><div class="table-wrap"><table class="data-table"><thead><tr><th>AdjustmentNumber</th><th>Type</th><th>Date</th><th>Item</th><th>Branch</th><th class="text-right">Quantity</th><th>Purpose</th></tr></thead><tbody>
+    @forelse($adjustments as $adjustment)<tr><td class="font-mono">#{{ $adjustment->adjustment_number }}</td><td>{{ $adjustment->adjustment_type }}</td><td>{{ $adjustment->date->format('Y-m-d') }}</td><td>{{ $adjustment->item->description }}</td><td>{{ $adjustment->branch->name }}</td><td class="text-right">{{ $adjustment->quantity }} {{ $adjustment->uom }}</td><td>{{ $adjustment->purpose }}</td></tr>@empty<tr><td colspan="7" class="py-10 text-center text-slate-500">No stock adjustments recorded.</td></tr>@endforelse</tbody></table></div>{{ $adjustments->links() }}</section>
+</x-app-layout>
