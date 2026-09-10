@@ -9,7 +9,14 @@ class Item extends Model
 {
     use HasFactory;
 
+    public const ID_RANGE = [1001, 1999];
+
     protected $fillable = ['description', 'uom', 'category', 'sub_category', 'supplier_id'];
+
+    public function getItemIDAttribute(): int
+    {
+        return (int) $this->getKey();
+    }
 
     public function supplier()
     {
