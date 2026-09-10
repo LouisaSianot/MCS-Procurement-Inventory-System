@@ -26,13 +26,13 @@ it('registers the GE order resource routes with the controller', function () {
         ->toBe(GEOrderController::class . '@show');
 });
 
-    it('shows only implemented quick actions with valid destinations', function () {
-        $user = User::factory()->create();
-        $user->assignRole(Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']));
+it('shows only implemented quick actions with valid destinations', function () {
+    $user = User::factory()->create();
+    $user->assignRole(Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']));
 
-        $response = $this->actingAs($user)->get(route('dashboard'));
+    $response = $this->actingAs($user)->get(route('dashboard'));
 
-        $response
+    $response
         ->assertOk()
         ->assertSee('New GE Order')
         ->assertSee('Add Supplier')
@@ -46,4 +46,4 @@ it('registers the GE order resource routes with the controller', function () {
         ->assertDontSee('>Issue Stock</span>', false)
         ->assertDontSee('>Stock Adjustment</span>', false)
         ->assertDontSee('>Register Asset</span>', false);
-    });
+});

@@ -76,26 +76,29 @@
     {{-- Decision-first operational queue --}}
     @php
     $attentionItems = collect([
-        $stockOut > 0 ? ['count' => $stockOut, 'label' => $stockOut === 1 ? 'item is out of stock' : 'items are out of stock', 'detail' => 'Review affected inventory and replenish critical items.', 'icon' => 'alert-triangle', 'tone' => 'rose', 'action' => 'Review stockouts', 'href' => $safeRoute('inventory.index', ['status' => 'out_of_stock'])] : null,
-        $awaitingReceipt > 0 ? ['count' => $awaitingReceipt, 'label' => $awaitingReceipt === 1 ? 'purchase order awaits receipt' : 'purchase orders await receipt', 'detail' => 'Record delivered goods to keep inventory current.', 'icon' => 'package-check', 'tone' => 'sky', 'action' => 'Receive goods', 'href' => $safeRoute('receiving.index')] : null,
-        $pendingOrders > 0 ? ['count' => $pendingOrders, 'label' => $pendingOrders === 1 ? 'GE order needs review' : 'GE orders need review', 'detail' => 'Progress pending requests through the procurement queue.', 'icon' => 'file-clock', 'tone' => 'amber', 'action' => 'Review orders', 'href' => $safeRoute('ge-orders.index')] : null,
-        $stockLow > 0 ? ['count' => $stockLow, 'label' => $stockLow === 1 ? 'item is below reorder level' : 'items are below reorder level', 'detail' => 'Plan replenishment before stock reaches zero.', 'icon' => 'triangle-alert', 'tone' => 'amber', 'action' => 'View low stock', 'href' => $safeRoute('inventory.index', ['status' => 'low_stock'])] : null,
+    $stockOut > 0 ? ['count' => $stockOut, 'label' => $stockOut === 1 ? 'item is out of stock' : 'items are out of stock', 'detail' => 'Review affected inventory and replenish critical items.', 'icon' => 'alert-triangle', 'tone' => 'rose', 'action' => 'Review stockouts', 'href' => $safeRoute('inventory.index', ['status' => 'out_of_stock'])] : null,
+    $awaitingReceipt > 0 ? ['count' => $awaitingReceipt, 'label' => $awaitingReceipt === 1 ? 'purchase order awaits receipt' : 'purchase orders await receipt', 'detail' => 'Record delivered goods to keep inventory current.', 'icon' => 'package-check', 'tone' => 'sky', 'action' => 'Receive goods', 'href' => $safeRoute('receiving.index')] : null,
+    $pendingOrders > 0 ? ['count' => $pendingOrders, 'label' => $pendingOrders === 1 ? 'GE order needs review' : 'GE orders need review', 'detail' => 'Progress pending requests through the procurement queue.', 'icon' => 'file-clock', 'tone' => 'amber', 'action' => 'Review orders', 'href' => $safeRoute('ge-orders.index')] : null,
+    $stockLow > 0 ? ['count' => $stockLow, 'label' => $stockLow === 1 ? 'item is below reorder level' : 'items are below reorder level', 'detail' => 'Plan replenishment before stock reaches zero.', 'icon' => 'triangle-alert', 'tone' => 'amber', 'action' => 'View low stock', 'href' => $safeRoute('inventory.index', ['status' => 'low_stock'])] : null,
     ])->filter();
     $attentionTone = ['rose' => 'bg-rose-50 text-rose-600 ring-rose-200', 'amber' => 'bg-amber-50 text-amber-600 ring-amber-200', 'sky' => 'bg-sky-50 text-sky-600 ring-sky-200'];
     @endphp
     <section class="mb-6 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card" aria-labelledby="attention-heading">
         <div class="flex flex-col gap-1 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <div><h3 id="attention-heading" class="text-base font-semibold text-slate-900">Needs attention</h3><p class="text-sm text-slate-500">The items most likely to block procurement or operations.</p></div>
+            <div>
+                <h3 id="attention-heading" class="text-base font-semibold text-slate-900">Needs attention</h3>
+                <p class="text-sm text-slate-500">The items most likely to block procurement or operations.</p>
+            </div>
             @if ($attentionItems->isNotEmpty())<span class="w-fit rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{{ $attentionItems->count() }} priorities</span>@endif
         </div>
         @if ($attentionItems->isEmpty())
-            <div class="flex items-center gap-3 px-5 py-5 text-sm text-slate-600"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i data-lucide="circle-check" class="h-5 w-5"></i></span><span><span class="font-semibold text-slate-900">All caught up.</span> There are no urgent procurement or inventory issues right now.</span></div>
+        <div class="flex items-center gap-3 px-5 py-5 text-sm text-slate-600"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i data-lucide="circle-check" class="h-5 w-5"></i></span><span><span class="font-semibold text-slate-900">All caught up.</span> There are no urgent procurement or inventory issues right now.</span></div>
         @else
-            <div class="grid divide-y divide-slate-100 md:grid-cols-2 md:divide-x md:divide-y-0 xl:grid-cols-4">
-                @foreach ($attentionItems as $attention)
-                <a href="{{ $attention['href'] }}" class="dashboard-action flex min-w-0 gap-3 p-4"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset {{ $attentionTone[$attention['tone']] }}"><i data-lucide="{{ $attention['icon'] }}" class="h-5 w-5"></i></span><span class="min-w-0"><span class="block text-sm font-semibold text-slate-900"><span class="text-slate-900">{{ $attention['count'] }}</span> {{ $attention['label'] }}</span><span class="mt-0.5 block text-xs leading-snug text-slate-500">{{ $attention['detail'] }}</span><span class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-600">{{ $attention['action'] }} <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span></span></a>
-                @endforeach
-            </div>
+        <div class="grid divide-y divide-slate-100 md:grid-cols-2 md:divide-x md:divide-y-0 xl:grid-cols-4">
+            @foreach ($attentionItems as $attention)
+            <a href="{{ $attention['href'] }}" class="dashboard-action flex min-w-0 gap-3 p-4"><span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-inset {{ $attentionTone[$attention['tone']] }}"><i data-lucide="{{ $attention['icon'] }}" class="h-5 w-5"></i></span><span class="min-w-0"><span class="block text-sm font-semibold text-slate-900"><span class="text-slate-900">{{ $attention['count'] }}</span> {{ $attention['label'] }}</span><span class="mt-0.5 block text-xs leading-snug text-slate-500">{{ $attention['detail'] }}</span><span class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-600">{{ $attention['action'] }} <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span></span></a>
+            @endforeach
+        </div>
         @endif
     </section>
 
@@ -106,7 +109,7 @@
         <x-stat-card title="Pending GE Orders" :value="$pendingOrders" icon="file-clock" icon-color="amber" />
         <x-stat-card title="GE Orders — Approved Status" :value="$approvedOrders" icon="file-check-2" icon-color="emerald" />
         <x-stat-card title="Awaiting Receipt" :value="$awaitingReceipt" icon="truck" icon-color="sky" />
-        <x-stat-card title="Low Stock Items" :value="$lowStockItems" icon="alert-triangle" icon-color="rose"  />
+        <x-stat-card title="Low Stock Items" :value="$lowStockItems" icon="alert-triangle" icon-color="rose" />
         <x-stat-card title="Inventory Items" :value="$totalInventoryItems" icon="boxes" icon-color="brand" />
     </div>
 
@@ -166,7 +169,7 @@
                     </tbody>
                 </table>
                 @if ($recentOrders->isEmpty())
-                    <p class="px-5 py-4 text-sm text-slate-500">No GE orders have been created yet.</p>
+                <p class="px-5 py-4 text-sm text-slate-500">No GE orders have been created yet.</p>
                 @endif
 
                 {{-- Mobile card layout --}}
@@ -288,7 +291,12 @@
     {{-- Procurement Workflow Visualization                            --}}
     {{-- ============================================================= --}}
     <details class="mt-6 card group">
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5"><div><h3 class="text-base font-semibold text-slate-900">Procurement workflow</h3><p class="mt-0.5 text-sm text-slate-500">Reference the GE Order lifecycle when needed.</p></div><i data-lucide="chevron-down" class="h-5 w-5 text-slate-400 transition-transform duration-150 group-open:rotate-180"></i></summary>
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5">
+            <div>
+                <h3 class="text-base font-semibold text-slate-900">Procurement workflow</h3>
+                <p class="mt-0.5 text-sm text-slate-500">Reference the GE Order lifecycle when needed.</p>
+            </div><i data-lucide="chevron-down" class="h-5 w-5 text-slate-400 transition-transform duration-150 group-open:rotate-180"></i>
+        </summary>
         <div class="grid grid-cols-1 gap-6 border-t border-slate-200 p-5 lg:grid-cols-2">
 
             {{-- STOCK workflow --}}
@@ -371,7 +379,7 @@
                 </div>
                 @endforeach
                 @if ($inventoryMovements->isEmpty())
-                    <p class="px-4 py-5 text-sm text-slate-500">No inventory movements have been recorded yet.</p>
+                <p class="px-4 py-5 text-sm text-slate-500">No inventory movements have been recorded yet.</p>
                 @endif
             </div>
         </section>
@@ -454,7 +462,12 @@
 
         {{-- Module Overview --}}
         <details class="card xl:col-span-2 group">
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5"><div><h3 class="text-base font-semibold text-slate-900">System modules</h3><p class="mt-0.5 text-sm text-slate-500">Browse the full MCS Purchasing &amp; Inventory System.</p></div><i data-lucide="chevron-down" class="h-5 w-5 text-slate-400 transition-transform duration-150 group-open:rotate-180"></i></summary>
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5">
+                <div>
+                    <h3 class="text-base font-semibold text-slate-900">System modules</h3>
+                    <p class="mt-0.5 text-sm text-slate-500">Browse the full MCS Purchasing &amp; Inventory System.</p>
+                </div><i data-lucide="chevron-down" class="h-5 w-5 text-slate-400 transition-transform duration-150 group-open:rotate-180"></i>
+            </summary>
             <div class="grid grid-cols-1 gap-px border-t border-slate-200 bg-slate-200 sm:grid-cols-2 lg:grid-cols-3">
 
                 @php
@@ -549,7 +562,7 @@
                         :time="$activity->time" />
                     @endforeach
                     @if ($recentActivity->isEmpty())
-                        <p class="pl-1 text-sm text-slate-500">No recent activity to show.</p>
+                    <p class="pl-1 text-sm text-slate-500">No recent activity to show.</p>
                     @endif
                 </div>
             </section>
