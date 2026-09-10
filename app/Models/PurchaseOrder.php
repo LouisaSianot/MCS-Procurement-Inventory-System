@@ -7,16 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\UsesV4TableName;
 
 class PurchaseOrder extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use UsesV4TableName;
+
+    protected $table = 'purchase_orders';
 
     protected $fillable = [
-        'po_number', 'ge_order_id', 'supplier_id', 'branch_id', 'user_id',
-        'order_date', 'expected_delivery_date', 'notes', 'status',
-        'total_amount', 'ordered_at',
+        'po_number',
+        'ge_order_id',
+        'supplier_id',
+        'branch_id',
+        'user_id',
+        'order_date',
+        'expected_delivery_date',
+        'notes',
+        'status',
+        'total_amount',
+        'ordered_at',
     ];
 
     protected $casts = [
@@ -75,6 +87,6 @@ class PurchaseOrder extends Model
 
     public static function generateNumber(): string
     {
-        return 'PO-'.str_pad((string) ((int) static::withTrashed()->max('id') + 1), 5, '0', STR_PAD_LEFT);
+        return 'PO-' . str_pad((string) ((int) static::withTrashed()->max('id') + 1), 5, '0', STR_PAD_LEFT);
     }
 }

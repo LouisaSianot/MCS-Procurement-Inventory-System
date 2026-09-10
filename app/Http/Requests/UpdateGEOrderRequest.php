@@ -2,6 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Branch;
+use App\Models\Item;
+use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,16 +25,16 @@ class UpdateGEOrderRequest extends FormRequest
         return [
             'inventory_flag' => ['required', Rule::in(['STOCK', 'NON-STOCK'])],
             'po_number'      => ['nullable', 'string', 'max:50'],
-            'supplier_id'    => ['required', 'exists:suppliers,id'],
-            'user_id'        => ['required', 'exists:users,id'],
+            'supplier_id'    => ['required', Rule::exists((new Supplier)->getTable(), 'id')],
+            'user_id'        => ['required', Rule::exists((new User)->getTable(), 'id')],
             'order_date'     => ['required', 'date'],
-            'branch_id'      => ['required', 'exists:branches,id'],
+            'branch_id'      => ['required', Rule::exists((new Branch)->getTable(), 'id')],
             'account_code'   => ['required', 'string', 'max:50'],
             'description'    => ['required', 'string', 'max:500'],
             'notes'          => ['nullable', 'string', 'max:2000'],
             'action'         => ['required', Rule::in(['save_draft', 'submit'])],
             'items'          => ['required', 'array', 'min:1'],
-            'items.*.item_id'      => ['nullable', 'integer', 'exists:items,id'],
+            'items.*.item_id'      => ['nullable', 'integer', Rule::exists((new Item)->getTable(), 'id')],
             'items.*.item_id_text' => ['nullable', 'string', 'max:100'],
             'items.*.description'  => ['required', 'string', 'max:255'],
             'items.*.unit'         => ['nullable', 'string', 'max:30'],

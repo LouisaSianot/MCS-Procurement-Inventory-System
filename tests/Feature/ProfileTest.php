@@ -9,7 +9,11 @@ test('profile page is displayed', function () {
         ->actingAs($user)
         ->get('/profile');
 
-    $response->assertOk();
+    $response
+        ->assertOk()
+        ->assertSee('Profile settings')
+        ->assertSee('Log out')
+        ->assertSee('action="' . route('logout') . '"', false);
 });
 
 test('profile information can be updated', function () {

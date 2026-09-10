@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Branch;
+use App\Models\Supplier;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ReportFilterRequest extends FormRequest
 {
@@ -16,8 +19,8 @@ class ReportFilterRequest extends FormRequest
         return [
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
-            'branch_id' => ['nullable', 'integer', 'exists:branches,id'],
-            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
+            'branch_id' => ['nullable', 'integer', Rule::exists((new Branch)->getTable(), 'id')],
+            'supplier_id' => ['nullable', 'integer', Rule::exists((new Supplier)->getTable(), 'id')],
         ];
     }
 }

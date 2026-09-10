@@ -6,9 +6,6 @@
         <span class="sr-only">Open menu</span>
     </button>
 
-    {{-- Page title --}}
-    <h1 class="text-lg font-semibold text-slate-900 sm:text-xl">{{ $title ?? 'Dashboard' }}</h1>
-
     {{-- Search (hidden on small screens) --}}
     <div class="relative ml-auto hidden md:block">
         <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
@@ -32,8 +29,13 @@
 
     {{-- User avatar (quick dropdown trigger) --}}
     @auth
-    <div class="relative ml-2">
-        <button type="button" class="flex items-center gap-2 rounded-lg p-1 pr-2 transition-colors hover:bg-slate-100">
+    <div class="relative ml-2" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+        <button type="button"
+            class="flex items-center gap-2 rounded-lg p-1 pr-2 transition-colors hover:bg-slate-100"
+            aria-label="Open account menu"
+            aria-haspopup="menu"
+            :aria-expanded="open"
+            @click="open = !open">
             @php
             $initials = strtoupper(implode('', array_map(
             fn($w) => substr($w, 0, 1),
@@ -48,6 +50,39 @@
             </span>
             <i data-lucide="chevron-down" class="hidden h-4 w-4 text-slate-400 sm:block"></i>
         </button>
+
+        <div x-show="open"
+            x-transition:enter="transition duration-150 ease-out"
+            x-transition:enter-start="scale-95 opacity-0"
+            x-transition:enter-end="scale-100 opacity-100"
+            x-transition:leave="transition duration-100 ease-out"
+            x-transition:leave-start="scale-100 opacity-100"
+            x-transition:leave-end="scale-95 opacity-0"
+            class="absolute right-0 z-50 mt-2 w-52 origin-top-right rounded-lg bg-white py-1 shadow-lg ring-1 ring-slate-900/5"
+            role="menu"
+            style="display: none;">
+            <div class="border-b border-slate-100 px-4 py-3">
+                <p class="truncate text-sm font-semibold text-slate-800">{{ Auth::user()->name }}</p>
+                <p class="truncate text-xs text-slate-500">{{ Auth::user()->email }}</p>
+            </div>
+            <a href="{{ route('profile.edit') }}"
+                class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                role="menuitem"
+                @click="open = false">
+                <i data-lucide="user-round" class="h-4 w-4 text-slate-400"></i>
+                <span>Profile settings</span>
+            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit"
+                    @click="open = false"
+                    class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                    role="menuitem">
+                    <i data-lucide="log-out" class="h-4 w-4 text-slate-400"></i>
+                    <span>Log out</span>
+                </button>
+            </form>
+        </div>
     </div>
     @else
     <div class="relative ml-2">

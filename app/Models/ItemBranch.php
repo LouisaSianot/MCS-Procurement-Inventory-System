@@ -6,10 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Concerns\UsesV4TableName;
 
 class ItemBranch extends Model
 {
     use HasFactory;
+    use UsesV4TableName;
+
+    protected $table = 'item_branches';
 
     public const STATUS_IN_STOCK = 'in_stock';
     public const STATUS_LOW_STOCK = 'low_stock';
