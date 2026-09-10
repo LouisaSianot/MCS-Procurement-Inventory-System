@@ -42,6 +42,7 @@ function initSidebar() {
     const closeBtn = document.getElementById('sidebar-close');
     const sidebar = document.getElementById('sidebar');
     const collapseBtn = document.getElementById('sidebar-collapse');
+    const collapseIcon = collapseBtn?.querySelector('svg');
     const appShell = document.getElementById('app-shell');
 
     if (!sidebar) {
@@ -75,6 +76,7 @@ function initSidebar() {
 
         sidebar.classList.toggle('lg:w-64', !isCollapsed);
         sidebar.classList.toggle('collapsed', isCollapsed);
+        collapseIcon?.classList.toggle('rotate-180', isCollapsed);
 
         appShell?.classList.toggle(
             'lg:pl-20',
