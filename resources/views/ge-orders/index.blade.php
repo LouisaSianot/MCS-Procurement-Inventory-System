@@ -44,7 +44,7 @@
             @can('create', App\Models\GEOrder::class)
             <a href="{{ route('ge-orders.create') }}" class="btn btn-primary">
                 <i data-lucide="plus" class="h-4 w-4"></i>
-                Create GE Order
+
             </a>
             @endcan
         </x-slot>
