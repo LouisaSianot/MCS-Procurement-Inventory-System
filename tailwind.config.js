@@ -1,6 +1,20 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
+const warmPalette = {
+    50: '#F3EDE3',
+    100: '#EEE5DA',
+    200: '#D8C9B8',
+    300: '#B5A496',
+    400: '#927D72',
+    500: '#735D57',
+    600: '#5A2022',
+    700: '#4A1C1E',
+    800: '#351719',
+    900: '#351719',
+    950: '#351719',
+};
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -17,25 +31,29 @@ export default {
     ],
 
     theme: {
+        colors: {
+            transparent: 'transparent',
+            current: 'currentColor',
+            inherit: 'inherit',
+            brand: warmPalette,
+            slate: warmPalette,
+            gray: warmPalette,
+            red: warmPalette,
+            rose: warmPalette,
+            amber: warmPalette,
+            yellow: warmPalette,
+            emerald: warmPalette,
+            green: warmPalette,
+            sky: warmPalette,
+            blue: warmPalette,
+            indigo: warmPalette,
+            violet: warmPalette,
+            white: '#F3EDE3',
+            black: '#351719',
+        },
         extend: {
             fontFamily: {
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
-            },
-
-            colors: {
-                brand: {
-                    50: '#eff6ff',
-                    100: '#dbeafe',
-                    200: '#bfdbfe',
-                    300: '#93c5fd',
-                    400: '#60a5fa',
-                    500: '#3b82f6',
-                    600: '#2563eb',
-                    700: '#1d4ed8',
-                    800: '#1e40af',
-                    900: '#1e3a8a',
-                    950: '#172554',
-                },
             },
 
             boxShadow: {

@@ -20,6 +20,8 @@ class ReportsService
         $monthExpression = $this->monthExpression();
         $orderTable = (new PurchaseOrder)->getTable();
         $supplierTable = (new Supplier)->getTable();
+        $orderId = $this->wrapIdentifier($orderTable . '.id');
+        $orderTotal = $this->wrapIdentifier($orderTable . '.total_amount');
 
         return [
             'procurementOverview' => (clone $purchaseOrders)
@@ -47,8 +49,8 @@ class ReportsService
             'supplierSummary' => (clone $purchaseOrders)
                 ->join($supplierTable, $supplierTable . '.id', '=', $orderTable . '.supplier_id')
                 ->select($supplierTable . '.id', $supplierTable . '.name')
-                ->selectRaw('COUNT(' . $orderTable . '.id) AS purchase_order_count')
-                ->selectRaw('COALESCE(SUM(' . $orderTable . '.total_amount), 0) AS procurement_value')
+                ->selectRaw("COUNT({$orderId}) AS purchase_order_count")
+                ->selectRaw("COALESCE(SUM({$orderTotal}), 0) AS procurement_value")
                 ->groupBy($supplierTable . '.id', $supplierTable . '.name')
                 ->orderByDesc('procurement_value')
                 ->orderBy($supplierTable . '.name')
@@ -98,15 +100,16 @@ class ReportsService
     {
         $orderTable = (new PurchaseOrder)->getTable();
         $itemTable = (new \App\Models\Item)->getTable();
+        $itemDescription = $this->wrapIdentifier($itemTable . '.description');
 
         return $this->filteredPurchaseOrders($filters)
             ->join('purchase_order_items', 'purchase_order_items.purchase_order_id', '=', $orderTable . '.id')
             ->leftJoin($itemTable, $itemTable . '.id', '=', 'purchase_order_items.item_id')
-            ->selectRaw('COALESCE(' . $itemTable . '.description, purchase_order_items.description) AS item_name')
+            ->selectRaw("COALESCE({$itemDescription}, purchase_order_items.description) AS item_name")
             ->selectRaw('MAX(purchase_order_items.unit) AS unit')
             ->selectRaw('COALESCE(SUM(purchase_order_items.quantity), 0) AS quantity_ordered')
             ->selectRaw('COALESCE(SUM(purchase_order_items.total), 0) AS procurement_value')
-            ->groupByRaw('COALESCE(' . $itemTable . '.description, purchase_order_items.description)')
+            ->groupByRaw("COALESCE({$itemDescription}, purchase_order_items.description)")
             ->orderByDesc('procurement_value')
             ->orderBy('item_name')
             ->limit(10)
@@ -118,5 +121,10 @@ class ReportsService
         return DB::connection()->getDriverName() === 'pgsql'
             ? "DATE_TRUNC('month', order_date)::date"
             : "strftime('%Y-%m-01', order_date)";
+    }
+
+    private function wrapIdentifier(string $identifier): string
+    {
+        return DB::connection()->getQueryGrammar()->wrap($identifier);
     }
 }

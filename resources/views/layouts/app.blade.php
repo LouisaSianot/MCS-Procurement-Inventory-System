@@ -20,7 +20,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="h-full bg-slate-100 text-slate-800 antialiased">
+<body class="h-full bg-slate-50 text-slate-800 antialiased">
 
     <div class="flex min-h-full">
 

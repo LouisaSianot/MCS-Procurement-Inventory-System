@@ -10,6 +10,7 @@ use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class MasterDataController extends Controller
 {
@@ -86,7 +87,11 @@ class MasterDataController extends Controller
     private function itemData(Request $r): array
     {
         $data = $r->validate(["description" => ["required", "string", "max:255"], "uom" => ["required", "string", "max:30"], "category" => ["required", Rule::in(array_keys(self::CATEGORIES))], "sub_category" => ["required", "string"], "supplier_id" => ["required", Rule::exists((new Supplier)->getTable(), "id")]]);
-        if (! in_array($data["sub_category"], self::CATEGORIES[$data["category"]], true)) return validator([], [])->errors()->add("sub_category", "Select a sub-category that belongs to the selected category.")->throwResponse();
+        if (! in_array($data["sub_category"], self::CATEGORIES[$data["category"]], true)) {
+            throw ValidationException::withMessages([
+                "sub_category" => "Select a sub-category that belongs to the selected category.",
+            ]);
+        }
         $data["category"] = ucfirst(strtolower($data["category"]));
         return $data;
     }
