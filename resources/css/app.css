@@ -52,7 +52,7 @@
     }
 
     .nav-link[aria-current="page"] {
-        @apply bg-brand-50 text-brand-700 hover:bg-brand-50 hover:text-brand-700;
+        @apply bg-brand-50 text-brand-700 shadow-sm ring-1 ring-inset ring-brand-200 hover:bg-brand-50 hover:text-brand-700;
     }
 
     .nav-link[aria-current="page"] .nav-link-icon {

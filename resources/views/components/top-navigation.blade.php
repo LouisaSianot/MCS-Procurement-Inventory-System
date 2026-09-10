@@ -6,9 +6,6 @@
         <span class="sr-only">Open menu</span>
     </button>
 
-    {{-- Page title --}}
-    <h1 class="text-lg font-semibold text-slate-900 sm:text-xl">{{ $title ?? 'Dashboard' }}</h1>
-
     {{-- Search (hidden on small screens) --}}
     <div class="relative ml-auto hidden md:block">
         <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
