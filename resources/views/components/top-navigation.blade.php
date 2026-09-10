@@ -78,6 +78,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
+                    @click="open = false"
                     class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
                     role="menuitem">
                     <i data-lucide="log-out" class="h-4 w-4 text-slate-400"></i>

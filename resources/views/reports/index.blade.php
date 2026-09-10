@@ -65,6 +65,7 @@
                 <h2 id="status-heading" class="font-semibold text-slate-900">Purchase order status</h2>
             </div>
             @if ($statusBreakdown->isNotEmpty())
+            <x-table-section title="Purchase order status" :count="$statusBreakdown->count()" :open="true" hide-title>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -85,6 +86,7 @@
                     </tbody>
                 </table>
             </div>
+            </x-table-section>
             @else
             <x-empty-state icon="shopping-cart" title="No purchase orders found" message="No purchase orders match the selected filters." />
             @endif
@@ -95,6 +97,7 @@
                 <h2 id="activity-heading" class="font-semibold text-slate-900">Procurement activity</h2>
             </div>
             @if ($procurementActivity->isNotEmpty())
+            <x-table-section title="Procurement activity" :count="$procurementActivity->count()" :open="false" hide-title>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -115,6 +118,7 @@
                     </tbody>
                 </table>
             </div>
+            </x-table-section>
             @else
             <x-empty-state icon="calendar-days" title="No procurement activity" message="No dated purchase orders match the selected filters." />
             @endif
@@ -127,6 +131,7 @@
                 <h2 id="supplier-heading" class="font-semibold text-slate-900">Top suppliers</h2>
             </div>
             @if ($supplierSummary->isNotEmpty())
+            <x-table-section title="Top suppliers" :count="$supplierSummary->count()" :open="false" hide-title>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -147,6 +152,7 @@
                     </tbody>
                 </table>
             </div>
+            </x-table-section>
             @else
             <x-empty-state icon="truck" title="No supplier data" message="No supplier activity matches the selected filters." />
             @endif
@@ -157,6 +163,7 @@
                 <h2 id="items-heading" class="font-semibold text-slate-900">Most purchased items</h2>
             </div>
             @if ($itemPurchasingSummary->isNotEmpty())
+            <x-table-section title="Most purchased items" :count="$itemPurchasingSummary->count()" :open="false" hide-title>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -179,6 +186,7 @@
                     </tbody>
                 </table>
             </div>
+            </x-table-section>
             @else
             <x-empty-state icon="package" title="No item purchasing data" message="No purchase order lines match the selected filters." />
             @endif
@@ -203,6 +211,7 @@
             <p class="mt-1 text-sm text-slate-500">Current stock at or below the reorder level.</p>
         </div>
         @if ($lowStockItems->isNotEmpty())
+        <x-table-section title="Low stock" :count="$lowStockItems->count()" :open="true" hide-title>
         <div class="table-wrap">
             <table class="data-table">
                 <thead>
@@ -229,6 +238,7 @@
                 </tbody>
             </table>
         </div>
+        </x-table-section>
         @else
         <x-empty-state icon="check-circle-2" title="No low-stock items" message="No inventory records are currently at or below their reorder level." />
         @endif

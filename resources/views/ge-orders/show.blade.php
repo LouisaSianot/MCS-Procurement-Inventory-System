@@ -118,6 +118,7 @@
                     <h3 class="text-base font-semibold text-slate-900">Order Items</h3>
                     <span class="text-sm text-slate-500">{{ $order->items?->count() ?? 0 }} item(s)</span>
                 </div>
+                <x-table-section title="Order items" :count="$order->items?->count() ?? 0" :open="true" hide-title>
                 <div class="table-wrap">
                     <table class="data-table">
                         <thead>
@@ -152,6 +153,7 @@
                         </tfoot>
                     </table>
                 </div>
+                </x-table-section>
             </section>
 
             {{-- Rejection reason --}}

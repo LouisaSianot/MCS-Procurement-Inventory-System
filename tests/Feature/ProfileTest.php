@@ -12,6 +12,7 @@ test('profile page is displayed', function () {
     $response
         ->assertOk()
         ->assertSee('Profile settings')
+        ->assertSee('Log out')
         ->assertSee('action="' . route('logout') . '"', false);
 });
 

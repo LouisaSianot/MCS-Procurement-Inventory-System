@@ -149,6 +149,22 @@
         @apply border-b-0;
     }
 
+    .table-section {
+        @apply overflow-hidden;
+    }
+
+    .table-section > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .table-section-chevron {
+        @apply transition-transform duration-150;
+    }
+
+    .table-section:not([open]) .table-section-chevron {
+        transform: rotate(-90deg);
+    }
+
     @media (hover: hover) and (pointer: fine) {
         .nav-link:hover {
             @apply bg-slate-100 text-slate-900;

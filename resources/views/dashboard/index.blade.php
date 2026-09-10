@@ -127,6 +127,7 @@
                 </div>
                 <a href="{{ $safeRoute('ge-orders.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">View all</a>
             </div>
+            <x-table-section title="Recent GE orders" :count="$recentOrders->count()" :open="true" hide-title>
             <div class="table-wrap">
                 <table class="data-table hidden md:table">
                     <thead>
@@ -191,6 +192,7 @@
                     @endforeach
                 </div>
             </div>
+            </x-table-section>
         </section>
 
         {{-- Inventory Health --}}
@@ -244,6 +246,7 @@
             {{-- Low stock items table --}}
             <div class="border-t border-slate-200 p-5">
                 <h4 class="mb-3 text-sm font-semibold text-slate-900">Low Stock Items</h4>
+                <x-table-section title="Low stock items" :count="$lowStockTable->count()" :open="true" hide-title>
                 <div class="table-wrap">
                     <table class="data-table hidden sm:table">
                         <thead>
@@ -283,6 +286,7 @@
                         @endforeach
                     </div>
                 </div>
+                </x-table-section>
             </div>
         </section>
     </div>

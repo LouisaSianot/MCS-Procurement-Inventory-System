@@ -23,7 +23,7 @@
         </form>
 
         @if ($inventory->isNotEmpty())
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>UOM</th><th>Category</th><th>Branch</th><th>Location</th><th class="text-right">Current Stock</th><th class="text-right">Unit Cost</th><th class="text-right">Inventory Value</th><th>Reorder</th><th>Status</th><th class="text-right">Actions</th></tr></thead><tbody>
+        <x-table-section title="Inventory records" :count="$inventory->count()" :open="true"><div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>UOM</th><th>Category</th><th>Branch</th><th>Location</th><th class="text-right">Current Stock</th><th class="text-right">Unit Cost</th><th class="text-right">Inventory Value</th><th>Reorder</th><th>Status</th><th class="text-right">Actions</th></tr></thead><tbody>
             @foreach ($inventory as $itemBranch)
             <tr>
                 <td><a href="{{ route('inventory.show', $itemBranch) }}" class="font-medium text-brand-600 hover:text-brand-700">{{ $itemBranch->item->description }}</a><p class="mt-0.5 font-mono text-xs text-slate-400">Item #{{ $itemBranch->item_id }} · {{ $itemBranch->item->sub_category }}</p></td>
@@ -32,7 +32,7 @@
                 <td><span class="tabular-nums">{{ $itemBranch->reorder_level }}</span><p class="text-xs text-slate-400">Qty {{ $itemBranch->reorder_quantity }}</p></td><td><x-status-badge :status="$itemBranch->stockStatusLabel()" /></td><td class="text-right"><a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View item"><i data-lucide="eye" class="h-4 w-4"></i></a></td>
             </tr>
             @endforeach
-        </tbody></table></div>
+        </tbody></table></div></x-table-section>
         <div class="border-t border-slate-200 px-5 py-4">{{ $inventory->links() }}</div>
         @else
         <x-empty-state icon="boxes" title="No inventory records found" message="Inventory appears here when STOCK items are received through Purchase Receipts." />

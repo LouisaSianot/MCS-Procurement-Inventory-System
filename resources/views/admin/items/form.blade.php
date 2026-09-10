@@ -6,8 +6,8 @@
         @if($item->exists) @method('PUT') @endif
 
         <div class="grid gap-5 sm:grid-cols-2">
-            <x-form-field name="description" label="Item" :value="old('description', $item->description)" :errors="$errors" required />
-            <x-form-field name="uom" label="UOM" :value="old('uom', $item->uom)" :errors="$errors" required />
+            <x-form-field name="description" label="Item" :value="old('description', $item->description)" :errors="$errors" placeholder="e.g. A4 copy paper" required />
+            <x-form-field name="uom" label="UOM" :value="old('uom', $item->uom)" :errors="$errors" placeholder="e.g. ream, box, or unit" required />
             <x-form-field name="category" label="Category" type="select" :errors="$errors" required>
                 <option value="">Select category</option>
                 @foreach($categories as $category => $subcategories)

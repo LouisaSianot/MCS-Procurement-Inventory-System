@@ -10,7 +10,8 @@
             <p class="mt-0.5 text-sm text-slate-500">Each GE Order can have one Purchase Order.</p>
         </div>
         @if ($eligibleOrders->isEmpty())<x-empty-state icon="file-check-2" title="No GE Orders are ready" message="An approved GE Order without a Purchase Order is required before procurement can begin." />
-        @else <div class="table-wrap">
+        @else <x-table-section title="Eligible GE orders" description="Choose an approved order to start procurement." :count="$eligibleOrders->count()" :open="true">
+            <div class="table-wrap">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -29,7 +30,8 @@
                         <td class="text-right"><a href="{{ route('procurement.create', ['ge_order_id' => $geOrder->id]) }}" class="btn btn-primary py-2">Select</a></td>
                     </tr>@endforeach</tbody>
             </table>
-        </div>@endif
+            </div>
+        </x-table-section>@endif
     </section>
     @else
     <form method="POST" action="{{ route('procurement.store') }}">@csrf<input type="hidden" name="ge_order_id" value="{{ $selectedGEOrder->id }}">
@@ -39,7 +41,7 @@
                 <p class="mt-0.5 text-sm text-slate-500">Supplier, branch, and line items are copied from {{ $selectedGEOrder->order_number }}.</p>
             </div>
             <div class="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3">
-                <x-form-field name="po_number" label="PO Number" :value="old('po_number', $poNumber)" :errors="$errors" required />
+                <x-form-field name="po_number" label="PO Number" :value="old('po_number', $poNumber)" :errors="$errors" placeholder="e.g. PO-2026-001" required />
                 <x-form-field name="order_date" label="Order Date" type="date" :value="old('order_date', $defaultDate)" :errors="$errors" required />
                 <x-form-field name="expected_delivery_date" label="Expected Delivery" type="date" :value="old('expected_delivery_date')" :errors="$errors" />
                 <div>
@@ -58,9 +60,7 @@
             </div>
         </section>
         <section class="card animate-fade-in mt-6">
-            <div class="border-b border-slate-200 p-5">
-                <h3 class="text-base font-semibold text-slate-900">Source line items</h3>
-            </div>
+            <x-table-section title="Source line items" description="Items copied from the selected GE order." :count="$selectedGEOrder->items->count()" :open="true">
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -81,6 +81,7 @@
                         </tr>@endforeach</tbody>
                 </table>
             </div>
+            </x-table-section>
             <div class="border-t border-slate-200 p-5 text-right">
                 <p class="text-sm text-slate-500">Purchase Order Total</p>
                 <p class="mt-1 text-2xl font-bold text-slate-900">K {{ number_format((float) $selectedGEOrder->total_amount, 2) }}</p>
