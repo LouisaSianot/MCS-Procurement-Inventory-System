@@ -28,7 +28,7 @@
         <x-sidebar :user="auth()->user()" />
 
         {{-- Main application area --}}
-        <div class="flex min-h-full w-full flex-col lg:pl-64">
+        <div id="app-shell" class="flex min-h-full w-full flex-col lg:pl-64">
 
             {{-- Top navigation --}}
             <x-top-navigation :title="$title ?? 'Dashboard'" />

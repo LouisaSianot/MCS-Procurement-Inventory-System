@@ -42,6 +42,7 @@ function initSidebar() {
     const closeBtn = document.getElementById('sidebar-close');
     const sidebar = document.getElementById('sidebar');
     const collapseBtn = document.getElementById('sidebar-collapse');
+    const appShell = document.getElementById('app-shell');
 
     if (!sidebar) {
         return;
@@ -75,12 +76,12 @@ function initSidebar() {
         sidebar.classList.toggle('lg:w-64', !isCollapsed);
         sidebar.classList.toggle('collapsed', isCollapsed);
 
-        document.body.classList.toggle(
+        appShell?.classList.toggle(
             'lg:pl-20',
             isCollapsed
         );
 
-        document.body.classList.toggle(
+        appShell?.classList.toggle(
             'lg:pl-64',
             !isCollapsed
         );
