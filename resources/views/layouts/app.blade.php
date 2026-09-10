@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 @php
-    $routeName = request()->route()?->getName() ?? '';
-    $pageTitle = $title ?? match (true) {
-        str_starts_with($routeName, 'ge-orders') => 'GE Orders',
-        str_starts_with($routeName, 'procurement') => 'Purchase Orders',
-        str_starts_with($routeName, 'receiving') => 'Receiving',
-        str_starts_with($routeName, 'inventory') => 'Inventory',
-        str_starts_with($routeName, 'reports') => 'Reports',
-        str_starts_with($routeName, 'admin.suppliers') => 'Suppliers',
-        str_starts_with($routeName, 'admin.items') => 'Items',
-        str_starts_with($routeName, 'admin.users') || str_starts_with($routeName, 'admin.roles') => 'Users & roles',
-        default => 'Dashboard',
-    };
+$routeName = request()->route()?->getName() ?? '';
+$pageTitle = $title ?? match (true) {
+str_starts_with($routeName, 'ge-orders') => 'GE Orders',
+str_starts_with($routeName, 'procurement') => 'Purchase Orders',
+str_starts_with($routeName, 'receiving') => 'Receiving',
+str_starts_with($routeName, 'inventory') => 'Inventory',
+str_starts_with($routeName, 'reports') => 'Reports',
+str_starts_with($routeName, 'admin.suppliers') => 'Suppliers',
+str_starts_with($routeName, 'admin.items') => 'Items',
+str_starts_with($routeName, 'admin.users') || str_starts_with($routeName, 'admin.roles') => 'Users & roles',
+default => 'Dashboard',
+};
 @endphp
 
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
