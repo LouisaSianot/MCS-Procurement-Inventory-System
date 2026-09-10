@@ -11,6 +11,9 @@ class InventoryMovement extends Model
     use HasFactory;
 
     public const TYPE_RECEIPT = 'receipt';
+    public const TYPE_ISSUE = 'issue';
+    public const TYPE_ADJUST_IN = 'adjust_in';
+    public const TYPE_ADJUST_OUT = 'adjust_out';
 
     protected $fillable = ['item_branch_id', 'purchase_receipt_item_id', 'type', 'quantity', 'unit_cost', 'stock_after'];
 
