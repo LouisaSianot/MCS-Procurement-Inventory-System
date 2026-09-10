@@ -37,19 +37,19 @@
             </a>
             @endif
             @if (($order->status ?? null) === \App\Models\GEOrder::STATUS_APPROVED)
-                @if ($order->purchaseOrder)
-                <a href="{{ route('procurement.show', $order->purchaseOrder) }}" class="btn btn-primary">
-                    <i data-lucide="shopping-cart" class="h-4 w-4"></i>
-                    View Purchase Order
-                </a>
-                @else
-                    @can('create', \App\Models\PurchaseOrder::class)
-                    <a href="{{ route('procurement.create', ['ge_order_id' => $order->id]) }}" class="btn btn-primary">
-                        <i data-lucide="shopping-cart" class="h-4 w-4"></i>
-                        Create Purchase Order
-                    </a>
-                    @endcan
-                @endif
+            @if ($order->purchaseOrder)
+            <a href="{{ route('procurement.show', $order->purchaseOrder) }}" class="btn btn-primary">
+                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                View Purchase Order
+            </a>
+            @else
+            @can('create', \App\Models\PurchaseOrder::class)
+            <a href="{{ route('procurement.create', ['ge_order_id' => $order->id]) }}" class="btn btn-primary">
+                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                Create Purchase Order
+            </a>
+            @endcan
+            @endif
             @endif
         </x-slot>
     </x-page-header>
@@ -119,40 +119,40 @@
                     <span class="text-sm text-slate-500">{{ $order->items?->count() ?? 0 }} item(s)</span>
                 </div>
                 <x-table-section title="Order items" :count="$order->items?->count() ?? 0" :open="true" hide-title>
-                <div class="table-wrap">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Item ID</th>
-                                <th>UOM</th>
-                                <th class="text-right">Quantity</th>
-                                <th class="text-right">Unit Price</th>
-                                <th class="text-right">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (($order->items ?? collect()) as $item)
-                            <tr>
-                                <td class="font-medium text-slate-900">{{ $item->description ?? $item->item?->name ?? '—' }}</td>
-                                <td class="font-mono text-xs text-slate-500">{{ $item->item_id ?? '—' }}</td>
-                                <td class="text-slate-500">{{ $item->unit ?? '—' }}</td>
-                                <td class="text-right tabular-nums">{{ number_format((float)$item->quantity, 2) }}</td>
-                                <td class="text-right tabular-nums">{{ is_object($item->unit_price) ? 'K '.$item->unit_price->format(2) : 'K '.number_format((float)$item->unit_price, 2) }}</td>
-                                <td class="text-right font-medium tabular-nums">{{ is_object($item->total) ? 'K '.$item->total->format(2) : 'K '.number_format((float)$item->total, 2) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="5" class="px-4 py-3 text-right text-sm font-semibold text-slate-700">Order Total</td>
-                                <td class="px-4 py-3 text-right text-base font-bold tabular-nums text-slate-900">
-                                    {{ is_object($order->total_amount) ? 'K '.$order->total_amount->format(2) : 'K '.number_format((float)($order->total_amount ?? 0), 2) }}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Item ID</th>
+                                    <th>UOM</th>
+                                    <th class="text-right">Quantity</th>
+                                    <th class="text-right">Unit Price</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (($order->items ?? collect()) as $item)
+                                <tr>
+                                    <td class="font-medium text-slate-900">{{ $item->description ?? $item->item?->name ?? '—' }}</td>
+                                    <td class="font-mono text-xs text-slate-500">{{ $item->item_id ?? '—' }}</td>
+                                    <td class="text-slate-500">{{ $item->unit ?? '—' }}</td>
+                                    <td class="text-right tabular-nums">{{ number_format((float)$item->quantity, 2) }}</td>
+                                    <td class="text-right tabular-nums">{{ is_object($item->unit_price) ? 'K '.$item->unit_price->format(2) : 'K '.number_format((float)$item->unit_price, 2) }}</td>
+                                    <td class="text-right font-medium tabular-nums">{{ is_object($item->total) ? 'K '.$item->total->format(2) : 'K '.number_format((float)$item->total, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="px-4 py-3 text-right text-sm font-semibold text-slate-700">Order Total</td>
+                                    <td class="px-4 py-3 text-right text-base font-bold tabular-nums text-slate-900">
+                                        {{ is_object($order->total_amount) ? 'K '.$order->total_amount->format(2) : 'K '.number_format((float)($order->total_amount ?? 0), 2) }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </x-table-section>
             </section>
 

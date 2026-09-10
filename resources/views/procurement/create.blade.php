@@ -12,24 +12,24 @@
         @if ($eligibleOrders->isEmpty())<x-empty-state icon="file-check-2" title="No GE Orders are ready" message="An approved GE Order without a Purchase Order is required before procurement can begin." />
         @else <x-table-section title="Eligible GE orders" description="Choose an approved order to start procurement." :count="$eligibleOrders->count()" :open="true">
             <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>GE Order</th>
-                        <th>Supplier</th>
-                        <th>Description</th>
-                        <th class="text-right">Amount</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>@foreach ($eligibleOrders as $geOrder)<tr>
-                        <td class="font-mono text-xs font-semibold text-brand-600">{{ $geOrder->order_number }}</td>
-                        <td>{{ $geOrder->supplier->name }}</td>
-                        <td class="max-w-sm truncate text-slate-600">{{ $geOrder->description }}</td>
-                        <td class="text-right font-medium tabular-nums">K {{ number_format((float) $geOrder->total_amount, 2) }}</td>
-                        <td class="text-right"><a href="{{ route('procurement.create', ['ge_order_id' => $geOrder->id]) }}" class="btn btn-primary py-2">Select</a></td>
-                    </tr>@endforeach</tbody>
-            </table>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>GE Order</th>
+                            <th>Supplier</th>
+                            <th>Description</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>@foreach ($eligibleOrders as $geOrder)<tr>
+                            <td class="font-mono text-xs font-semibold text-brand-600">{{ $geOrder->order_number }}</td>
+                            <td>{{ $geOrder->supplier->name }}</td>
+                            <td class="max-w-sm truncate text-slate-600">{{ $geOrder->description }}</td>
+                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $geOrder->total_amount, 2) }}</td>
+                            <td class="text-right"><a href="{{ route('procurement.create', ['ge_order_id' => $geOrder->id]) }}" class="btn btn-primary py-2">Select</a></td>
+                        </tr>@endforeach</tbody>
+                </table>
             </div>
         </x-table-section>@endif
     </section>
@@ -61,26 +61,26 @@
         </section>
         <section class="card animate-fade-in mt-6">
             <x-table-section title="Source line items" description="Items copied from the selected GE order." :count="$selectedGEOrder->items->count()" :open="true">
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Unit</th>
-                            <th class="text-right">Quantity</th>
-                            <th class="text-right">Unit Price</th>
-                            <th class="text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>@foreach ($selectedGEOrder->items as $item)<tr>
-                            <td>{{ $item->description }}</td>
-                            <td>{{ $item->unit ?? '—' }}</td>
-                            <td class="text-right tabular-nums">{{ $item->quantity }}</td>
-                            <td class="text-right tabular-nums">K {{ number_format((float) $item->unit_price, 2) }}</td>
-                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->total, 2) }}</td>
-                        </tr>@endforeach</tbody>
-                </table>
-            </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Unit</th>
+                                <th class="text-right">Quantity</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>@foreach ($selectedGEOrder->items as $item)<tr>
+                                <td>{{ $item->description }}</td>
+                                <td>{{ $item->unit ?? '—' }}</td>
+                                <td class="text-right tabular-nums">{{ $item->quantity }}</td>
+                                <td class="text-right tabular-nums">K {{ number_format((float) $item->unit_price, 2) }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->total, 2) }}</td>
+                            </tr>@endforeach</tbody>
+                    </table>
+                </div>
             </x-table-section>
             <div class="border-t border-slate-200 p-5 text-right">
                 <p class="text-sm text-slate-500">Purchase Order Total</p>

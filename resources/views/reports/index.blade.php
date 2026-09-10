@@ -66,26 +66,26 @@
             </div>
             @if ($statusBreakdown->isNotEmpty())
             <x-table-section title="Purchase order status" :count="$statusBreakdown->count()" :open="true" hide-title>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th class="text-right">Purchase orders</th>
-                            <th class="text-right">Procurement value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($statusBreakdown as $status)
-                        <tr>
-                            <td><x-status-badge :status="$status->status" /></td>
-                            <td class="text-right tabular-nums">{{ $status->purchase_order_count }}</td>
-                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $status->procurement_value, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th class="text-right">Purchase orders</th>
+                                <th class="text-right">Procurement value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($statusBreakdown as $status)
+                            <tr>
+                                <td><x-status-badge :status="$status->status" /></td>
+                                <td class="text-right tabular-nums">{{ $status->purchase_order_count }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $status->procurement_value, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </x-table-section>
             @else
             <x-empty-state icon="shopping-cart" title="No purchase orders found" message="No purchase orders match the selected filters." />
@@ -98,26 +98,26 @@
             </div>
             @if ($procurementActivity->isNotEmpty())
             <x-table-section title="Procurement activity" :count="$procurementActivity->count()" :open="false" hide-title>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Month</th>
-                            <th class="text-right">Purchase orders</th>
-                            <th class="text-right">Procurement value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($procurementActivity as $activity)
-                        <tr>
-                            <td>{{ \Carbon\Carbon::parse($activity->month_start)->format('M Y') }}</td>
-                            <td class="text-right tabular-nums">{{ $activity->purchase_order_count }}</td>
-                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $activity->procurement_value, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-right">Purchase orders</th>
+                                <th class="text-right">Procurement value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($procurementActivity as $activity)
+                            <tr>
+                                <td>{{ \Carbon\Carbon::parse($activity->month_start)->format('M Y') }}</td>
+                                <td class="text-right tabular-nums">{{ $activity->purchase_order_count }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $activity->procurement_value, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </x-table-section>
             @else
             <x-empty-state icon="calendar-days" title="No procurement activity" message="No dated purchase orders match the selected filters." />
@@ -132,26 +132,26 @@
             </div>
             @if ($supplierSummary->isNotEmpty())
             <x-table-section title="Top suppliers" :count="$supplierSummary->count()" :open="false" hide-title>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Supplier</th>
-                            <th class="text-right">Purchase orders</th>
-                            <th class="text-right">Procurement value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($supplierSummary as $supplier)
-                        <tr>
-                            <td class="font-medium">{{ $supplier->name }}</td>
-                            <td class="text-right tabular-nums">{{ $supplier->purchase_order_count }}</td>
-                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $supplier->procurement_value, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Supplier</th>
+                                <th class="text-right">Purchase orders</th>
+                                <th class="text-right">Procurement value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($supplierSummary as $supplier)
+                            <tr>
+                                <td class="font-medium">{{ $supplier->name }}</td>
+                                <td class="text-right tabular-nums">{{ $supplier->purchase_order_count }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $supplier->procurement_value, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </x-table-section>
             @else
             <x-empty-state icon="truck" title="No supplier data" message="No supplier activity matches the selected filters." />
@@ -164,28 +164,28 @@
             </div>
             @if ($itemPurchasingSummary->isNotEmpty())
             <x-table-section title="Most purchased items" :count="$itemPurchasingSummary->count()" :open="false" hide-title>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>UOM</th>
-                            <th class="text-right">Quantity</th>
-                            <th class="text-right">Procurement value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($itemPurchasingSummary as $item)
-                        <tr>
-                            <td class="font-medium">{{ $item->item_name }}</td>
-                            <td>{{ $item->unit ?: '—' }}</td>
-                            <td class="text-right tabular-nums">{{ number_format((float) $item->quantity_ordered, 2) }}</td>
-                            <td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->procurement_value, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>UOM</th>
+                                <th class="text-right">Quantity</th>
+                                <th class="text-right">Procurement value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($itemPurchasingSummary as $item)
+                            <tr>
+                                <td class="font-medium">{{ $item->item_name }}</td>
+                                <td>{{ $item->unit ?: '—' }}</td>
+                                <td class="text-right tabular-nums">{{ number_format((float) $item->quantity_ordered, 2) }}</td>
+                                <td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->procurement_value, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </x-table-section>
             @else
             <x-empty-state icon="package" title="No item purchasing data" message="No purchase order lines match the selected filters." />
@@ -212,32 +212,32 @@
         </div>
         @if ($lowStockItems->isNotEmpty())
         <x-table-section title="Low stock" :count="$lowStockItems->count()" :open="true" hide-title>
-        <div class="table-wrap">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Branch</th>
-                        <th class="text-right">Current stock</th>
-                        <th class="text-right">Reorder level</th>
-                        <th class="text-right">Reorder quantity</th>
-                        <th class="text-right">Inventory value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($lowStockItems as $itemBranch)
-                    <tr>
-                        <td class="font-medium">{{ $itemBranch->item->description }}</td>
-                        <td>{{ $itemBranch->branchRecord->name }}</td>
-                        <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->current_stock, 2) }}</td>
-                        <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->reorder_level, 2) }}</td>
-                        <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->reorder_quantity, 2) }}</td>
-                        <td class="text-right font-medium tabular-nums">K {{ number_format($itemBranch->inventoryValue(), 2) }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Branch</th>
+                            <th class="text-right">Current stock</th>
+                            <th class="text-right">Reorder level</th>
+                            <th class="text-right">Reorder quantity</th>
+                            <th class="text-right">Inventory value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($lowStockItems as $itemBranch)
+                        <tr>
+                            <td class="font-medium">{{ $itemBranch->item->description }}</td>
+                            <td>{{ $itemBranch->branchRecord->name }}</td>
+                            <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->current_stock, 2) }}</td>
+                            <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->reorder_level, 2) }}</td>
+                            <td class="text-right tabular-nums">{{ number_format((float) $itemBranch->reorder_quantity, 2) }}</td>
+                            <td class="text-right font-medium tabular-nums">K {{ number_format($itemBranch->inventoryValue(), 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </x-table-section>
         @else
         <x-empty-state icon="check-circle-2" title="No low-stock items" message="No inventory records are currently at or below their reorder level." />

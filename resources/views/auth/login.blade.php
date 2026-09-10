@@ -20,12 +20,12 @@
                 <span>{{ __('Remember me') }}</span>
             </label>
             @if (Route::has('password.request'))
-                <a class="auth-link whitespace-nowrap" href="{{ route('password.request') }}">{{ __('Forgot your password?') }}</a>
+            <a class="auth-link whitespace-nowrap" href="{{ route('password.request') }}">{{ __('Forgot your password?') }}</a>
             @endif
         </div>
         <button type="submit" class="auth-button">{{ __('Log in') }}</button>
     </form>
     @if (Route::has('register'))
-        <p class="mt-7 text-center text-sm text-blue-100">New to MCS? <a class="auth-link" href="{{ route('register') }}">Create an account</a></p>
+    <p class="mt-7 text-center text-sm text-blue-100">New to MCS? <a class="auth-link" href="{{ route('register') }}">Create an account</a></p>
     @endif
 </x-guest-layout>

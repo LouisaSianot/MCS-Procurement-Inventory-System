@@ -128,70 +128,70 @@
                 <a href="{{ $safeRoute('ge-orders.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">View all</a>
             </div>
             <x-table-section title="Recent GE orders" :count="$recentOrders->count()" :open="true" hide-title>
-            <div class="table-wrap">
-                <table class="data-table hidden md:table">
-                    <thead>
-                        <tr>
-                            <th>GE Number</th>
-                            <th>Supplier</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th class="text-right">Total Cost</th>
-                            <th>Status</th>
-                            <th class="text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($recentOrders as $order)
-                        <tr>
-                            <td class="font-mono text-xs font-semibold text-slate-900">{{ $order->number }}</td>
-                            <td>{{ $order->supplier }}</td>
-                            <td>
-                                @if(strtoupper($order->type) === 'STOCK')
-                                <span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 ring-1 ring-inset ring-brand-200">
-                                    <i data-lucide="package" class="h-3 w-3"></i> STOCK
-                                </span>
-                                @else
-                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
-                                    <i data-lucide="file" class="h-3 w-3"></i> NON-STOCK
-                                </span>
-                                @endif
-                            </td>
-                            <td class="text-slate-500">{{ $order->date }}</td>
-                            <td class="text-right font-medium tabular-nums">{{ $order->amount }}</td>
-                            <td><x-status-badge :status="$order->status" /></td>
-                            <td class="text-right">
-                                <a href="{{ $safeRoute('ge-orders.show', $order->id ?? 1) }}" class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700">
-                                    View <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @if ($recentOrders->isEmpty())
-                <p class="px-5 py-4 text-sm text-slate-500">No GE orders have been created yet.</p>
-                @endif
+                <div class="table-wrap">
+                    <table class="data-table hidden md:table">
+                        <thead>
+                            <tr>
+                                <th>GE Number</th>
+                                <th>Supplier</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th class="text-right">Total Cost</th>
+                                <th>Status</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($recentOrders as $order)
+                            <tr>
+                                <td class="font-mono text-xs font-semibold text-slate-900">{{ $order->number }}</td>
+                                <td>{{ $order->supplier }}</td>
+                                <td>
+                                    @if(strtoupper($order->type) === 'STOCK')
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 ring-1 ring-inset ring-brand-200">
+                                        <i data-lucide="package" class="h-3 w-3"></i> STOCK
+                                    </span>
+                                    @else
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
+                                        <i data-lucide="file" class="h-3 w-3"></i> NON-STOCK
+                                    </span>
+                                    @endif
+                                </td>
+                                <td class="text-slate-500">{{ $order->date }}</td>
+                                <td class="text-right font-medium tabular-nums">{{ $order->amount }}</td>
+                                <td><x-status-badge :status="$order->status" /></td>
+                                <td class="text-right">
+                                    <a href="{{ $safeRoute('ge-orders.show', $order->id ?? 1) }}" class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700">
+                                        View <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    @if ($recentOrders->isEmpty())
+                    <p class="px-5 py-4 text-sm text-slate-500">No GE orders have been created yet.</p>
+                    @endif
 
-                {{-- Mobile card layout --}}
-                <div class="divide-y divide-slate-100 md:hidden">
-                    @foreach ($recentOrders as $order)
-                    <div class="p-4">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <p class="font-mono text-xs font-semibold text-slate-900">{{ $order->number }}</p>
-                                <p class="text-xs text-slate-500">{{ $order->supplier }} · {{ $order->date }}</p>
+                    {{-- Mobile card layout --}}
+                    <div class="divide-y divide-slate-100 md:hidden">
+                        @foreach ($recentOrders as $order)
+                        <div class="p-4">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <p class="font-mono text-xs font-semibold text-slate-900">{{ $order->number }}</p>
+                                    <p class="text-xs text-slate-500">{{ $order->supplier }} · {{ $order->date }}</p>
+                                </div>
+                                <x-status-badge :status="$order->status" />
                             </div>
-                            <x-status-badge :status="$order->status" />
+                            <div class="mt-2 flex items-center justify-between text-sm">
+                                <span class="text-slate-600">{{ $order->amount }}</span>
+                                <span class="text-xs font-semibold {{ strtoupper($order->type) === 'STOCK' ? 'text-brand-700' : 'text-slate-600' }}">{{ strtoupper($order->type) }}</span>
+                            </div>
                         </div>
-                        <div class="mt-2 flex items-center justify-between text-sm">
-                            <span class="text-slate-600">{{ $order->amount }}</span>
-                            <span class="text-xs font-semibold {{ strtoupper($order->type) === 'STOCK' ? 'text-brand-700' : 'text-slate-600' }}">{{ strtoupper($order->type) }}</span>
-                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
                 </div>
-            </div>
             </x-table-section>
         </section>
 
@@ -247,45 +247,45 @@
             <div class="border-t border-slate-200 p-5">
                 <h4 class="mb-3 text-sm font-semibold text-slate-900">Low Stock Items</h4>
                 <x-table-section title="Low stock items" :count="$lowStockTable->count()" :open="true" hide-title>
-                <div class="table-wrap">
-                    <table class="data-table hidden sm:table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th class="text-right">Current Stock</th>
-                                <th class="text-right">Reorder Level</th>
-                                <th>Location</th>
-                                <th class="text-right"><span class="sr-only">Action</span></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div class="table-wrap">
+                        <table class="data-table hidden sm:table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-right">Current Stock</th>
+                                    <th class="text-right">Reorder Level</th>
+                                    <th>Location</th>
+                                    <th class="text-right"><span class="sr-only">Action</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($lowStockTable as $item)
+                                <tr>
+                                    <td class="font-medium text-slate-900">{{ $item->name }}</td>
+                                    <td class="text-right tabular-nums text-rose-600 font-semibold">{{ $item->current_stock }}</td>
+                                    <td class="text-right tabular-nums text-slate-500">{{ $item->reorder_level }}</td>
+                                    <td class="text-slate-500">{{ $item->location }}</td>
+                                    <td class="text-right"><a href="{{ $safeRoute('inventory.show', ['itemBranch' => $item->id]) }}" class="text-sm font-semibold text-brand-600 hover:text-brand-700">Review<span class="sr-only"> {{ $item->name }}</span></a></td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        {{-- Mobile cards --}}
+                        <div class="space-y-2 sm:hidden">
                             @foreach ($lowStockTable as $item)
-                            <tr>
-                                <td class="font-medium text-slate-900">{{ $item->name }}</td>
-                                <td class="text-right tabular-nums text-rose-600 font-semibold">{{ $item->current_stock }}</td>
-                                <td class="text-right tabular-nums text-slate-500">{{ $item->reorder_level }}</td>
-                                <td class="text-slate-500">{{ $item->location }}</td>
-                                <td class="text-right"><a href="{{ $safeRoute('inventory.show', ['itemBranch' => $item->id]) }}" class="text-sm font-semibold text-brand-600 hover:text-brand-700">Review<span class="sr-only"> {{ $item->name }}</span></a></td>
-                            </tr>
+                            <div class="rounded-lg border border-slate-200 p-3">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-medium text-slate-900">{{ $item->name }}</p>
+                                    <span class="text-xs text-slate-500">{{ $item->location }}</span>
+                                </div>
+                                <div class="mt-1 flex items-center justify-between gap-3 text-sm">
+                                    <span><span class="font-semibold text-rose-600">{{ $item->current_stock }}</span><span class="text-slate-400"> / {{ $item->reorder_level }}</span><span class="ml-2 text-xs font-medium text-rose-600">{{ $item->shortfall }} below reorder</span></span>
+                                    <a href="{{ $safeRoute('inventory.show', ['itemBranch' => $item->id]) }}" class="font-semibold text-brand-600">Review</a>
+                                </div>
+                            </div>
                             @endforeach
-                        </tbody>
-                    </table>
-                    {{-- Mobile cards --}}
-                    <div class="space-y-2 sm:hidden">
-                        @foreach ($lowStockTable as $item)
-                        <div class="rounded-lg border border-slate-200 p-3">
-                            <div class="flex items-center justify-between">
-                                <p class="font-medium text-slate-900">{{ $item->name }}</p>
-                                <span class="text-xs text-slate-500">{{ $item->location }}</span>
-                            </div>
-                            <div class="mt-1 flex items-center justify-between gap-3 text-sm">
-                                <span><span class="font-semibold text-rose-600">{{ $item->current_stock }}</span><span class="text-slate-400"> / {{ $item->reorder_level }}</span><span class="ml-2 text-xs font-medium text-rose-600">{{ $item->shortfall }} below reorder</span></span>
-                                <a href="{{ $safeRoute('inventory.show', ['itemBranch' => $item->id]) }}" class="font-semibold text-brand-600">Review</a>
-                            </div>
                         </div>
-                        @endforeach
                     </div>
-                </div>
                 </x-table-section>
             </div>
         </section>
