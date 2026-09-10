@@ -383,41 +383,32 @@
                 <p class="mt-0.5 text-sm text-slate-500">Common workflows</p>
             </div>
             <div class="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 lg:grid-cols-1">
+                @can('ge-orders.create')
                 <a href="{{ $safeRoute('ge-orders.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-brand-300 hover:bg-brand-50/50">
                     <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-100"><i data-lucide="file-plus-2" class="h-4 w-4"></i></span>
                     <span class="text-sm font-medium text-slate-700 group-hover:text-brand-700">New GE Order</span>
                     <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-brand-500"></i>
                 </a>
-                <a href="{{ $safeRoute('suppliers.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-emerald-300 hover:bg-emerald-50/50">
+                @endcan
+                @can('manage-master-data')
+                <a href="{{ $safeRoute('admin.suppliers.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-emerald-300 hover:bg-emerald-50/50">
                     <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100"><i data-lucide="user-plus" class="h-4 w-4"></i></span>
                     <span class="text-sm font-medium text-slate-700 group-hover:text-emerald-700">Add Supplier</span>
                     <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-emerald-500"></i>
                 </a>
-                <a href="{{ $safeRoute('receiving.index') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-sky-300 hover:bg-sky-50/50">
+                <a href="{{ $safeRoute('admin.items.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-violet-300 hover:bg-violet-50/50">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600 group-hover:bg-violet-100"><i data-lucide="square-plus" class="h-4 w-4"></i></span>
+                    <span class="text-sm font-medium text-slate-700 group-hover:text-violet-700">Create Item</span>
+                    <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-violet-500"></i>
+                </a>
+                @endcan
+                @can('create', App\Models\PurchaseReceipt::class)
+                <a href="{{ $safeRoute('receiving.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-sky-300 hover:bg-sky-50/50">
                     <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600 group-hover:bg-sky-100"><i data-lucide="package-check" class="h-4 w-4"></i></span>
                     <span class="text-sm font-medium text-slate-700 group-hover:text-sky-700">Receive Purchase</span>
                     <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-sky-500"></i>
                 </a>
-                <a href="{{ $safeRoute('inventory.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-violet-300 hover:bg-violet-50/50">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-violet-600 group-hover:bg-violet-100"><i data-lucide="plus-box" class="h-4 w-4"></i></span>
-                    <span class="text-sm font-medium text-slate-700 group-hover:text-violet-700">Add Stock Item</span>
-                    <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-violet-500"></i>
-                </a>
-                <a href="{{ $safeRoute('inventory.issues.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-amber-300 hover:bg-amber-50/50">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100"><i data-lucide="minus-circle" class="h-4 w-4"></i></span>
-                    <span class="text-sm font-medium text-slate-700 group-hover:text-amber-700">Issue Stock</span>
-                    <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-amber-500"></i>
-                </a>
-                <a href="{{ $safeRoute('inventory.adjustments.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-rose-300 hover:bg-rose-50/50">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600 group-hover:bg-rose-100"><i data-lucide="sliders-horizontal" class="h-4 w-4"></i></span>
-                    <span class="text-sm font-medium text-slate-700 group-hover:text-rose-700">Stock Adjustment</span>
-                    <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-rose-500"></i>
-                </a>
-                <a href="{{ $safeRoute('assets.create') }}" class="dashboard-action group flex items-center gap-3 rounded-lg border border-slate-200 p-3 transition-[background-color,border-color,color,transform] duration-150 hover:border-brand-300 hover:bg-brand-50/50">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-100"><i data-lucide="package-plus" class="h-4 w-4"></i></span>
-                    <span class="text-sm font-medium text-slate-700 group-hover:text-brand-700">Register Asset</span>
-                    <i data-lucide="arrow-right" class="ml-auto h-4 w-4 text-slate-300 group-hover:text-brand-500"></i>
-                </a>
+                @endcan
             </div>
         </section>
 
