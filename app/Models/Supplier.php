@@ -13,7 +13,14 @@ class Supplier extends Model
 
     protected $table = 'suppliers';
 
+    public const ID_RANGE = [5001, 5999];
+
     protected $fillable = ['name', 'address', 'contact', 'payment_term', 'currency'];
+
+    public function getSupplierIDAttribute(): int
+    {
+        return (int) $this->getKey();
+    }
 
     public function items()
     {

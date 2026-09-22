@@ -15,6 +15,11 @@ class PurchaseReceipt extends Model
 
     protected $table = 'purchase_receipts';
 
+    public function getUserIDAttribute(): int
+    {
+        return (int) $this->received_by;
+    }
+
     protected $fillable = [
         'receipt_number',
         'purchase_order_id',
