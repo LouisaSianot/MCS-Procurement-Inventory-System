@@ -56,3 +56,14 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Sprint 1 v4 acceptance flow
+
+Data entry is accepted only when the operator selects valid `SupplierID`, `ItemID`,
+`BranchID`, and `UserID` records, enters non-negative quantities, and saves the
+GE Order as a draft or submits it for approval. Approved stock orders proceed to
+purchase order and receipt entry; receipt posting updates the matching
+`ItemBranch` (`ItemID` + `BranchID`) balance. Non-stock orders never create an
+inventory movement. Receipt, Issue, Adjustment, and Asset records must remain
+visible after entry, and a backorder must remain distinguishable from an
+ordinary ordered or received status.
