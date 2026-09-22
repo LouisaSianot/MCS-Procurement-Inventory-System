@@ -44,7 +44,7 @@
             @can('create', App\Models\GEOrder::class)
             <a href="{{ route('ge-orders.create') }}" class="btn btn-primary">
                 <i data-lucide="plus" class="h-4 w-4"></i>
-                Create GE Order
+
             </a>
             @endcan
         </x-slot>
@@ -94,34 +94,34 @@
 
         {{-- Filter bar --}}
         <form method="GET" action="{{ route('ge-orders.index') }}" class="border-b border-slate-200 p-5">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                <div class="relative xl:col-span-2">
+            <div class="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                <div class="relative min-w-0 xl:col-span-2">
                     <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
                     <input type="search" name="search" value="{{ $search }}"
                         placeholder="Search order #, description, supplier…"
-                        class="input pl-9">
+                        class="input min-w-0 pl-9">
                 </div>
-                <select name="status" class="input">
+                <select name="status" class="input min-w-0">
                     <option value="">All statuses</option>
                     @foreach (['draft' => 'Draft', 'pending' => 'Pending', 'approved' => 'Approved', 'rejected' => 'Rejected', 'cancelled' => 'Cancelled'] as $val => $lbl)
                     <option value="{{ $val }}" @if((string)$status===$val) selected @endif>{{ $lbl }}</option>
                     @endforeach
                 </select>
-                <select name="approval" class="input">
+                <select name="approval" class="input min-w-0">
                     <option value="">All approvals</option>
                     @foreach (['not submitted' => 'Not Submitted', 'pending approval' => 'Pending Approval', 'approved' => 'Approved', 'rejected' => 'Rejected'] as $val => $lbl)
                     <option value="{{ $val }}" @if((string)$approval===$val) selected @endif>{{ $lbl }}</option>
                     @endforeach
                 </select>
-                <select name="requester" class="input">
+                <select name="requester" class="input min-w-0">
                     <option value="">All requesters</option>
                     @foreach ($requesters as $r)
                     <option value="{{ $r->id }}" @if((string)$requester===(string)$r->id) selected @endif>{{ $r->name }}</option>
                     @endforeach
                 </select>
-                <div class="flex gap-2">
-                    <input type="date" name="from" value="{{ $from }}" class="input" placeholder="From" title="From date">
-                    <input type="date" name="to" value="{{ $to }}" class="input" placeholder="To" title="To date">
+                <div class="grid min-w-0 grid-cols-2 gap-2">
+                    <input type="date" name="from" value="{{ $from }}" class="input min-w-0" placeholder="From" title="From date">
+                    <input type="date" name="to" value="{{ $to }}" class="input min-w-0" placeholder="To date">
                 </div>
             </div>
             <div class="mt-3 flex items-center justify-between">

@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\UsesV4TableName;
 
 class Item extends Model
 {
     use HasFactory;
+    use UsesV4TableName;
+
+    protected $table = 'items';
 
     public const ID_RANGE = [1001, 1999];
 

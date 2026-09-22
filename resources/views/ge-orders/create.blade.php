@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">Create GE Order</h2>
+        <h2 class="text-xl font-semibold leading-tight text-gray-800"></h2>
     </x-slot>
 
     @php
@@ -60,8 +60,13 @@
     <x-page-header
         title="Create GE Order"
         description="Enter the order header and add line items as per quote."
-        :breadcrumbs="[['label' => 'GE Orders', 'url' => route('ge-orders.index')], ['label' => 'Create']]" />
-
+        :breadcrumbs="[['label' => 'GE Orders', 'url' => route('ge-orders.index')], ['label' => 'Create']]">
+        <x-slot name="actions">
+            <a href="{{ route('ge-orders.index') }}" class="btn btn-secondary" aria-label="Back to GE Orders" title="Back to GE Orders">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+            </a>
+        </x-slot>
+    </x-page-header>
     {{-- Validation error summary --}}
     @if ($errors->any())
     <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4">

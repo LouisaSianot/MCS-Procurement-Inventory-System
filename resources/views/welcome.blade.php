@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +13,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="h-full bg-white font-sans text-slate-800 antialiased">
 
     {{-- ===== Fixed top navigation bar ===== --}}
@@ -92,31 +94,31 @@
             {{-- Primary action buttons --}}
             <div class="mt-8 flex w-full flex-col items-center gap-3 animate-fade-in sm:w-auto sm:flex-row sm:gap-4">
                 <a href="{{ route('login') }}" class="btn btn-primary w-full px-6 py-3 text-base sm:w-auto">
-                    Log In to Dashboard
+                    Log In
                     <i data-lucide="arrow-right" class="h-4 w-4"></i>
                 </a>
                 <a href="{{ route('register') }}" class="btn btn-secondary w-full px-6 py-3 text-base sm:w-auto">
-                    Sign Up / Request Access
+                    Sign Up
                 </a>
             </div>
 
             {{-- Feature highlights --}}
             <div class="mt-16 grid w-full grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
                 @php
-                    $features = [
-                        ['icon' => 'file-text',     'title' => 'GE Orders',       'desc' => 'Create, submit, and track purchase requests through a multi-step approval workflow.'],
-                        ['icon' => 'boxes',         'title' => 'Inventory',        'desc' => 'Monitor stock and non-stock items with real-time quantity and movement tracking.'],
-                        ['icon' => 'package-check', 'title' => 'Procurement',      'desc' => 'Manage suppliers, purchase orders, and receiving all in one centralized system.'],
-                    ];
+                $features = [
+                ['icon' => 'file-text', 'title' => 'GE Orders', 'desc' => 'Create, submit, and track purchase requests through a multi-step approval workflow.'],
+                ['icon' => 'boxes', 'title' => 'Inventory', 'desc' => 'Monitor stock and non-stock items with real-time quantity and movement tracking.'],
+                ['icon' => 'package-check', 'title' => 'Procurement', 'desc' => 'Manage suppliers, purchase orders, and receiving all in one centralized system.'],
+                ];
                 @endphp
                 @foreach ($features as $feature)
-                    <div class="card card-hover animate-fade-in p-5 text-left">
-                        <span class="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-                            <i data-lucide="{{ $feature['icon'] }}" class="h-5 w-5"></i>
-                        </span>
-                        <h3 class="mt-4 text-sm font-semibold text-slate-900">{{ $feature['title'] }}</h3>
-                        <p class="mt-1.5 text-sm leading-relaxed text-slate-500">{{ $feature['desc'] }}</p>
-                    </div>
+                <div class="card card-hover animate-fade-in p-5 text-left">
+                    <span class="flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                        <i data-lucide="{{ $feature['icon'] }}" class="h-5 w-5"></i>
+                    </span>
+                    <h3 class="mt-4 text-sm font-semibold text-slate-900">{{ $feature['title'] }}</h3>
+                    <p class="mt-1.5 text-sm leading-relaxed text-slate-500">{{ $feature['desc'] }}</p>
+                </div>
                 @endforeach
             </div>
         </div>
@@ -134,7 +136,7 @@
     @push('scripts')
     <script>
         // Mobile menu toggle
-        (function () {
+        (function() {
             const btn = document.getElementById('mobile-menu-toggle');
             const menu = document.getElementById('mobile-menu');
             if (!btn || !menu) return;
@@ -144,4 +146,5 @@
     @endpush
 
 </body>
+
 </html>

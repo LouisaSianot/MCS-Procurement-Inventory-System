@@ -14,20 +14,29 @@ it('creates a purchase order from an approved GE order and copies its items', fu
     $supplier = Supplier::create(['name' => 'Purchase Order Supplier']);
     $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
     $geOrder = GEOrder::create([
-        'order_number' => 'GE-PO-00001', 'user_id' => $user->id, 'supplier_id' => $supplier->id,
-        'branch_id' => $branch->id, 'account_code' => '5001-Office Supplies', 'inventory_flag' => 'STOCK',
-        'order_date' => now()->toDateString(), 'description' => 'Approved order for a PO',
-        'status' => GEOrder::STATUS_APPROVED, 'approval_status' => GEOrder::APPROVAL_APPROVED,
+        'order_number' => 'GE-PO-00001',
+        'user_id' => $user->id,
+        'supplier_id' => $supplier->id,
+        'branch_id' => $branch->id,
+        'account_code' => '5001-Office Supplies',
+        'inventory_flag' => 'STOCK',
+        'order_date' => now()->toDateString(),
+        'description' => 'Approved order for a PO',
+        'status' => GEOrder::STATUS_APPROVED,
+        'approval_status' => GEOrder::APPROVAL_APPROVED,
     ]);
     GEOrderItem::create(['ge_order_id' => $geOrder->id, 'description' => 'Copy Paper', 'unit' => 'ream', 'quantity' => 2, 'unit_price' => 20, 'total' => 40]);
 
     $response = $this->actingAs($user)->post(route('procurement.store'), [
-        'po_number' => 'PO-00001', 'ge_order_id' => $geOrder->id, 'order_date' => now()->toDateString(), 'action' => 'place_order',
+        'po_number' => 'PO-00001',
+        'ge_order_id' => $geOrder->id,
+        'order_date' => now()->toDateString(),
+        'action' => 'place_order',
     ]);
 
     $purchaseOrder = PurchaseOrder::firstOrFail();
     $response->assertRedirect(route('procurement.show', $purchaseOrder));
-    $this->assertDatabaseHas('purchase_orders', ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40]);
+    $this->assertDatabaseHas($purchaseOrder->getTable(), ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40]);
     $this->assertDatabaseHas('purchase_order_items', ['purchase_order_id' => $purchaseOrder->id, 'description' => 'Copy Paper', 'total' => 40]);
 });
 

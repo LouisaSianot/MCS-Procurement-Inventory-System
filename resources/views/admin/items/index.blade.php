@@ -1,1 +1,37 @@
-<x-app-layout title="Item Management"><x-page-header title="Items" description="Maintain stock and asset master records."><x-slot name="actions"><a href="{{ route('admin.items.create') }}" class="btn btn-primary"><i data-lucide="plus" class="h-4 w-4"></i>Add item</a></x-slot></x-page-header><section class="card overflow-hidden"><form class="border-b border-slate-200 p-4"><div class="flex gap-3"><input class="input max-w-md" name="search" value="{{ $search }}" placeholder="Search item or category"><button class="btn btn-secondary">Search</button></div></form><div class="table-wrap"><table class="data-table"><thead><tr><th>Item ID</th><th>Item</th><th>UOM</th><th>Category</th><th>Sub-category</th><th>Supplier</th><th class="text-right">Actions</th></tr></thead><tbody>@forelse($items as $item)<tr><td class="font-mono text-xs">#{{ $item->id }}</td><td class="font-semibold text-slate-900">{{ $item->description }}</td><td>{{ $item->uom }}</td><td>{{ strtoupper($item->category) }}</td><td>{{ $item->sub_category }}</td><td>{{ $item->supplier?->name }}</td><td><div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.items.edit', $item) }}">Edit</a><form method="POST" action="{{ route('admin.items.destroy', $item) }}" onsubmit="return confirm('Delete this item? This cannot be undone.');">@csrf @method('DELETE')<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form></div></td></tr>@empty<tr><td colspan="7" class="py-10 text-center text-slate-500">No items found.</td></tr>@endforelse</tbody></table></div>@if($items->hasPages())<div class="border-t border-slate-200 px-4 py-3">{{ $items->links() }}</div>@endif</section></x-app-layout>
+<x-app-layout title="Item Management"><x-page-header title="Items" description="Maintain stock and asset master records."><x-slot name="actions"><a href="{{ route('admin.items.create') }}" class="btn btn-primary" aria-label="Add item" title="Add item"><i data-lucide="plus" class="h-4 w-4"></i></a></x-slot></x-page-header>
+    <section class="card overflow-hidden">
+        <form class="border-b border-slate-200 p-4">
+            <div class="flex gap-3"><input class="input max-w-md" name="search" value="{{ $search }}" placeholder="Search item or category"><button class="btn btn-secondary">Search</button></div>
+        </form>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Item ID</th>
+                        <th>Item</th>
+                        <th>UOM</th>
+                        <th>Category</th>
+                        <th>Sub-category</th>
+                        <th>Supplier</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>@forelse($items as $item)<tr>
+                        <td class="font-mono text-xs">#{{ $item->id }}</td>
+                        <td class="font-semibold text-slate-900">{{ $item->description }}</td>
+                        <td>{{ $item->uom }}</td>
+                        <td>{{ strtoupper($item->category) }}</td>
+                        <td>{{ $item->sub_category }}</td>
+                        <td>{{ $item->supplier?->name }}</td>
+                        <td>
+                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.items.edit', $item) }}">Edit</a>
+                                <form method="POST" action="{{ route('admin.items.destroy', $item) }}" onsubmit="return confirm('Delete this item? This cannot be undone.');">@csrf @method('DELETE')<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>
+                            </div>
+                        </td>
+                    </tr>@empty<tr>
+                        <td colspan="7" class="py-10 text-center text-slate-500">No items found.</td>
+                    </tr>@endforelse</tbody>
+            </table>
+        </div>@if($items->hasPages())<div class="border-t border-slate-200 px-4 py-3">{{ $items->links() }}</div>@endif
+    </section>
+</x-app-layout>

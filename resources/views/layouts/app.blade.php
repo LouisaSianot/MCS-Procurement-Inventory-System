@@ -1,4 +1,19 @@
 <!DOCTYPE html>
+@php
+$routeName = request()->route()?->getName() ?? '';
+$pageTitle = $title ?? match (true) {
+str_starts_with($routeName, 'ge-orders') => 'GE Orders',
+str_starts_with($routeName, 'procurement') => 'Purchase Orders',
+str_starts_with($routeName, 'receiving') => 'Receiving',
+str_starts_with($routeName, 'inventory') => 'Inventory',
+str_starts_with($routeName, 'reports') => 'Reports',
+str_starts_with($routeName, 'admin.suppliers') => 'Suppliers',
+str_starts_with($routeName, 'admin.items') => 'Items',
+str_starts_with($routeName, 'admin.users') || str_starts_with($routeName, 'admin.roles') => 'Users & roles',
+default => 'Dashboard',
+};
+@endphp
+
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 
 <head>
@@ -20,7 +35,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="h-full bg-slate-100 text-slate-800 antialiased">
+<body class="h-full bg-slate-50 text-slate-800 antialiased">
 
     <div class="flex min-h-full">
 
@@ -28,10 +43,10 @@
         <x-sidebar :user="auth()->user()" />
 
         {{-- Main application area --}}
-        <div class="flex min-h-full w-full flex-col lg:pl-64">
+        <div id="app-shell" class="flex min-h-full w-full flex-col lg:pl-64">
 
             {{-- Top navigation --}}
-            <x-top-navigation :title="$title ?? 'Dashboard'" />
+            <x-top-navigation :title="$pageTitle" />
 
             {{-- Main content --}}
             <main class="flex-1 px-4 py-6 sm:px-6 lg:px-8">

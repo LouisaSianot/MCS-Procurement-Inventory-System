@@ -5,12 +5,12 @@
         @csrf
         <div>
             <label for="name" class="auth-label">Name</label>
-            <div class="auth-input-wrap"><i data-lucide="user" class="auth-input-icon" aria-hidden="true"></i><input id="name" class="auth-input" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name" /></div>
+            <div class="auth-input-wrap"><i data-lucide="user" class="auth-input-icon" aria-hidden="true"></i><input id="name" class="auth-input" type="text" name="name" value="{{ old('name') }}" placeholder="Full name" required autofocus autocomplete="name" /></div>
             <x-input-error :messages="$errors->get('name')" class="auth-error" />
         </div>
         <div>
             <label for="email" class="auth-label">Email address</label>
-            <div class="auth-input-wrap"><i data-lucide="mail" class="auth-input-icon" aria-hidden="true"></i><input id="email" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" /></div>
+            <div class="auth-input-wrap"><i data-lucide="mail" class="auth-input-icon" aria-hidden="true"></i><input id="email" class="auth-input" type="email" name="email" value="{{ old('email') }}" placeholder="name@example.com" required autocomplete="username" /></div>
             <x-input-error :messages="$errors->get('email')" class="auth-error" />
         </div>
         <div>

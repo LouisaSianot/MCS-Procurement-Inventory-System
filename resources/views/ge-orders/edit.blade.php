@@ -167,6 +167,7 @@
                 <div class="sm:col-span-2 lg:col-span-3">
                     <label for="description" class="block text-sm font-medium text-slate-700">Description <span class="text-rose-500">*</span></label>
                     <textarea id="description" name="description" rows="2" required
+                        placeholder="Brief description of what this order is for"
                         class="input mt-1.5 {{ $errors->has('description') ? 'border-rose-400' : '' }}">{{ old('description', $order->description) }}</textarea>
                     @if ($errors->has('description'))<p class="mt-1 text-xs font-medium text-rose-600">{{ $errors->first('description') }}</p>@endif
                 </div>
@@ -174,6 +175,7 @@
                 <div class="sm:col-span-2 lg:col-span-3">
                     <label for="notes" class="block text-sm font-medium text-slate-700">Notes</label>
                     <textarea id="notes" name="notes" rows="2"
+                        placeholder="Optional internal notes"
                         class="input mt-1.5 {{ $errors->has('notes') ? 'border-rose-400' : '' }}">{{ old('notes', $order->notes) }}</textarea>
                     @if ($errors->has('notes'))<p class="mt-1 text-xs font-medium text-rose-600">{{ $errors->first('notes') }}</p>@endif
                 </div>
