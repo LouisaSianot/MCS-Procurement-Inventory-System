@@ -76,5 +76,8 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 require __DIR__ . '/ge_orders.php';
 require __DIR__ . '/procurement.php';
+require __DIR__ . '/issues.php';
+require __DIR__ . '/adjustments.php';
+require __DIR__ . '/assets.php';
 
 require __DIR__ . "/admin.php";
