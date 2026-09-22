@@ -11,11 +11,23 @@ class ItemBranch extends Model
 {
     use HasFactory;
 
+    public const COMPOSITE_KEY = ['item_id', 'branch_id'];
+
     public const STATUS_IN_STOCK = 'in_stock';
     public const STATUS_LOW_STOCK = 'low_stock';
     public const STATUS_OUT_OF_STOCK = 'out_of_stock';
 
     protected $fillable = ['branch', 'branch_id', 'item_id', 'uom', 'current_stock', 'unit_cost', 'location', 'reorder_level', 'reorder_quantity'];
+
+    public function getItemIDAttribute(): int
+    {
+        return (int) $this->item_id;
+    }
+
+    public function getBranchIDAttribute(): int
+    {
+        return (int) $this->branch_id;
+    }
 
     protected $casts = [
         'current_stock' => 'decimal:2',

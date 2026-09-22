@@ -11,6 +11,11 @@ class PurchaseReceipt extends Model
 {
     use HasFactory;
 
+    public function getUserIDAttribute(): int
+    {
+        return (int) $this->received_by;
+    }
+
     protected $fillable = [
         'receipt_number', 'purchase_order_id', 'received_by', 'received_at',
         'supplier_delivery_reference', 'notes',
