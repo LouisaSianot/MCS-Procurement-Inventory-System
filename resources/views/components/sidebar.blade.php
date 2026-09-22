@@ -87,6 +87,24 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
                 </a>
             </li>
             <li>
+                <a href="{{ route('issues.index') }}" aria-current="{{ str_starts_with($current, 'issues') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="arrow-up-right" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Stock Issues</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('adjustments.index') }}" aria-current="{{ str_starts_with($current, 'adjustments') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="sliders-horizontal" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Adjustments</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('assets.index') }}" aria-current="{{ str_starts_with($current, 'assets') ? 'page' : 'false' }}" class="nav-link">
+                    <i data-lucide="hard-drive" class="nav-link-icon"></i>
+                    <span class="collapsible-label">Assets</span>
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('reports.index') }}" aria-current="{{ str_starts_with($current, 'reports') ? 'page' : 'false' }}" class="nav-link">
                     <i data-lucide="bar-chart-3" class="nav-link-icon"></i>
                     <span class="collapsible-label">Reports</span>
@@ -123,6 +141,7 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
         <ul class="space-y-1">
             <li><a href="{{ route('admin.suppliers.index') }}" aria-current="{{ str_starts_with($current, 'admin.suppliers') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="truck" class="nav-link-icon"></i><span class="collapsible-label">Suppliers</span></a></li>
             <li><a href="{{ route('admin.items.index') }}" aria-current="{{ str_starts_with($current, 'admin.items') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="boxes" class="nav-link-icon"></i><span class="collapsible-label">Items</span></a></li>
+            <li><a href="{{ route('admin.customers.index') }}" aria-current="{{ str_starts_with($current, 'admin.customers') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="contact" class="nav-link-icon"></i><span class="collapsible-label">Customers</span></a></li>
             @can('manage-users')<li><a href="{{ route('admin.users.index') }}" aria-current="{{ str_starts_with($current, 'admin.users') || str_starts_with($current, 'admin.roles') ? 'page' : 'false' }}" class="nav-link"><i data-lucide="users-round" class="nav-link-icon"></i><span class="collapsible-label">Users &amp; roles</span></a></li>
             @endcan
         </ul>

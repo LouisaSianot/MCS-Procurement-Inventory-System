@@ -48,5 +48,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-users', fn ($user) =>
             $user->hasRole('Administrator') || $user->can('users.manage')
         );
+
+        Gate::define('manage-inventory', fn ($user) =>
+            $user->hasAnyRole(['Administrator', 'Inventory Officer'])
+            || $user->can('master-data.manage')
+        );
     }
 }

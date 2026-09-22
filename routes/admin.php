@@ -19,6 +19,12 @@ Route::middleware(["auth", "verified"])->prefix("admin")->as("admin.")->group(fu
             Route::get("items/{item}/edit", "editItem")->name("items.edit");
             Route::put("items/{item}", "updateItem")->name("items.update");
             Route::delete("items/{item}", "destroyItem")->name("items.destroy");
+            Route::get("customers", "customers")->name("customers.index");
+            Route::get("customers/create", "createCustomer")->name("customers.create");
+            Route::post("customers", "storeCustomer")->name("customers.store");
+            Route::get("customers/{customer}/edit", "editCustomer")->name("customers.edit");
+            Route::put("customers/{customer}", "updateCustomer")->name("customers.update");
+            Route::delete("customers/{customer}", "destroyCustomer")->name("customers.destroy");
         });
     });
     Route::middleware("can:manage-users")->controller(UserManagementController::class)->group(function () {
