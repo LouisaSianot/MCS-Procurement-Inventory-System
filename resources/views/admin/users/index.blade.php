@@ -17,7 +17,10 @@
                     </tr>
                 </thead>
                 <tbody>@forelse($users as $user)<tr>
-                        <td class="font-mono text-xs">#{{ $user->id }}</td>
+                        <td class="font-mono text-xs">
+                            <div>{{ $user->user_identifier }}</div>
+                            <div class="mt-1 text-[10px] text-slate-400">#{{ $user->id }}</div>
+                        </td>
                         <td class="font-semibold text-slate-900">{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->branch?->name ?: '—' }}</td>
