@@ -65,6 +65,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th>Ordered</th>
                             <th>Previously received</th>
@@ -74,10 +75,13 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php $lineNumber = 0; @endphp
                         @foreach ($selectedPurchaseOrder->items as $index => $line)
                         @php $received = (float) $line->receiptItems->sum('quantity_received'); $outstanding = (float) $line->quantity - $received; @endphp
                         @if ($outstanding > 0)
+                        @php $lineNumber++; @endphp
                         <tr>
+                            <td class="text-right font-medium tabular-nums text-slate-500">{{ $lineNumber }}</td>
                             <td><input type="hidden" name="items[{{ $index }}][purchase_order_item_id]" value="{{ $line->id }}"><span class="font-medium">{{ $line->description }}</span><span class="ml-1 text-xs text-slate-500">{{ $line->unit }}</span></td>
                             <td>{{ $line->quantity }}</td>
                             <td>{{ number_format($received, 2) }}</td>

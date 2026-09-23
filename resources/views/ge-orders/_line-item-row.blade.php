@@ -10,6 +10,7 @@
 @endphp
 
 <tr data-item-row>
+    <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500">{{ $i + 1 }}</td>
     <td>
         @if ($isStock)
             <select name="items[{{ $i }}][item_id]" data-field="item_id" class="input py-2 item-select" required>

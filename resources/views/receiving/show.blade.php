@@ -36,13 +36,15 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th class="text-right">Quantity</th>
                             <th class="text-right">Unit cost</th>
                             <th>Inventory result</th>
                         </tr>
                     </thead>
-                    <tbody>@foreach ($receipt->items as $line)<tr>
+                    <tbody>@foreach ($receipt->items as $index => $line)<tr>
+                            <td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td>
                             <td>{{ $line->purchaseOrderItem->description }}</td>
                             <td class="text-right">{{ $line->quantity_received }}</td>
                             <td class="text-right">K {{ number_format((float) $line->unit_cost, 2) }}</td>

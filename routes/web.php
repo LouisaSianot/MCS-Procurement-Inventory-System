@@ -33,19 +33,19 @@ Route::get('/dashboard', function () {
     $awaitingReceipt = PurchaseOrder::whereIn('status', [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_BACKORDER, PurchaseOrder::STATUS_PARTIALLY_RECEIVED])->count();
 
     $inventoryRecords = ItemBranch::with(['item', 'branchRecord'])->get();
-    $lowStockRecords = $inventoryRecords->filter(fn (ItemBranch $record) => in_array($record->stockStatus(), [ItemBranch::STATUS_LOW_STOCK, ItemBranch::STATUS_OUT_OF_STOCK], true));
+    $lowStockRecords = $inventoryRecords->filter(fn(ItemBranch $record) => in_array($record->stockStatus(), [ItemBranch::STATUS_LOW_STOCK, ItemBranch::STATUS_OUT_OF_STOCK], true));
     $lowStockItems = $lowStockRecords->count();
     $totalInventoryItems = $inventoryRecords->count();
-    $stockNormal = $inventoryRecords->filter(fn (ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_IN_STOCK)->count();
-    $stockLow = $inventoryRecords->filter(fn (ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_LOW_STOCK)->count();
-    $stockOut = $inventoryRecords->filter(fn (ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_OUT_OF_STOCK)->count();
+    $stockNormal = $inventoryRecords->filter(fn(ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_IN_STOCK)->count();
+    $stockLow = $inventoryRecords->filter(fn(ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_LOW_STOCK)->count();
+    $stockOut = $inventoryRecords->filter(fn(ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_OUT_OF_STOCK)->count();
     $lowStockTable = $lowStockRecords
         ->sortBy([
-            [fn (ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_OUT_OF_STOCK ? 0 : 1, 'asc'],
-            [fn (ItemBranch $record) => (float) $record->reorder_level - (float) $record->current_stock, 'desc'],
+            [fn(ItemBranch $record) => $record->stockStatus() === ItemBranch::STATUS_OUT_OF_STOCK ? 0 : 1, 'asc'],
+            [fn(ItemBranch $record) => (float) $record->reorder_level - (float) $record->current_stock, 'desc'],
         ])
         ->take(5)
-        ->map(fn (ItemBranch $record) => (object) [
+        ->map(fn(ItemBranch $record) => (object) [
             'id' => $record->id,
             'name' => $record->item?->description ?? 'Item #' . $record->item_id,
             'current_stock' => $record->current_stock,
@@ -68,9 +68,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/reports/export/{format}', [ReportsController::class, 'export'])->whereIn('format', ['xlsx', 'pdf'])->name('reports.export');
-
-    //Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
 require __DIR__ . '/auth.php';

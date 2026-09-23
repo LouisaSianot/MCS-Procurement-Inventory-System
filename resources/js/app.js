@@ -64,6 +64,9 @@ function initSidebar() {
     mobileToggle?.addEventListener('click', openMobile);
     closeBtn?.addEventListener('click', closeMobile);
     backdrop?.addEventListener('click', closeMobile);
+    sidebar.querySelectorAll('a[href]').forEach((link) => {
+        link.addEventListener('click', closeMobile);
+    });
 
     /*
     |--------------------------------------------------------------------------

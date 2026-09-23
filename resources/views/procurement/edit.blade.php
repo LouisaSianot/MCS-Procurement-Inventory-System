@@ -31,6 +31,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th>Unit</th>
                             <th class="text-right">Quantity</th>
@@ -38,7 +39,8 @@
                             <th class="text-right">Total</th>
                         </tr>
                     </thead>
-                    <tbody>@foreach ($purchaseOrder->items as $item)<tr>
+                    <tbody>@foreach ($purchaseOrder->items as $index => $item)<tr>
+                            <td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td>
                             <td>{{ $item->description }}</td>
                             <td>{{ $item->unit ?? '—' }}</td>
                             <td class="text-right tabular-nums">{{ $item->quantity }}</td>

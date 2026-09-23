@@ -25,12 +25,12 @@ class ItemBranch extends Model
 
     public function getItemIDAttribute(): int
     {
-        return (int) $this->item_id;
+        return (int) $this->getRawOriginal('item_id');
     }
 
     public function getBranchIDAttribute(): int
     {
-        return (int) $this->branch_id;
+        return (int) $this->getRawOriginal('branch_id');
     }
 
     protected $casts = [

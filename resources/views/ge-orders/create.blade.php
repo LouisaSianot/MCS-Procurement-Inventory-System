@@ -221,6 +221,7 @@
                 <table class="data-table" id="items-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th>Item ID</th>
                             <th>UOM</th>
@@ -306,7 +307,15 @@
                     sum += recalcRow(row);
                 });
                 if (totalEl) totalEl.textContent = fmtMoney(sum);
+                renumberRows();
                 renderMobile();
+            }
+
+            function renumberRows() {
+                tbody.querySelectorAll('tr[data-item-row]').forEach((row, index) => {
+                    const lineNumber = row.querySelector('[data-field="line_number"]');
+                    if (lineNumber) lineNumber.textContent = index + 1;
+                });
             }
 
             // Build a new row. index is the next free line index.
@@ -320,6 +329,7 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
+                <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500"></td>
                 <td>
                     ${isStock ? `
                         <select name="items[${index}][item_id]" data-field="item_id" class="input py-2 item-select" required>

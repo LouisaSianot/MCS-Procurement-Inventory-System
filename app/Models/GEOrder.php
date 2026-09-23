@@ -56,7 +56,7 @@ class GEOrder extends Model
     public const STATUS_COMPLETE  = 'complete';
     public function getUserIDAttribute(): int
     {
-        return (int) $this->user_id;
+        return (int) $this->getRawOriginal('user_id');
     }
 
     public const STATUSES = [
@@ -135,6 +135,6 @@ class GEOrder extends Model
         $prefix = 'GE-';
         $next = (int) static::withTrashed()->max('id') + 1;
 
-        return $prefix.str_pad((string) $next, 5, '0', STR_PAD_LEFT);
+        return $prefix . str_pad((string) $next, 5, '0', STR_PAD_LEFT);
     }
 }

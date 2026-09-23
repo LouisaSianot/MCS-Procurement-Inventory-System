@@ -16,6 +16,20 @@ test('profile page is displayed', function () {
         ->assertSee('action="' . route('logout') . '"', false);
 });
 
+test('authenticated users can log out', function () {
+    $user = User::factory()->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->post(route('logout'));
+
+    $response
+        ->assertRedirect('/')
+        ->assertSessionHasNoErrors();
+
+    $this->assertGuest();
+});
+
 test('profile information can be updated', function () {
     $user = User::factory()->create();
 

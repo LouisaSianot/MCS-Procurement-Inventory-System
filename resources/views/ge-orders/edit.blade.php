@@ -199,6 +199,7 @@
                 <table class="data-table" id="items-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th>Item ID</th>
                             <th>UOM</th>
@@ -277,6 +278,14 @@
                     sum += recalcRow(row);
                 });
                 if (totalEl) totalEl.textContent = fmtMoney(sum);
+                renumberRows();
+            }
+
+            function renumberRows() {
+                tbody.querySelectorAll('tr[data-item-row]').forEach((row, index) => {
+                    const lineNumber = row.querySelector('[data-field="line_number"]');
+                    if (lineNumber) lineNumber.textContent = index + 1;
+                });
             }
 
             function nextIndex() {
@@ -300,6 +309,7 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
+                <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500"></td>
                 <td>${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select><input type="hidden" name="items[${index}][description]" data-field="description-hidden" value="${data.description ?? (data.item_name ?? '')}">` : `<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Item description" class="input py-2" required>`}</td>
                 <td><input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="—" class="input py-2 w-24 ${stock ? 'bg-slate-50' : ''}" ${stock ? 'readonly' : ''}></td>
                 <td><input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="unit" class="input py-2 w-24"></td>
