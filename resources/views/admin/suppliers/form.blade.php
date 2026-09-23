@@ -1,8 +1,7 @@
 <x-app-layout title="{{ $supplier->exists ? 'Edit Supplier' : 'Add Supplier' }}">
     <x-page-header
         :title="$supplier->exists ? 'Edit supplier' : 'Add supplier'"
-        description="Supplier IDs are assigned automatically by the existing database strategy."
-    />
+        description="Supplier IDs are assigned automatically by the existing database strategy." />
 
     <form method="POST" action="{{ $supplier->exists ? route('admin.suppliers.update', $supplier) : route('admin.suppliers.store') }}" class="card max-w-3xl p-6">
         @csrf
