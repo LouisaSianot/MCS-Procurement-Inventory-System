@@ -33,7 +33,7 @@ class PurchaseReceiptController extends Controller
     {
         $this->authorize('viewAny', PurchaseReceipt::class);
         $receipts = PurchaseReceipt::with(['purchaseOrder.supplier', 'receiver'])->latest('received_at')->latest('id')->get();
-        $filename = 'purchase-receipts-'.now()->format('Y-m-d');
+        $filename = 'purchase-receipts-' . now()->format('Y-m-d');
 
         if ($format === 'xlsx') {
             return Excel::download(new PurchaseReceiptsExport($receipts), "{$filename}.xlsx");
@@ -97,7 +97,7 @@ class PurchaseReceiptController extends Controller
                     }
 
                     $serialNumbers = collect($row['serial_numbers'] ?? [])
-                        ->map(fn ($serial) => trim((string) $serial))
+                        ->map(fn($serial) => trim((string) $serial))
                         ->filter()
                         ->values();
 
@@ -170,7 +170,7 @@ class PurchaseReceiptController extends Controller
                     ]);
 
                     if ($line->item?->is_serialized) {
-                        foreach (collect($row['serial_numbers'] ?? [])->map(fn ($serial) => trim((string) $serial))->filter() as $serialNumber) {
+                        foreach (collect($row['serial_numbers'] ?? [])->map(fn($serial) => trim((string) $serial))->filter() as $serialNumber) {
                             ItemSerial::create([
                                 'item_id' => $line->item_id,
                                 'item_branch_id' => $itemBranch->id,
@@ -183,7 +183,8 @@ class PurchaseReceiptController extends Controller
             }
 
             $purchaseOrder->load('items.receiptItems');
-            $fullyReceived = $purchaseOrder->items->every(fn (PurchaseOrderItem $line) => (float) $line->receiptItems->sum('quantity_received') >= (float) $line->quantity
+            $fullyReceived = $purchaseOrder->items->every(
+                fn(PurchaseOrderItem $line) => (float) $line->receiptItems->sum('quantity_received') >= (float) $line->quantity
             );
             $purchaseOrder->update([
                 'status' => $fullyReceived

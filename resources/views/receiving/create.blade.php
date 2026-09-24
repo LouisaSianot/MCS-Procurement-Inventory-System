@@ -116,7 +116,9 @@
                 const oldValues = JSON.parse(container.dataset.old || '[]');
                 const render = () => {
                     const count = Math.max(0, Math.floor(Number(quantity.value) || 0));
-                    container.innerHTML = Array.from({ length: count }, (_, serialIndex) => `
+                    container.innerHTML = Array.from({
+                        length: count
+                    }, (_, serialIndex) => `
                         <input class="input py-2" name="items[${index}][serial_numbers][${serialIndex}]" value="${(oldValues[serialIndex] || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" placeholder="Serial number ${serialIndex + 1}" required>
                     `).join('');
                 };

@@ -19,7 +19,7 @@ class MasterDataController extends Controller
     public function suppliers(Request $request)
     {
         $search = trim((string) $request->query('search'));
-        $suppliers = Supplier::query()->when($search, fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('contact', 'like', "%{$search}%"))->orderBy('name')->paginate(12)->withQueryString();
+        $suppliers = Supplier::query()->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('contact', 'like', "%{$search}%"))->orderBy('name')->paginate(12)->withQueryString();
 
         return view('admin.suppliers.index', compact('suppliers', 'search'));
     }
@@ -61,7 +61,7 @@ class MasterDataController extends Controller
     public function items(Request $request)
     {
         $search = trim((string) $request->query('search'));
-        $items = Item::with('supplier')->when($search, fn ($q) => $q->where('description', 'like', "%{$search}%")->orWhere('category', 'like', "%{$search}%"))->orderBy('description')->paginate(12)->withQueryString();
+        $items = Item::with('supplier')->when($search, fn($q) => $q->where('description', 'like', "%{$search}%")->orWhere('category', 'like', "%{$search}%"))->orderBy('description')->paginate(12)->withQueryString();
 
         return view('admin.items.index', compact('items', 'search'));
     }
