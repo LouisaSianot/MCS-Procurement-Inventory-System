@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Models\PurchaseReceipt;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseReceipt;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,6 +27,8 @@ class StorePurchaseReceiptRequest extends FormRequest
             'items.*.purchase_order_item_id' => ['required', 'integer', 'distinct', Rule::exists((new PurchaseOrderItem)->getTable(), 'id')],
             'items.*.quantity_received' => ['required', 'numeric', 'min:0.01'],
             'items.*.unit_cost' => ['required', 'numeric', 'min:0'],
+            'items.*.serial_numbers' => ['nullable', 'array'],
+            'items.*.serial_numbers.*' => ['nullable', 'string', 'max:255', 'distinct'],
         ];
     }
 }

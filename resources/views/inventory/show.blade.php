@@ -20,6 +20,10 @@
                     <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->item->category }} · {{ $itemBranch->item->sub_category }}</dd>
                 </div>
                 <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Model Number</dt>
+                    <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->item->model_number ?: 'Not assigned' }}</dd>
+                </div>
+                <div>
                     <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Primary Supplier</dt>
                     <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->item->supplier?->name ?? 'Not assigned' }}</dd>
                 </div>
@@ -63,6 +67,17 @@
             </div>
         </section>
     </div>
+
+    @if($itemBranch->item->is_serialized)
+    <section class="card mt-6">
+        <div class="border-b border-slate-200 p-5"><h3 class="text-base font-semibold text-slate-900">Serialized units</h3><p class="mt-1 text-sm text-slate-500">Individual units currently associated with this branch.</p></div>
+        @if($itemBranch->serials->isNotEmpty())
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>Serial number</th><th>Status</th><th>Date added</th></tr></thead><tbody>@foreach($itemBranch->serials as $serial)<tr><td class="font-mono text-sm">{{ $serial->serial_number }}</td><td><x-status-badge :status="ucfirst($serial->status)" /></td><td>{{ $serial->created_at?->format('d M Y') }}</td></tr>@endforeach</tbody></table></div>
+        @else
+        <div class="p-5 text-sm text-slate-500">No serialized units have been received for this branch.</div>
+        @endif
+    </section>
+    @endif
 
     <section class="card mt-6">
         <div class="border-b border-slate-200 p-5">

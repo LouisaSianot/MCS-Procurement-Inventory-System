@@ -28,6 +28,15 @@
                 <option value="{{ $supplier->id }}" @selected((string) old('supplier_id', $item->supplier_id) === (string) $supplier->id)>{{ $supplier->name }}</option>
                 @endforeach
             </x-form-field>
+            <x-form-field name="model_number" label="Model number" :value="old('model_number', $item->model_number)" :errors="$errors" placeholder="e.g. Latitude 5440" />
+            <div class="sm:col-span-2">
+                <label class="flex items-start gap-3 rounded-lg border border-slate-200 p-4">
+                    <input type="hidden" name="is_serialized" value="0">
+                    <input class="mt-1 h-4 w-4" type="checkbox" name="is_serialized" value="1" @checked(old('is_serialized', $item->is_serialized) == 1)>
+                    <span><span class="block text-sm font-medium text-slate-700">Serialized item</span><span class="mt-1 block text-xs text-slate-500">Track individual units by serial number. Serial numbers are entered when stock is received.</span></span>
+                </label>
+                @error('is_serialized')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror
+            </div>
         </div>
 
         <p class="mt-3 text-xs text-slate-500">Only sub-categories valid for the category are accepted when the form is saved.</p>

@@ -72,6 +72,7 @@
                             <th>Outstanding</th>
                             <th>Receive now</th>
                             <th>Unit cost</th>
+                            @if($isStock)<th>Serial numbers</th>@endif
                         </tr>
                     </thead>
                     <tbody>
@@ -88,6 +89,16 @@
                             <td>{{ number_format($outstanding, 2) }}</td>
                             <td><input class="input w-28 py-2" name="items[{{ $index }}][quantity_received]" type="number" min="0.01" max="{{ $outstanding }}" step="0.01" value="{{ old("items.$index.quantity_received", $outstanding) }}" required></td>
                             <td><input class="input w-32 py-2" name="items[{{ $index }}][unit_cost]" type="number" min="0" step="0.01" value="{{ old("items.$index.unit_cost", $line->unit_price) }}" required></td>
+                            @if($isStock)
+                            <td class="min-w-64 align-top">
+                                @if($line->item?->is_serialized)
+                                <div class="serial-inputs space-y-2" data-index="{{ $index }}" data-old='@json(old("items.$index.serial_numbers", []))'></div>
+                                <p class="mt-1 text-xs text-slate-500">One serial number is required for each unit received.</p>
+                                @else
+                                <span class="text-sm text-slate-400">Not serialized</span>
+                                @endif
+                            </td>
+                            @endif
                         </tr>
                         @endif
                         @endforeach
@@ -97,5 +108,22 @@
         </section>
         <div class="mt-6 flex justify-end gap-3"><a href="{{ route('receiving.create') }}" class="btn btn-secondary">Choose another PO</a><button class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Post Receipt</button></div>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.serial-inputs').forEach((container) => {
+                const index = container.dataset.index;
+                const quantity = document.querySelector(`[name="items[${index}][quantity_received]"]`);
+                const oldValues = JSON.parse(container.dataset.old || '[]');
+                const render = () => {
+                    const count = Math.max(0, Math.floor(Number(quantity.value) || 0));
+                    container.innerHTML = Array.from({ length: count }, (_, serialIndex) => `
+                        <input class="input py-2" name="items[${index}][serial_numbers][${serialIndex}]" value="${(oldValues[serialIndex] || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" placeholder="Serial number ${serialIndex + 1}" required>
+                    `).join('');
+                };
+                quantity.addEventListener('input', render);
+                render();
+            });
+        });
+    </script>
     @endif
 </x-app-layout>

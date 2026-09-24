@@ -9,6 +9,7 @@
                     <tr>
                         <th>Item ID</th>
                         <th>Item</th>
+                        <th>Model</th>
                         <th>UOM</th>
                         <th>Category</th>
                         <th>Sub-category</th>
@@ -19,6 +20,7 @@
                 <tbody>@forelse($items as $item)<tr>
                         <td class="font-mono text-xs">#{{ $item->id }}</td>
                         <td class="font-semibold text-slate-900">{{ $item->description }}</td>
+                        <td>{{ $item->model_number ?: '—' }}</td>
                         <td>{{ $item->uom }}</td>
                         <td>{{ strtoupper($item->category) }}</td>
                         <td>{{ $item->sub_category }}</td>
@@ -29,7 +31,7 @@
                             </div>
                         </td>
                     </tr>@empty<tr>
-                        <td colspan="7" class="py-10 text-center text-slate-500">No items found.</td>
+                        <td colspan="8" class="py-10 text-center text-slate-500">No items found.</td>
                     </tr>@endforelse</tbody>
             </table>
         </div>@if($items->hasPages())<div class="border-t border-slate-200 px-4 py-3">{{ $items->links() }}</div>@endif

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\UsesV4TableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Concerns\UsesV4TableName;
 
 class ItemBranch extends Model
 {
@@ -18,7 +18,9 @@ class ItemBranch extends Model
     public const COMPOSITE_KEY = ['item_id', 'branch_id'];
 
     public const STATUS_IN_STOCK = 'in_stock';
+
     public const STATUS_LOW_STOCK = 'low_stock';
+
     public const STATUS_OUT_OF_STOCK = 'out_of_stock';
 
     protected $fillable = ['branch', 'branch_id', 'item_id', 'uom', 'current_stock', 'unit_cost', 'location', 'reorder_level', 'reorder_quantity'];
@@ -53,6 +55,11 @@ class ItemBranch extends Model
     public function movements(): HasMany
     {
         return $this->hasMany(InventoryMovement::class);
+    }
+
+    public function serials(): HasMany
+    {
+        return $this->hasMany(ItemSerial::class);
     }
 
     public function inventoryValue(): float
