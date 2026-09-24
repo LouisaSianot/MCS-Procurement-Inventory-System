@@ -32,7 +32,20 @@ class StoreGEOrderRequest extends FormRequest
             'action'         => ['required', Rule::in(['save_draft', 'submit'])],
             'items'          => ['required', 'array', 'min:1'],
             'items.*.item_id'      => ['nullable', 'integer', Rule::exists((new Item)->getTable(), 'id')],
-            'items.*.item_id_text' => ['nullable', 'string', 'max:100'],
+            'items.*.item_id_text' => [
+                'nullable',
+                'string',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (
+                        $this->input('inventory_flag') === 'NON-STOCK'
+                        && is_numeric($value)
+                        && Item::whereKey((int) $value)->exists()
+                    ) {
+                        $fail('This Item ID already exists as a STOCK item. Select it from the STOCK list instead.');
+                    }
+                },
+            ],
             'items.*.description'  => ['required', 'string', 'max:255'],
             'items.*.unit'         => ['nullable', 'string', 'max:30'],
             'items.*.quantity'     => ['required', 'numeric', 'min:0.01'],

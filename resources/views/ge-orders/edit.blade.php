@@ -196,15 +196,14 @@
             </div>
 
             <div class="table-wrap hidden md:block">
-                <table class="data-table" id="items-table">
+                <table class="data-table min-w-[60rem]" id="items-table">
                     <thead>
                         <tr>
                             <th scope="col" class="w-12 text-right">#</th>
-                            <th>Item</th>
-                            <th>Item ID</th>
-                            <th>UOM</th>
+                            <th class="min-w-56">Item / Line Description</th>
                             <th class="text-right">Quantity</th>
-                            <th class="text-right">Unit Price</th>
+                            <th>UOM</th>
+                            <th class="text-right">Unit Cost</th>
                             <th class="text-right">Total</th>
                             <th class="text-right">Action</th>
                         </tr>
@@ -304,40 +303,41 @@
                 data = data || {};
                 const stock = isStock();
                 const itemOptions = inventoryItems.map((it) =>
-                    `<option value="${it.id}" data-uom="${it.uom}" ${String(data.item_id ?? '') === String(it.id) ? 'selected' : ''}>${it.name}</option>`
+                    `<option value="${it.id}" data-uom="${it.uom}" data-description="${it.name}" ${String(data.item_id ?? '') === String(it.id) ? 'selected' : ''}>${it.name}</option>`
                 ).join('');
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
                 <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500"></td>
-                <td>${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select><input type="hidden" name="items[${index}][description]" data-field="description-hidden" value="${data.description ?? (data.item_name ?? '')}">` : `<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Item description" class="input py-2" required>`}</td>
-                <td><input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="—" class="input py-2 w-24 ${stock ? 'bg-slate-50' : ''}" ${stock ? 'readonly' : ''}></td>
-                <td><input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="unit" class="input py-2 w-24"></td>
-                <td class="text-right"><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input py-2 w-24 text-right tabular-nums" required></td>
-                <td class="text-right"><input type="number" name="items[${index}][unit_price]" data-field="unit_price" value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00" class="input py-2 w-28 text-right tabular-nums" required></td>
-                <td class="text-right"><span data-field="total_display" class="font-medium tabular-nums text-slate-700">K 0.00</span><input type="hidden" name="items[${index}][total]" data-field="total" value="0"></td>
-                <td class="text-right"><button type="button" data-remove-row class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
+                <td class="align-top"><div class="flex w-full min-w-0 flex-col gap-1.5">${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select>` : ''}<input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="Item ID" class="input block w-full min-w-0 py-2 ${stock ? 'bg-slate-50' : ''}" ${stock ? 'readonly' : ''}><input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Line description" class="input block w-full min-w-0 py-2" required></div></td>
+                <td><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input py-2 w-24 text-right tabular-nums" required></td>
+                <td><input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="UOM" class="input py-2 w-24"></td>
+                <td><input type="number" name="items[${index}][unit_price]" data-field="unit_price" value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00" class="input py-2 w-28 text-right tabular-nums" required></td>
+                <td class="align-top text-right"><span data-field="total_display" class="font-medium tabular-nums text-slate-700">K 0.00</span><input type="hidden" name="items[${index}][total]" data-field="total" value="0"></td>
+                <td class="align-top text-right"><button type="button" data-remove-row class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
             `;
                 return tr;
             }
 
             function bindRow(row) {
                 row.querySelectorAll('[data-field="quantity"],[data-field="unit_price"]').forEach((el) => el.addEventListener('input', recalcTotal));
-                row.querySelector('[data-remove-row]')?.addEventListener('click', () => {
-                    row.remove();
-                    recalcTotal();
-                });
                 const sel = row.querySelector('.item-select');
                 if (sel) sel.addEventListener('change', () => {
                     const opt = sel.selectedOptions[0];
                     const uom = row.querySelector('[data-field="unit"]');
                     const idText = row.querySelector('[data-field="item_id_text"]');
-                    const hiddenDesc = row.querySelector('[data-field="description-hidden"]');
                     if (uom && opt?.dataset.uom) uom.value = opt.dataset.uom;
                     if (idText) idText.value = sel.value;
-                    if (hiddenDesc) hiddenDesc.value = opt?.dataset.description ?? '';
                 });
             }
+
+            tbody.addEventListener('click', (event) => {
+                const removeButton = event.target.closest('[data-remove-row]');
+                if (!removeButton || !tbody.contains(removeButton)) return;
+                event.preventDefault();
+                removeButton.closest('tr[data-item-row]')?.remove();
+                recalcTotal();
+            });
 
             function addRow(data) {
                 const tr = buildRow(nextIndex(), data);
@@ -350,7 +350,7 @@
             inventoryFlagEl?.addEventListener('change', () => {
                 const existing = Array.from(tbody.querySelectorAll('tr[data-item-row]')).map((r) => ({
                     item_id: r.querySelector('[data-field="item_id_text"]')?.value || r.querySelector('[data-field="item_id"]')?.value || '',
-                    description: r.querySelector('[data-field="description"]')?.value || r.querySelector('[data-field="description-hidden"]')?.value || '',
+                    description: r.querySelector('[data-field="description"]')?.value || '',
                     item_name: r.querySelector('[data-field="item_id"]')?.selectedOptions[0]?.dataset?.description || '',
                     unit: r.querySelector('[data-field="unit"]')?.value || '',
                     quantity: r.querySelector('[data-field="quantity"]')?.value || '',

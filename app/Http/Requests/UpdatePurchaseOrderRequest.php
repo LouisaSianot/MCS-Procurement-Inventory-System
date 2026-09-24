@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +29,9 @@ class UpdatePurchaseOrderRequest extends FormRequest
                 PurchaseOrder::STATUS_FULLY_RECEIVED,
                 PurchaseOrder::STATUS_CANCELLED,
             ])],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.id' => ['required', 'integer', Rule::exists((new PurchaseOrderItem)->getTable(), 'id')],
+            'items.*.description' => ['required', 'string', 'max:255'],
         ];
     }
 }

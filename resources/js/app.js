@@ -23,6 +23,10 @@ function initIcons() {
     });
 }
 
+window.lucide = {
+    createIcons: initIcons,
+};
+
 /*
 |--------------------------------------------------------------------------
 | Sidebar

@@ -11,13 +11,29 @@ return new class extends Migration
     {
         if (Schema::hasTable('ge_order_items')) {
             Schema::table('ge_order_items', function (Blueprint $table) {
-                $table->string('description')->nullable();
-                $table->string('unit', 30)->nullable();
-                $table->decimal('unit_price', 12, 2)->nullable();
-                $table->decimal('total', 12, 2)->nullable();
+                if (! Schema::hasColumn('ge_order_items', 'description')) {
+                    $table->string('description')->nullable();
+                }
+                if (! Schema::hasColumn('ge_order_items', 'unit')) {
+                    $table->string('unit', 30)->nullable();
+                }
+                if (! Schema::hasColumn('ge_order_items', 'unit_price')) {
+                    $table->decimal('unit_price', 12, 2)->nullable();
+                }
+                if (! Schema::hasColumn('ge_order_items', 'total')) {
+                    $table->decimal('total', 12, 2)->nullable();
+                }
             });
 
-            DB::statement('UPDATE ge_order_items SET description = item_description, unit = uom, unit_price = unit_cost, total = total_cost WHERE description IS NULL');
+            if (
+                Schema::hasColumn('ge_order_items', 'item_description')
+                && Schema::hasColumn('ge_order_items', 'uom')
+                && Schema::hasColumn('ge_order_items', 'unit_cost')
+                && Schema::hasColumn('ge_order_items', 'total_cost')
+            ) {
+                DB::statement('UPDATE ge_order_items SET description = item_description, unit = uom, unit_price = unit_cost, total = total_cost WHERE description IS NULL');
+            }
+
             return;
         }
 
