@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\UsesV4TableName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\UsesV4TableName;
 
 class Item extends Model
 {
@@ -15,7 +15,9 @@ class Item extends Model
 
     public const ID_RANGE = [1001, 1999];
 
-    protected $fillable = ['description', 'uom', 'category', 'sub_category', 'supplier_id'];
+    protected $fillable = ['description', 'uom', 'category', 'sub_category', 'supplier_id', 'model_number', 'is_serialized'];
+
+    protected $casts = ['is_serialized' => 'boolean'];
 
     public function getItemIDAttribute(): int
     {
@@ -30,5 +32,15 @@ class Item extends Model
     public function branches()
     {
         return $this->hasMany(ItemBranch::class);
+    }
+
+    public function itemBranches()
+    {
+        return $this->hasMany(ItemBranch::class);
+    }
+
+    public function serials()
+    {
+        return $this->hasMany(ItemSerial::class);
     }
 }

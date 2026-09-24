@@ -53,7 +53,7 @@ class InventoryController extends Controller
 
         abort_unless($itemBranch->branch_id && $itemBranch->item && $itemBranch->branchRecord, 404);
 
-        $itemBranch->load(['item.supplier', 'branchRecord']);
+        $itemBranch->load(['item.supplier', 'branchRecord', 'serials']);
         $movements = $itemBranch->movements()
             ->with('purchaseReceiptItem.receipt.purchaseOrder.supplier')
             ->latest()

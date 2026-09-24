@@ -28,18 +28,25 @@
                 <h3 class="text-base font-semibold text-slate-900">Line items</h3>
             </div>
             <div class="table-wrap">
-                <table class="data-table">
+                <table class="data-table min-w-[52rem]">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
-                            <th>Unit</th>
+                            <th class="min-w-56">Description</th>
                             <th class="text-right">Quantity</th>
-                            <th class="text-right">Unit Price</th>
+                            <th>UOM</th>
+                            <th class="text-right">Unit Cost</th>
                             <th class="text-right">Total</th>
                         </tr>
                     </thead>
-                    <tbody>@foreach ($purchaseOrder->items as $item)<tr>
-                            <td>{{ $item->description }}</td>
+                    <tbody>@foreach ($purchaseOrder->items as $index => $item)<tr>
+                            <td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td>
+                            <td>{{ $item->item?->description ?? '—' }}</td>
+                            <td>
+                                <input type="hidden" name="items[{{ $index }}][id]" value="{{ $item->id }}">
+                                <input type="text" name="items[{{ $index }}][description]" value="{{ old("items.{$index}.description", $item->description ?? $item->item?->description) }}" class="input py-2" maxlength="255" required>
+                            </td>
                             <td>{{ $item->unit ?? '—' }}</td>
                             <td class="text-right tabular-nums">{{ $item->quantity }}</td>
                             <td class="text-right tabular-nums">K {{ number_format((float) $item->unit_price, 2) }}</td>

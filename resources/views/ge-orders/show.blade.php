@@ -123,6 +123,7 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
+                                    <th scope="col" class="w-12 text-right">#</th>
                                     <th>Item</th>
                                     <th>Item ID</th>
                                     <th>UOM</th>
@@ -132,8 +133,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (($order->items ?? collect()) as $item)
+                                @foreach (($order->items ?? collect()) as $index => $item)
                                 <tr>
+                                    <td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td>
                                     <td class="font-medium text-slate-900">{{ $item->description ?? $item->item?->name ?? '—' }}</td>
                                     <td class="font-mono text-xs text-slate-500">{{ $item->item_id ?? '—' }}</td>
                                     <td class="text-slate-500">{{ $item->unit ?? '—' }}</td>
@@ -145,7 +147,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="5" class="px-4 py-3 text-right text-sm font-semibold text-slate-700">Order Total</td>
+                                    <td colspan="6" class="px-4 py-3 text-right text-sm font-semibold text-slate-700">Order Total</td>
                                     <td class="px-4 py-3 text-right text-base font-bold tabular-nums text-slate-900">
                                         {{ is_object($order->total_amount) ? 'K '.$order->total_amount->format(2) : 'K '.number_format((float)($order->total_amount ?? 0), 2) }}
                                     </td>

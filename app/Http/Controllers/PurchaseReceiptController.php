@@ -7,6 +7,7 @@ use App\Http\Requests\StorePurchaseReceiptRequest;
 use App\Models\GEOrder;
 use App\Models\InventoryMovement;
 use App\Models\ItemBranch;
+use App\Models\ItemSerial;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseReceipt;
@@ -32,7 +33,7 @@ class PurchaseReceiptController extends Controller
     {
         $this->authorize('viewAny', PurchaseReceipt::class);
         $receipts = PurchaseReceipt::with(['purchaseOrder.supplier', 'receiver'])->latest('received_at')->latest('id')->get();
-        $filename = 'purchase-receipts-'.now()->format('Y-m-d');
+        $filename = 'purchase-receipts-' . now()->format('Y-m-d');
 
         if ($format === 'xlsx') {
             return Excel::download(new PurchaseReceiptsExport($receipts), "{$filename}.xlsx");
@@ -45,7 +46,7 @@ class PurchaseReceiptController extends Controller
     {
         $this->authorize('create', PurchaseReceipt::class);
 
-        $purchaseOrders = PurchaseOrder::with(['supplier', 'branch', 'geOrder', 'items.receiptItems'])
+        $purchaseOrders = PurchaseOrder::with(['supplier', 'branch', 'geOrder', 'items.receiptItems', 'items.item'])
             ->whereIn('status', [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_PARTIALLY_RECEIVED])
             ->latest('ordered_at')
             ->get();
@@ -66,7 +67,7 @@ class PurchaseReceiptController extends Controller
         $receipt = DB::transaction(function () use ($data, $request) {
             $purchaseOrder = PurchaseOrder::query()
                 ->lockForUpdate()
-                ->with(['geOrder', 'branch', 'items.receiptItems'])
+                ->with(['geOrder', 'branch', 'items.receiptItems', 'items.item'])
                 ->findOrFail($data['purchase_order_id']);
 
             if (! in_array($purchaseOrder->status, [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_PARTIALLY_RECEIVED], true)) {
@@ -87,6 +88,30 @@ class PurchaseReceiptController extends Controller
 
                 if ($purchaseOrder->geOrder->inventory_flag === GEOrder::INVENTORY_FLAG_STOCK && ! $line->item_id) {
                     throw ValidationException::withMessages(['items' => "Stock receipt line {$line->description} must reference an inventory item."]);
+                }
+
+                if ($purchaseOrder->geOrder->inventory_flag === GEOrder::INVENTORY_FLAG_STOCK && $line->item?->is_serialized) {
+                    $quantity = (float) $row['quantity_received'];
+                    if ($quantity !== floor($quantity)) {
+                        throw ValidationException::withMessages(['items' => "Serialized item {$line->description} must be received in whole units."]);
+                    }
+
+                    $serialNumbers = collect($row['serial_numbers'] ?? [])
+                        ->map(fn($serial) => trim((string) $serial))
+                        ->filter()
+                        ->values();
+
+                    if ($serialNumbers->count() !== (int) $quantity) {
+                        throw ValidationException::withMessages(['items' => "Enter exactly {$quantity} serial numbers for {$line->description}."]);
+                    }
+
+                    if ($serialNumbers->duplicates()->isNotEmpty()) {
+                        throw ValidationException::withMessages(['items' => "Serial numbers for {$line->description} must be unique."]);
+                    }
+
+                    if (ItemSerial::query()->where('item_id', $line->item_id)->whereIn('serial_number', $serialNumbers)->exists()) {
+                        throw ValidationException::withMessages(['items' => "One or more serial numbers for {$line->description} already exist."]);
+                    }
                 }
             }
 
@@ -143,12 +168,23 @@ class PurchaseReceiptController extends Controller
                         'unit_cost' => $row['unit_cost'],
                         'stock_after' => $newStock,
                     ]);
+
+                    if ($line->item?->is_serialized) {
+                        foreach (collect($row['serial_numbers'] ?? [])->map(fn($serial) => trim((string) $serial))->filter() as $serialNumber) {
+                            ItemSerial::create([
+                                'item_id' => $line->item_id,
+                                'item_branch_id' => $itemBranch->id,
+                                'serial_number' => $serialNumber,
+                                'status' => ItemSerial::STATUS_ACTIVE,
+                            ]);
+                        }
+                    }
                 }
             }
 
             $purchaseOrder->load('items.receiptItems');
-            $fullyReceived = $purchaseOrder->items->every(fn (PurchaseOrderItem $line) =>
-                (float) $line->receiptItems->sum('quantity_received') >= (float) $line->quantity
+            $fullyReceived = $purchaseOrder->items->every(
+                fn(PurchaseOrderItem $line) => (float) $line->receiptItems->sum('quantity_received') >= (float) $line->quantity
             );
             $purchaseOrder->update([
                 'status' => $fullyReceived

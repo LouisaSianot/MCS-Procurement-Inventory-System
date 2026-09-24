@@ -5,6 +5,7 @@ use App\Models\GEOrder;
 use App\Models\InventoryMovement;
 use App\Models\Item;
 use App\Models\ItemBranch;
+use App\Models\ItemSerial;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseReceipt;
@@ -102,4 +103,41 @@ it('rejects an over-receipt', function () {
     ])->assertRedirect(route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]))->assertSessionHasErrors('items');
 
     $this->assertDatabaseCount((new PurchaseReceipt)->getTable(), 0);
+});
+
+it('creates serialized units when a serialized stock item is received', function () {
+    $user = User::factory()->create();
+    $user->assignRole(Role::firstOrCreate(['name' => 'procurement_officer', 'guard_name' => 'web']));
+    $item = Item::create(['description' => 'Latitude Laptop', 'uom' => 'each', 'category' => 'Asset', 'sub_category' => 'Computer', 'is_serialized' => true]);
+    [$purchaseOrder, $line, $branch] = receiptPurchaseOrder($user, GEOrder::INVENTORY_FLAG_STOCK, $item);
+
+    $this->actingAs($user)->post(route('receiving.store'), [
+        'receipt_number' => 'GRN-SERIAL-01',
+        'purchase_order_id' => $purchaseOrder->id,
+        'received_at' => now()->toDateString(),
+        'items' => [['purchase_order_item_id' => $line->id, 'quantity_received' => 3, 'unit_cost' => 25, 'serial_numbers' => ['SN001', 'SN002', 'SN003']]],
+    ])->assertRedirect();
+
+    $itemBranch = ItemBranch::where('item_id', $item->id)->where('branch_id', $branch->id)->firstOrFail();
+    expect(ItemSerial::where('item_id', $item->id)->pluck('serial_number')->all())->toBe(['SN001', 'SN002', 'SN003']);
+    expect((float) $itemBranch->current_stock)->toBe(3.0);
+    expect(ItemSerial::where('item_branch_id', $itemBranch->id)->count())->toBe(3);
+});
+
+it('rejects serialized receipts when serial count does not match quantity', function () {
+    $user = User::factory()->create();
+    $user->assignRole(Role::firstOrCreate(['name' => 'procurement_officer', 'guard_name' => 'web']));
+    $item = Item::create(['description' => 'Serialized Printer', 'uom' => 'each', 'category' => 'Asset', 'sub_category' => 'Printer', 'is_serialized' => true]);
+    [$purchaseOrder, $line] = receiptPurchaseOrder($user, GEOrder::INVENTORY_FLAG_STOCK, $item);
+
+    $this->actingAs($user)->from(route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]))->post(route('receiving.store'), [
+        'receipt_number' => 'GRN-SERIAL-02',
+        'purchase_order_id' => $purchaseOrder->id,
+        'received_at' => now()->toDateString(),
+        'items' => [['purchase_order_item_id' => $line->id, 'quantity_received' => 3, 'unit_cost' => 25, 'serial_numbers' => ['SN001', 'SN002']]],
+    ])->assertRedirect(route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]))->assertSessionHasErrors('items');
+
+    $this->assertDatabaseCount((new PurchaseReceipt)->getTable(), 0);
+    $this->assertDatabaseCount((new ItemSerial)->getTable(), 0);
+    $this->assertDatabaseCount((new ItemBranch)->getTable(), 0);
 });

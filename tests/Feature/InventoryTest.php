@@ -50,6 +50,9 @@ it('lists valid item branch records with related item, branch, value, and reorde
     $user = inventoryUser();
     $itemBranch = inventoryRecord(['current_stock' => 12, 'unit_cost' => 10.50]);
 
+    expect($itemBranch->item_id)->toBe($itemBranch->getRawOriginal('item_id'))
+        ->and($itemBranch->branch_id)->toBe($itemBranch->getRawOriginal('branch_id'));
+
     $this->actingAs($user)->get(route('inventory.index'))
         ->assertOk()
         ->assertSee($itemBranch->item->description)
@@ -85,6 +88,9 @@ it('shows receipt movement history with its purchase order and GRN references', 
     $user = inventoryUser();
     $itemBranch = inventoryRecord(['description' => 'Movement Paper']);
     $geOrder = GEOrder::create(['order_number' => 'GE-INVENTORY-MOVE', 'user_id' => $user->id, 'supplier_id' => $itemBranch->item->supplier_id, 'branch_id' => $itemBranch->branch_id, 'account_code' => '5001', 'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK, 'order_date' => now()->toDateString(), 'description' => 'Movement order', 'status' => GEOrder::STATUS_APPROVED, 'approval_status' => GEOrder::APPROVAL_APPROVED]);
+
+    expect($geOrder->user_id)->toBe($geOrder->getRawOriginal('user_id'));
+
     $po = PurchaseOrder::create(['po_number' => 'PO-INVENTORY-MOVE', 'ge_order_id' => $geOrder->id, 'supplier_id' => $itemBranch->item->supplier_id, 'branch_id' => $itemBranch->branch_id, 'user_id' => $user->id, 'order_date' => now()->toDateString(), 'status' => PurchaseOrder::STATUS_ORDERED]);
     $poItem = PurchaseOrderItem::create(['purchase_order_id' => $po->id, 'item_id' => $itemBranch->item_id, 'description' => 'Movement Paper', 'unit' => 'ream', 'quantity' => 2, 'unit_price' => 10, 'total' => 20]);
     $receipt = PurchaseReceipt::create(['receipt_number' => 'GRN-INVENTORY-MOVE', 'purchase_order_id' => $po->id, 'received_by' => $user->id, 'received_at' => now()]);

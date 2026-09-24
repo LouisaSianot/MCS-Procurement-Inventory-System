@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Concerns\UsesV4TableName;
 
@@ -23,6 +24,13 @@ class User extends Authenticatable
 
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user): void {
+            $user->user_identifier ??= (string) Str::uuid();
+        });
+    }
 
     /**
      * Get the attributes that should be cast.

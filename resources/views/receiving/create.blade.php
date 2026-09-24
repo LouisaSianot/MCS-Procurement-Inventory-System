@@ -65,25 +65,40 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th scope="col" class="w-12 text-right">#</th>
                             <th>Item</th>
                             <th>Ordered</th>
                             <th>Previously received</th>
                             <th>Outstanding</th>
                             <th>Receive now</th>
                             <th>Unit cost</th>
+                            @if($isStock)<th>Serial numbers</th>@endif
                         </tr>
                     </thead>
                     <tbody>
+                        @php $lineNumber = 0; @endphp
                         @foreach ($selectedPurchaseOrder->items as $index => $line)
                         @php $received = (float) $line->receiptItems->sum('quantity_received'); $outstanding = (float) $line->quantity - $received; @endphp
                         @if ($outstanding > 0)
+                        @php $lineNumber++; @endphp
                         <tr>
+                            <td class="text-right font-medium tabular-nums text-slate-500">{{ $lineNumber }}</td>
                             <td><input type="hidden" name="items[{{ $index }}][purchase_order_item_id]" value="{{ $line->id }}"><span class="font-medium">{{ $line->description }}</span><span class="ml-1 text-xs text-slate-500">{{ $line->unit }}</span></td>
                             <td>{{ $line->quantity }}</td>
                             <td>{{ number_format($received, 2) }}</td>
                             <td>{{ number_format($outstanding, 2) }}</td>
                             <td><input class="input w-28 py-2" name="items[{{ $index }}][quantity_received]" type="number" min="0.01" max="{{ $outstanding }}" step="0.01" value="{{ old("items.$index.quantity_received", $outstanding) }}" required></td>
                             <td><input class="input w-32 py-2" name="items[{{ $index }}][unit_cost]" type="number" min="0" step="0.01" value="{{ old("items.$index.unit_cost", $line->unit_price) }}" required></td>
+                            @if($isStock)
+                            <td class="min-w-64 align-top">
+                                @if($line->item?->is_serialized)
+                                <div class="serial-inputs space-y-2" data-index="{{ $index }}" data-old='@json(old("items.$index.serial_numbers", []))'></div>
+                                <p class="mt-1 text-xs text-slate-500">One serial number is required for each unit received.</p>
+                                @else
+                                <span class="text-sm text-slate-400">Not serialized</span>
+                                @endif
+                            </td>
+                            @endif
                         </tr>
                         @endif
                         @endforeach
@@ -93,5 +108,24 @@
         </section>
         <div class="mt-6 flex justify-end gap-3"><a href="{{ route('receiving.create') }}" class="btn btn-secondary">Choose another PO</a><button class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Post Receipt</button></div>
     </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.serial-inputs').forEach((container) => {
+                const index = container.dataset.index;
+                const quantity = document.querySelector(`[name="items[${index}][quantity_received]"]`);
+                const oldValues = JSON.parse(container.dataset.old || '[]');
+                const render = () => {
+                    const count = Math.max(0, Math.floor(Number(quantity.value) || 0));
+                    container.innerHTML = Array.from({
+                        length: count
+                    }, (_, serialIndex) => `
+                        <input class="input py-2" name="items[${index}][serial_numbers][${serialIndex}]" value="${(oldValues[serialIndex] || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}" placeholder="Serial number ${serialIndex + 1}" required>
+                    `).join('');
+                };
+                quantity.addEventListener('input', render);
+                render();
+            });
+        });
+    </script>
     @endif
 </x-app-layout>

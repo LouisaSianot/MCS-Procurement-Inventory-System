@@ -7,6 +7,7 @@ use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\GEOrder;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +40,7 @@ class PurchaseOrderController extends Controller
         $this->authorize('viewAny', PurchaseOrder::class);
         $filters = $request->only(['search', 'status']);
         $orders = $this->filteredOrders($filters)->latest('order_date')->get();
-        $filename = 'purchase-orders-'.now()->format('Y-m-d');
+        $filename = 'purchase-orders-' . now()->format('Y-m-d');
 
         if ($format === 'xlsx') {
             return Excel::download(new PurchaseOrdersExport($orders), "{$filename}.xlsx");
@@ -116,7 +117,7 @@ class PurchaseOrderController extends Controller
     public function edit(PurchaseOrder $procurement)
     {
         $this->authorize('update', $procurement);
-        $procurement->load(['items', 'geOrder', 'supplier', 'branch']);
+        $procurement->load(['items.item', 'geOrder', 'supplier', 'branch']);
 
         return view('procurement.edit', ['purchaseOrder' => $procurement]);
     }
@@ -132,6 +133,13 @@ class PurchaseOrderController extends Controller
             'status' => $data['status'],
             'ordered_at' => $data['status'] === PurchaseOrder::STATUS_ORDERED && ! $procurement->ordered_at ? now() : $procurement->ordered_at,
         ]);
+
+        $lineIds = $procurement->items()->pluck('id')->map(fn($id) => (int) $id)->all();
+        foreach ($data['items'] as $line) {
+            if (in_array((int) $line['id'], $lineIds, true)) {
+                PurchaseOrderItem::whereKey($line['id'])->update(['description' => $line['description']]);
+            }
+        }
 
         return redirect()->route('procurement.show', $procurement)->with('success', 'Purchase Order updated.');
     }
@@ -159,10 +167,10 @@ class PurchaseOrderController extends Controller
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('po_number', 'like', "%{$search}%")
-                        ->orWhereHas('geOrder', fn ($geOrders) => $geOrders->where('order_number', 'like', "%{$search}%"))
-                        ->orWhereHas('supplier', fn ($suppliers) => $suppliers->where('name', 'like', "%{$search}%"));
+                        ->orWhereHas('geOrder', fn($geOrders) => $geOrders->where('order_number', 'like', "%{$search}%"))
+                        ->orWhereHas('supplier', fn($suppliers) => $suppliers->where('name', 'like', "%{$search}%"));
                 });
             })
-            ->when($filters['status'] ?? null, fn ($query, $status) => $query->where('status', $status));
+            ->when($filters['status'] ?? null, fn($query, $status) => $query->where('status', $status));
     }
 }

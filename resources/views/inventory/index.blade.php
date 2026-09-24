@@ -52,6 +52,7 @@
                         <tr>
                             <td><a href="{{ route('inventory.show', $itemBranch) }}" class="font-medium text-brand-600 hover:text-brand-700">{{ $itemBranch->item->description }}</a>
                                 <p class="mt-0.5 font-mono text-xs text-slate-400">Item #{{ $itemBranch->item_id }} · {{ $itemBranch->item->sub_category }}</p>
+                                @if($itemBranch->item->model_number)<p class="text-xs text-slate-500">Model: {{ $itemBranch->item->model_number }}</p>@endif
                             </td>
                             <td>{{ $itemBranch->uom ?? $itemBranch->item->uom }}</td>
                             <td>{{ strtoupper($itemBranch->item->category) }}</td>
