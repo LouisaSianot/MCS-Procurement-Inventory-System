@@ -26,6 +26,11 @@ class PurchaseOrder extends Model
         'order_date',
         'expected_delivery_date',
         'notes',
+        'receiving_person_name',
+        'receiving_person_position',
+        'receiving_person_branch',
+        'receiving_person_phone',
+        'receiving_person_email',
         'status',
         'total_amount',
         'ordered_at',
@@ -87,6 +92,11 @@ class PurchaseOrder extends Model
 
     public static function generateNumber(): string
     {
-        return 'PO-' . str_pad((string) ((int) static::withTrashed()->max('id') + 1), 5, '0', STR_PAD_LEFT);
+        return static::generateNumberForId((int) static::withTrashed()->max('id') + 1);
+    }
+
+    public static function generateNumberForId(int $id): string
+    {
+        return 'PO-' . str_pad((string) $id, 5, '0', STR_PAD_LEFT);
     }
 }

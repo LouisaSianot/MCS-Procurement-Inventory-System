@@ -9,7 +9,11 @@
                 <p class="mt-0.5 text-sm text-slate-500">Line items remain linked to the approved source GE Order.</p>
             </div>
             <div class="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3">
-                <x-form-field name="po_number" label="PO Number" :value="old('po_number', $purchaseOrder->po_number)" :errors="$errors" placeholder="e.g. PO-2026-001" required />
+                <div>
+                    <p class="text-sm font-medium text-slate-700">PO Number</p>
+                    <p class="mt-1.5 rounded-lg bg-slate-50 px-3.5 py-2.5 font-mono text-sm font-semibold text-slate-700">{{ $purchaseOrder->po_number }}</p>
+                    <p class="mt-1 text-xs text-slate-500">System-generated and locked.</p>
+                </div>
                 <x-form-field name="order_date" label="Order Date" type="date" :value="old('order_date', $purchaseOrder->order_date->format('Y-m-d'))" :errors="$errors" required />
                 <x-form-field name="expected_delivery_date" label="Expected Delivery" type="date" :value="old('expected_delivery_date', $purchaseOrder->expected_delivery_date?->format('Y-m-d'))" :errors="$errors" />
                 <div><label for="status" class="block text-sm font-medium text-slate-700">Status <span class="text-rose-500">*</span></label><select id="status" name="status" class="input mt-1.5" required>@foreach (['draft' => 'Draft', 'ordered' => 'Ordered', 'backorder' => 'Backorder', 'partially received' => 'Partially Received', 'fully received' => 'Fully Received', 'cancelled' => 'Cancelled'] as $value => $label)<option value="{{ $value }}" @selected(old('status', $purchaseOrder->status) === $value)>{{ $label }}</option>@endforeach</select>@error('status')<p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p>@enderror</div>
@@ -21,6 +25,19 @@
                     <p class="text-sm font-medium text-slate-700">Source GE Order</p><a href="{{ route('ge-orders.show', $purchaseOrder->geOrder) }}" class="mt-2 inline-block font-mono text-sm font-semibold text-brand-600">{{ $purchaseOrder->geOrder->order_number }}</a>
                 </div>
                 <div class="sm:col-span-2 lg:col-span-3"><x-form-field name="notes" label="Notes" type="textarea" :value="old('notes', $purchaseOrder->notes)" :errors="$errors" placeholder="Supplier reference, delivery instructions, or purchasing notes" /></div>
+            </div>
+        </section>
+        <section class="card animate-fade-in mt-6">
+            <div class="border-b border-slate-200 p-5">
+                <h3 class="text-base font-semibold text-slate-900">Person Receiving PO</h3>
+                <p class="mt-0.5 text-sm text-slate-500">Update the person designated to receive this delivery.</p>
+            </div>
+            <div class="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2">
+                <x-form-field name="receiving_person_name" label="Full Name" :value="old('receiving_person_name', $purchaseOrder->receiving_person_name)" :errors="$errors" placeholder="Enter receiving person's full name" required />
+                <x-form-field name="receiving_person_position" label="Position / Job Title" :value="old('receiving_person_position', $purchaseOrder->receiving_person_position)" :errors="$errors" placeholder="Enter their position" required />
+                <x-form-field name="receiving_person_branch" label="Department / Branch" :value="old('receiving_person_branch', $purchaseOrder->receiving_person_branch)" :errors="$errors" placeholder="Enter department or branch" required />
+                <x-form-field name="receiving_person_phone" label="Phone Number" type="tel" :value="old('receiving_person_phone', $purchaseOrder->receiving_person_phone)" :errors="$errors" placeholder="Enter phone number" />
+                <div class="sm:col-span-2"><x-form-field name="receiving_person_email" label="Email Address" type="email" :value="old('receiving_person_email', $purchaseOrder->receiving_person_email)" :errors="$errors" placeholder="Enter email address" /></div>
             </div>
         </section>
         <section class="card animate-fade-in mt-6">

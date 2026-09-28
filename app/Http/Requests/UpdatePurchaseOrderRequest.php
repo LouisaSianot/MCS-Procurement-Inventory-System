@@ -17,10 +17,16 @@ class UpdatePurchaseOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'po_number' => ['required', 'string', 'max:20', Rule::unique((new PurchaseOrder)->getTable(), 'po_number')->ignore($this->route('procurement'))],
+            'po_number' => ['nullable', 'string', 'max:20'],
+            'ge_order_id' => ['nullable', 'integer', 'exists:ge_orders,id'],
             'order_date' => ['required', 'date'],
             'expected_delivery_date' => ['nullable', 'date', 'after_or_equal:order_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'receiving_person_name' => ['required', 'string', 'max:255'],
+            'receiving_person_position' => ['required', 'string', 'max:255'],
+            'receiving_person_branch' => ['required', 'string', 'max:255'],
+            'receiving_person_phone' => ['nullable', 'string', 'max:50'],
+            'receiving_person_email' => ['nullable', 'email', 'max:255'],
             'status' => ['required', Rule::in([
                 PurchaseOrder::STATUS_DRAFT,
                 PurchaseOrder::STATUS_ORDERED,

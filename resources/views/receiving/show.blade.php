@@ -24,6 +24,39 @@
                 </div>
             </dl>
         </section>
+        @if ($receipt->purchaseOrder->receiving_person_name)
+        <section class="card">
+            <div class="border-b border-slate-200 p-5">
+                <h2 class="text-base font-semibold">Designated PO Recipient</h2>
+            </div>
+            <dl class="grid grid-cols-1 gap-5 p-5">
+                <div>
+                    <dt class="text-xs uppercase text-slate-400">Full Name</dt>
+                    <dd class="mt-1 font-semibold">{{ $receipt->purchaseOrder->receiving_person_name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs uppercase text-slate-400">Position / Job Title</dt>
+                    <dd class="mt-1">{{ $receipt->purchaseOrder->receiving_person_position }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs uppercase text-slate-400">Department / Branch</dt>
+                    <dd class="mt-1">{{ $receipt->purchaseOrder->receiving_person_branch }}</dd>
+                </div>
+                @if ($receipt->purchaseOrder->receiving_person_phone)
+                <div>
+                    <dt class="text-xs uppercase text-slate-400">Phone Number</dt>
+                    <dd class="mt-1">{{ $receipt->purchaseOrder->receiving_person_phone }}</dd>
+                </div>
+                @endif
+                @if ($receipt->purchaseOrder->receiving_person_email)
+                <div>
+                    <dt class="text-xs uppercase text-slate-400">Email Address</dt>
+                    <dd class="mt-1 break-words">{{ $receipt->purchaseOrder->receiving_person_email }}</dd>
+                </div>
+                @endif
+            </dl>
+        </section>
+        @endif
         <section class="card">
             <div class="border-b border-slate-200 p-5">
                 <h2 class="text-base font-semibold">PO status</h2>

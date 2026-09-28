@@ -18,12 +18,15 @@ class GEOrderDemoSeeder extends Seeder
     public function run(): void
     {
         $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
+
         $user = User::firstOrCreate(
-            ['email' => 'test@example.com'],
+            ['email' => 'admin@example.com'],
             [
-                'name' => 'Test User',
+                'name' => 'Admin User',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
+                'is_active' => true,
+                'user_identifier' => (string) \Illuminate\Support\Str::uuid(),
             ]
         );
 
@@ -32,8 +35,41 @@ class GEOrderDemoSeeder extends Seeder
         }
 
         $suppliers = collect([
-            ['name' => 'PNG Office Supplies', 'address' => 'Port Moresby', 'contact' => 'sales@pngoffice.example'],
-            ['name' => 'Tech Supplies Ltd', 'address' => 'Lae', 'contact' => 'orders@techsupplies.example'],
+            [
+                'name' => 'PNG Office Systems',
+                'address' => 'Hohola, Port Moresby, NCD',
+                'contact' => 'sales@pngofficesystems.com.pg',
+                'payment_term' => 'CREDIT',
+                'currency' => 'PGK',
+            ],
+            [
+                'name' => 'Bena ICT Solutions',
+                'address' => 'Lae, Morobe Province',
+                'contact' => 'orders@benaict.com.pg',
+                'payment_term' => 'CREDIT',
+                'currency' => 'PGK',
+            ],
+            [
+                'name' => 'CleanCare Supplies',
+                'address' => 'Waigani, Port Moresby',
+                'contact' => 'support@cleancaresupplies.com.pg',
+                'payment_term' => 'CREDIT',
+                'currency' => 'PGK',
+            ],
+            [
+                'name' => 'Kone Hardware & Tools',
+                'address' => 'Goroka, Eastern Highlands',
+                'contact' => 'sales@konehardware.com.pg',
+                'payment_term' => 'CASH',
+                'currency' => 'PGK',
+            ],
+            [
+                'name' => 'Pacific General Traders',
+                'address' => 'Kokopo, East New Britain',
+                'contact' => 'purchases@pacificgeneraltraders.com.pg',
+                'payment_term' => 'CREDIT',
+                'currency' => 'PGK',
+            ],
         ])->mapWithKeys(function (array $data): array {
             $supplier = Supplier::firstOrCreate(['name' => $data['name']], $data);
 
@@ -41,9 +77,15 @@ class GEOrderDemoSeeder extends Seeder
         });
 
         $items = collect([
-            ['description' => 'A4 Copy Paper', 'uom' => 'ream', 'category' => 'Consumable', 'sub_category' => 'Stationery', 'supplier_id' => $suppliers['PNG Office Supplies']->id],
-            ['description' => 'Printer Toner Cartridge', 'uom' => 'unit', 'category' => 'Consumable', 'sub_category' => 'Stationery', 'supplier_id' => $suppliers['PNG Office Supplies']->id],
-            ['description' => 'Laptop Computer', 'uom' => 'unit', 'category' => 'Asset', 'sub_category' => 'Computer', 'supplier_id' => $suppliers['Tech Supplies Ltd']->id],
+            ['description' => 'A4 Copy Paper 80gsm', 'uom' => 'ream', 'category' => 'Consumable', 'sub_category' => 'Stationery', 'supplier_id' => $suppliers['PNG Office Systems']->id],
+            ['description' => 'Brother Toner TN-2430', 'uom' => 'unit', 'category' => 'Consumable', 'sub_category' => 'Printing', 'supplier_id' => $suppliers['PNG Office Systems']->id],
+            ['description' => 'Dell Latitude 5440 Laptop', 'uom' => 'unit', 'category' => 'Asset', 'sub_category' => 'Computing', 'supplier_id' => $suppliers['Bena ICT Solutions']->id],
+            ['description' => 'HP LaserJet Pro M404dn', 'uom' => 'unit', 'category' => 'Asset', 'sub_category' => 'Office Equipment', 'supplier_id' => $suppliers['Bena ICT Solutions']->id],
+            ['description' => 'Industrial Floor Cleaner 20L', 'uom' => 'container', 'category' => 'Consumable', 'sub_category' => 'Cleaning', 'supplier_id' => $suppliers['CleanCare Supplies']->id],
+            ['description' => 'Toilet Tissue Roll Pack', 'uom' => 'pack', 'category' => 'Consumable', 'sub_category' => 'Cleaning', 'supplier_id' => $suppliers['CleanCare Supplies']->id],
+            ['description' => 'M12 Drill Bit Set', 'uom' => 'set', 'category' => 'Consumable', 'sub_category' => 'Tools', 'supplier_id' => $suppliers['Kone Hardware & Tools']->id],
+            ['description' => '4MP Outdoor CCTV Camera', 'uom' => 'unit', 'category' => 'Asset', 'sub_category' => 'Security', 'supplier_id' => $suppliers['Pacific General Traders']->id],
+            ['description' => '5KVA Generator AVR', 'uom' => 'unit', 'category' => 'Asset', 'sub_category' => 'Power', 'supplier_id' => $suppliers['Pacific General Traders']->id],
         ])->mapWithKeys(function (array $data): array {
             $item = Item::firstOrCreate(['description' => $data['description']], $data);
 
@@ -52,50 +94,69 @@ class GEOrderDemoSeeder extends Seeder
 
         $orders = [
             [
-                'number' => 'GE-DEMO-001',
+                'number' => 'GE-00001',
                 'status' => GEOrder::STATUS_DRAFT,
                 'approval_status' => GEOrder::APPROVAL_NOT_SUBMITTED,
                 'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
-                'supplier' => 'PNG Office Supplies',
-                'description' => 'Draft stationery replenishment for testing edit and delete actions.',
-                'items' => [['item' => 'A4 Copy Paper', 'unit' => 'ream', 'quantity' => 10, 'unit_price' => 42.50]],
+                'supplier' => 'PNG Office Systems',
+                'description' => 'Monthly office stationery replenishment for administrative departments.',
+                'notes' => 'High-priority restock before end-of-month reporting cycle.',
+                'items' => [
+                    ['item' => 'A4 Copy Paper 80gsm', 'unit' => 'ream', 'quantity' => 12, 'unit_price' => 42.00],
+                    ['item' => 'Brother Toner TN-2430', 'unit' => 'unit', 'quantity' => 4, 'unit_price' => 260.00],
+                ],
             ],
             [
-                'number' => 'GE-DEMO-002',
+                'number' => 'GE-00002',
                 'status' => GEOrder::STATUS_PENDING,
                 'approval_status' => GEOrder::APPROVAL_PENDING_APPROVAL,
                 'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
-                'supplier' => 'Tech Supplies Ltd',
-                'description' => 'Pending computer purchase for approval workflow testing.',
-                'items' => [['item' => 'Laptop Computer', 'unit' => 'unit', 'quantity' => 2, 'unit_price' => 3850.00]],
+                'supplier' => 'Bena ICT Solutions',
+                'description' => 'Laptop refresh for finance and admin staff to support field reporting.',
+                'notes' => 'Requested after asset review flagged aging workstations.',
+                'items' => [
+                    ['item' => 'Dell Latitude 5440 Laptop', 'unit' => 'unit', 'quantity' => 3, 'unit_price' => 3850.00],
+                    ['item' => 'HP LaserJet Pro M404dn', 'unit' => 'unit', 'quantity' => 1, 'unit_price' => 1850.00],
+                ],
             ],
             [
-                'number' => 'GE-DEMO-003',
+                'number' => 'GE-00003',
                 'status' => GEOrder::STATUS_APPROVED,
                 'approval_status' => GEOrder::APPROVAL_APPROVED,
                 'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
-                'supplier' => 'PNG Office Supplies',
-                'description' => 'Approved toner order for procurement and receiving testing.',
-                'items' => [['item' => 'Printer Toner Cartridge', 'unit' => 'unit', 'quantity' => 4, 'unit_price' => 275.00]],
+                'supplier' => 'CleanCare Supplies',
+                'description' => 'Cleaning consumables for classrooms, restrooms, and office blocks.',
+                'notes' => 'Approved for the next monthly facility hygiene schedule.',
+                'items' => [
+                    ['item' => 'Industrial Floor Cleaner 20L', 'unit' => 'container', 'quantity' => 12, 'unit_price' => 185.00],
+                    ['item' => 'Toilet Tissue Roll Pack', 'unit' => 'pack', 'quantity' => 30, 'unit_price' => 32.50],
+                ],
             ],
             [
-                'number' => 'GE-DEMO-004',
+                'number' => 'GE-00004',
                 'status' => GEOrder::STATUS_REJECTED,
                 'approval_status' => GEOrder::APPROVAL_REJECTED,
                 'inventory_flag' => GEOrder::INVENTORY_FLAG_NONSTOCK,
-                'supplier' => 'Tech Supplies Ltd',
-                'description' => 'Rejected one-off service order for workflow testing.',
-                'rejection_reason' => 'Please provide a revised supplier quotation.',
-                'items' => [['description' => 'Equipment repair service', 'unit' => 'service', 'quantity' => 1, 'unit_price' => 1200.00]],
+                'supplier' => 'Kone Hardware & Tools',
+                'description' => 'Workshop tool purchase for maintenance and minor repair works.',
+                'notes' => 'Supplier quote did not match approved specification list.',
+                'rejection_reason' => 'Please resubmit with the approved tool specification and pricing comparison.',
+                'items' => [
+                    ['item' => 'M12 Drill Bit Set', 'unit' => 'set', 'quantity' => 3, 'unit_price' => 420.00],
+                ],
             ],
             [
-                'number' => 'GE-DEMO-005',
+                'number' => 'GE-00005',
                 'status' => GEOrder::STATUS_CANCELLED,
                 'approval_status' => GEOrder::APPROVAL_NOT_SUBMITTED,
                 'inventory_flag' => GEOrder::INVENTORY_FLAG_NONSTOCK,
-                'supplier' => 'PNG Office Supplies',
-                'description' => 'Cancelled non-stock order for read-only state testing.',
-                'items' => [['description' => 'Office cleaning service', 'unit' => 'service', 'quantity' => 1, 'unit_price' => 650.00]],
+                'supplier' => 'Pacific General Traders',
+                'description' => 'Security system upgrade planned for the main gate and compound office.',
+                'notes' => 'Cancelled pending a revised site survey and budget approval.',
+                'items' => [
+                    ['item' => '4MP Outdoor CCTV Camera', 'unit' => 'unit', 'quantity' => 6, 'unit_price' => 690.00],
+                    ['item' => '5KVA Generator AVR', 'unit' => 'unit', 'quantity' => 1, 'unit_price' => 3200.00],
+                ],
             ],
         ];
 
@@ -104,19 +165,19 @@ class GEOrderDemoSeeder extends Seeder
                 'user_id' => $user->id,
                 'supplier_id' => $suppliers[$definition['supplier']]->id,
                 'branch_id' => $branch->id,
-                'account_code' => '5001-Office Supplies',
+                'account_code' => '5001-OPERATIONS',
                 'inventory_flag' => $definition['inventory_flag'],
                 'po_number' => $definition['number'],
-                'order_date' => now()->toDateString(),
+                'order_date' => now()->subDays(rand(1, 30))->toDateString(),
                 'description' => $definition['description'],
-                'notes' => 'Demo record for UI testing.',
+                'notes' => $definition['notes'] ?? 'Operational procurement request.',
                 'status' => $definition['status'],
                 'approval_status' => $definition['approval_status'],
                 'rejection_reason' => $definition['rejection_reason'] ?? null,
-                'submitted_at' => $definition['status'] !== GEOrder::STATUS_DRAFT ? now() : null,
-                'approved_at' => in_array($definition['status'], [GEOrder::STATUS_APPROVED, GEOrder::STATUS_REJECTED], true) ? now() : null,
+                'submitted_at' => $definition['status'] !== GEOrder::STATUS_DRAFT ? now()->subDays(rand(1, 20)) : null,
+                'approved_at' => in_array($definition['status'], [GEOrder::STATUS_APPROVED, GEOrder::STATUS_REJECTED], true) ? now()->subDays(rand(1, 10)) : null,
                 'approved_by' => in_array($definition['status'], [GEOrder::STATUS_APPROVED, GEOrder::STATUS_REJECTED], true) ? $user->id : null,
-                'cancelled_at' => $definition['status'] === GEOrder::STATUS_CANCELLED ? now() : null,
+                'cancelled_at' => $definition['status'] === GEOrder::STATUS_CANCELLED ? now()->subDays(2) : null,
             ];
 
             if (Schema::hasColumn('ge_orders', 'date')) {

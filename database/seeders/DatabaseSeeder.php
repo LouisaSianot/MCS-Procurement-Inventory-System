@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -55,6 +56,8 @@ class DatabaseSeeder extends Seeder
             'name'              => 'Test User',
             'password'          => Hash::make('password'),
             'email_verified_at' => now(),
+            'user_identifier'   => (string) Str::uuid(),
+            'is_active'         => true,
         ]);
 
         $user->assignRole($superAdmin);

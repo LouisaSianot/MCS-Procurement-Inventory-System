@@ -37,6 +37,11 @@ function receiptPurchaseOrder(User $user, string $flag, ?Item $item = null): arr
         'user_id' => $user->id,
         'order_date' => now()->toDateString(),
         'status' => PurchaseOrder::STATUS_ORDERED,
+        'receiving_person_name' => 'Designated Recipient',
+        'receiving_person_position' => 'Store Officer',
+        'receiving_person_branch' => 'Main Campus',
+        'receiving_person_phone' => '+675 7000 0000',
+        'receiving_person_email' => 'recipient@example.com',
     ]);
     $line = PurchaseOrderItem::create([
         'purchase_order_id' => $purchaseOrder->id,
@@ -66,6 +71,14 @@ it('posts a stock receipt, updates branch stock, and completes the purchase orde
 
     $receipt = PurchaseReceipt::firstOrFail();
     $response->assertRedirect(route('receiving.show', $receipt));
+    $this->actingAs($user)->get(route('receiving.show', $receipt))
+        ->assertOk()
+        ->assertSee('Received by')
+        ->assertSee($user->name)
+        ->assertSee('Designated PO Recipient')
+        ->assertSee('Designated Recipient')
+        ->assertSee('Store Officer')
+        ->assertSee('recipient@example.com');
     $this->assertDatabaseHas('purchase_receipt_items', ['purchase_receipt_id' => $receipt->id, 'purchase_order_item_id' => $line->id, 'quantity_received' => 5]);
     $this->assertDatabaseHas((new ItemBranch)->getTable(), ['item_id' => $item->id, 'branch' => $branch->name, 'current_stock' => 5]);
     $this->assertDatabaseHas('inventory_movements', ['type' => InventoryMovement::TYPE_RECEIPT, 'quantity' => 5, 'stock_after' => 5]);

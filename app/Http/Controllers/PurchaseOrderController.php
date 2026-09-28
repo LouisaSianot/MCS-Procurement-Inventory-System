@@ -75,8 +75,12 @@ class PurchaseOrderController extends Controller
 
         $purchaseOrder = DB::transaction(function () use ($data, $geOrder, $request) {
             $isOrdered = $data['action'] === 'place_order';
+
+            $lastOrder = PurchaseOrder::withTrashed()->orderByDesc('id')->lockForUpdate()->first();
+            $generatedNumber = PurchaseOrder::generateNumberForId((int) ($lastOrder?->id ?? 0) + 1);
+
             $purchaseOrder = PurchaseOrder::create([
-                'po_number' => $data['po_number'],
+                'po_number' => $generatedNumber,
                 'ge_order_id' => $geOrder->id,
                 'supplier_id' => $geOrder->supplier_id,
                 'branch_id' => $geOrder->branch_id,
@@ -84,6 +88,11 @@ class PurchaseOrderController extends Controller
                 'order_date' => $data['order_date'],
                 'expected_delivery_date' => $data['expected_delivery_date'] ?? null,
                 'notes' => $data['notes'] ?? null,
+                'receiving_person_name' => $data['receiving_person_name'],
+                'receiving_person_position' => $data['receiving_person_position'],
+                'receiving_person_branch' => $data['receiving_person_branch'],
+                'receiving_person_phone' => $data['receiving_person_phone'] ?? null,
+                'receiving_person_email' => $data['receiving_person_email'] ?? null,
                 'status' => $isOrdered ? PurchaseOrder::STATUS_ORDERED : PurchaseOrder::STATUS_DRAFT,
                 'ordered_at' => $isOrdered ? now() : null,
                 'total_amount' => $geOrder->items->sum('total'),
@@ -125,11 +134,20 @@ class PurchaseOrderController extends Controller
     public function update(UpdatePurchaseOrderRequest $request, PurchaseOrder $procurement)
     {
         $data = $request->validated();
+
+        if ($request->filled('ge_order_id') && (int) $request->input('ge_order_id') !== (int) $procurement->ge_order_id) {
+            throw ValidationException::withMessages(['ge_order_id' => 'The GE Order cannot be changed once a Purchase Order has been created.']);
+        }
+
         $procurement->update([
-            'po_number' => $data['po_number'],
             'order_date' => $data['order_date'],
             'expected_delivery_date' => $data['expected_delivery_date'] ?? null,
             'notes' => $data['notes'] ?? null,
+            'receiving_person_name' => $data['receiving_person_name'],
+            'receiving_person_position' => $data['receiving_person_position'],
+            'receiving_person_branch' => $data['receiving_person_branch'],
+            'receiving_person_phone' => $data['receiving_person_phone'] ?? null,
+            'receiving_person_email' => $data['receiving_person_email'] ?? null,
             'status' => $data['status'],
             'ordered_at' => $data['status'] === PurchaseOrder::STATUS_ORDERED && ! $procurement->ordered_at ? now() : $procurement->ordered_at,
         ]);

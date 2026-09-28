@@ -27,17 +27,77 @@ it('creates a purchase order from an approved GE order and copies its items', fu
     ]);
     GEOrderItem::create(['ge_order_id' => $geOrder->id, 'description' => 'Copy Paper', 'unit' => 'ream', 'quantity' => 2, 'unit_price' => 20, 'total' => 40]);
 
-    $response = $this->actingAs($user)->post(route('procurement.store'), [
-        'po_number' => 'PO-00001',
+    $this->actingAs($user)->post(route('procurement.store'), [
         'ge_order_id' => $geOrder->id,
         'order_date' => now()->toDateString(),
+        'action' => 'place_order',
+    ])->assertSessionHasErrors([
+        'receiving_person_name',
+        'receiving_person_position',
+        'receiving_person_branch',
+    ]);
+
+    $this->actingAs($user)->post(route('procurement.store'), [
+        'ge_order_id' => $geOrder->id,
+        'order_date' => now()->toDateString(),
+        'receiving_person_name' => 'John Doe',
+        'receiving_person_position' => 'Store Officer',
+        'receiving_person_branch' => 'Main Campus',
+        'receiving_person_email' => 'not-an-email',
+        'action' => 'place_order',
+    ])->assertSessionHasErrors(['receiving_person_email']);
+
+    $response = $this->actingAs($user)->post(route('procurement.store'), [
+        'ge_order_id' => $geOrder->id,
+        'order_date' => now()->toDateString(),
+        'receiving_person_name' => 'John Doe',
+        'receiving_person_position' => 'Store Officer',
+        'receiving_person_branch' => 'Main Campus',
+        'receiving_person_phone' => '+675 7000 0000',
+        'receiving_person_email' => 'john@example.com',
         'action' => 'place_order',
     ]);
 
     $purchaseOrder = PurchaseOrder::firstOrFail();
     $response->assertRedirect(route('procurement.show', $purchaseOrder));
-    $this->assertDatabaseHas($purchaseOrder->getTable(), ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40]);
+    $this->assertDatabaseHas($purchaseOrder->getTable(), ['id' => $purchaseOrder->id, 'ge_order_id' => $geOrder->id, 'status' => 'ordered', 'total_amount' => 40, 'receiving_person_name' => 'John Doe', 'receiving_person_position' => 'Store Officer', 'receiving_person_branch' => 'Main Campus', 'receiving_person_phone' => '+675 7000 0000', 'receiving_person_email' => 'john@example.com']);
     $this->assertDatabaseHas('purchase_order_items', ['purchase_order_id' => $purchaseOrder->id, 'description' => 'Copy Paper', 'total' => 40]);
+});
+
+it('ignores any user-supplied po number and generates one automatically', function () {
+    $user = User::factory()->create();
+    $user->assignRole(Role::firstOrCreate(['name' => 'procurement_officer', 'guard_name' => 'web']));
+    $supplier = Supplier::create(['name' => 'Auto Number Supplier']);
+    $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
+    $geOrder = GEOrder::create([
+        'order_number' => 'GE-PO-00003',
+        'user_id' => $user->id,
+        'supplier_id' => $supplier->id,
+        'branch_id' => $branch->id,
+        'account_code' => '5001-Office Supplies',
+        'inventory_flag' => 'STOCK',
+        'order_date' => now()->toDateString(),
+        'description' => 'Approved order for auto-numbering',
+        'status' => GEOrder::STATUS_APPROVED,
+        'approval_status' => GEOrder::APPROVAL_APPROVED,
+    ]);
+    GEOrderItem::create(['ge_order_id' => $geOrder->id, 'description' => 'Notebook', 'unit' => 'box', 'quantity' => 1, 'unit_price' => 10, 'total' => 10]);
+
+    $response = $this->actingAs($user)->post(route('procurement.store'), [
+        'po_number' => 'PO-MANUAL-001',
+        'ge_order_id' => $geOrder->id,
+        'order_date' => now()->toDateString(),
+        'receiving_person_name' => 'Jane Doe',
+        'receiving_person_position' => 'Procurement Officer',
+        'receiving_person_branch' => 'Main Campus',
+        'action' => 'place_order',
+    ]);
+
+    $purchaseOrder = PurchaseOrder::firstOrFail();
+    $response->assertRedirect(route('procurement.show', $purchaseOrder));
+    expect($purchaseOrder->po_number)->not->toBe('PO-MANUAL-001');
+    expect($purchaseOrder->po_number)->toMatch('/^PO-\d{5}$/');
+    expect($purchaseOrder->ge_order_id)->toBe($geOrder->id);
 });
 
 it('only lists approved GE orders without a purchase order when creating one', function () {
@@ -76,16 +136,31 @@ it('updates a purchase order line description independently', function () {
         'order_date' => now()->toDateString(),
         'status' => PurchaseOrder::STATUS_DRAFT,
         'total_amount' => 10,
+        'receiving_person_name' => 'Jane Doe',
+        'receiving_person_position' => 'Inventory Clerk',
+        'receiving_person_branch' => 'Main Campus',
+        'receiving_person_phone' => null,
+        'receiving_person_email' => null,
     ]);
     $line = $purchaseOrder->items()->create(['item_id' => $geItem->item_id, 'description' => 'Original line description', 'quantity' => 1, 'unit_price' => 10, 'total' => 10]);
 
+    $this->actingAs($user)->get(route('procurement.edit', $purchaseOrder))
+        ->assertOk()
+        ->assertSee('value="Jane Doe"', false)
+        ->assertSee('value="Inventory Clerk"', false);
+
     $response = $this->actingAs($user)->put(route('procurement.update', $purchaseOrder), [
-        'po_number' => $purchaseOrder->po_number,
         'order_date' => now()->toDateString(),
         'status' => PurchaseOrder::STATUS_DRAFT,
+        'receiving_person_name' => 'Updated Receiver',
+        'receiving_person_position' => 'Senior Store Officer',
+        'receiving_person_branch' => 'North Branch',
+        'receiving_person_phone' => '+675 7111 1111',
+        'receiving_person_email' => 'updated@example.com',
         'items' => [['id' => $line->id, 'description' => 'Supplier-specific line description']],
     ]);
 
     $response->assertRedirect(route('procurement.show', $purchaseOrder));
     $this->assertDatabaseHas('purchase_order_items', ['id' => $line->id, 'description' => 'Supplier-specific line description']);
+    $this->assertDatabaseHas($purchaseOrder->getTable(), ['id' => $purchaseOrder->id, 'receiving_person_name' => 'Updated Receiver', 'receiving_person_position' => 'Senior Store Officer', 'receiving_person_branch' => 'North Branch', 'receiving_person_phone' => '+675 7111 1111', 'receiving_person_email' => 'updated@example.com']);
 });
