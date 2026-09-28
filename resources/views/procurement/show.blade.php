@@ -12,11 +12,106 @@
     <div class="mb-6 flex flex-wrap items-center gap-3"><x-status-badge :status="$purchaseOrder->status" /><span class="text-sm text-slate-500">Created by {{ $purchaseOrder->creator->name }} · {{ $purchaseOrder->created_at->format('d M Y') }}</span></div>
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <section class="card animate-fade-in xl:col-span-2"><div class="border-b border-slate-200 p-5"><h3 class="text-base font-semibold text-slate-900">Order details</h3></div><dl class="grid grid-cols-1 gap-x-6 gap-y-5 p-5 sm:grid-cols-2"><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Supplier</dt><dd class="mt-1 text-sm font-semibold text-slate-900">{{ $purchaseOrder->supplier->name }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Source GE Order</dt><dd class="mt-1"><a href="{{ route('ge-orders.show', $purchaseOrder->geOrder) }}" class="font-mono text-sm font-semibold text-brand-600 hover:text-brand-700">{{ $purchaseOrder->geOrder->order_number }}</a></dd></div><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Branch</dt><dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->branch->name }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Order date</dt><dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->order_date->format('d M Y') }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Expected delivery</dt><dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->expected_delivery_date?->format('d M Y') ?? 'Not specified' }}</dd></div><div><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Ordered at</dt><dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->ordered_at?->format('d M Y, g:i A') ?? 'Not yet ordered' }}</dd></div>@if ($purchaseOrder->notes)<div class="sm:col-span-2"><dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Notes</dt><dd class="mt-1 whitespace-pre-line text-sm text-slate-700">{{ $purchaseOrder->notes }}</dd></div>@endif</dl></section>
-        <section class="card animate-fade-in"><div class="border-b border-slate-200 p-5"><h3 class="text-base font-semibold text-slate-900">Total</h3></div><div class="p-5"><p class="text-3xl font-bold tracking-tight text-slate-900">K {{ number_format((float) $purchaseOrder->total_amount, 2) }}</p><p class="mt-1 text-sm text-slate-500">{{ $purchaseOrder->items->count() }} line item(s)</p></div></section>
+        <section class="card animate-fade-in xl:col-span-2">
+            <div class="border-b border-slate-200 p-5">
+                <h3 class="text-base font-semibold text-slate-900">Order details</h3>
+            </div>
+            <dl class="grid grid-cols-1 gap-x-6 gap-y-5 p-5 sm:grid-cols-2">
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Supplier</dt>
+                    <dd class="mt-1 text-sm font-semibold text-slate-900">{{ $purchaseOrder->supplier->name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Source GE Order</dt>
+                    <dd class="mt-1"><a href="{{ route('ge-orders.show', $purchaseOrder->geOrder) }}" class="font-mono text-sm font-semibold text-brand-600 hover:text-brand-700">{{ $purchaseOrder->geOrder->order_number }}</a></dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Branch</dt>
+                    <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->branch->name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Order date</dt>
+                    <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->order_date->format('d M Y') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Expected delivery</dt>
+                    <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->expected_delivery_date?->format('d M Y') ?? 'Not specified' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Ordered at</dt>
+                    <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->ordered_at?->format('d M Y, g:i A') ?? 'Not yet ordered' }}</dd>
+                </div>@if ($purchaseOrder->notes)<div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Notes</dt>
+                    <dd class="mt-1 whitespace-pre-line text-sm text-slate-700">{{ $purchaseOrder->notes }}</dd>
+                </div>@endif
+            </dl>
+        </section>
+        <section class="card animate-fade-in">
+            <div class="border-b border-slate-200 p-5">
+                <h3 class="text-base font-semibold text-slate-900">Total</h3>
+            </div>
+            <div class="p-5">
+                <p class="text-3xl font-bold tracking-tight text-slate-900">K {{ number_format((float) $purchaseOrder->total_amount, 2) }}</p>
+                <p class="mt-1 text-sm text-slate-500">{{ $purchaseOrder->items->count() }} line item(s)</p>
+            </div>
+        </section>
     </div>
 
-    <section class="card animate-fade-in mt-6"><div class="border-b border-slate-200 p-5"><h3 class="text-base font-semibold text-slate-900">Purchase Order items</h3></div><div class="table-wrap"><table class="data-table"><thead><tr><th scope="col" class="w-12 text-right">#</th><th>Item</th><th>Unit</th><th class="text-right">Quantity</th><th class="text-right">Unit Price</th><th class="text-right">Total</th></tr></thead><tbody>@foreach ($purchaseOrder->items as $index => $item)<tr><td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td><td class="font-medium text-slate-900">{{ $item->description }}</td><td>{{ $item->unit ?? '—' }}</td><td class="text-right tabular-nums">{{ $item->quantity }}</td><td class="text-right tabular-nums">K {{ number_format((float) $item->unit_price, 2) }}</td><td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->total, 2) }}</td></tr>@endforeach</tbody></table></div></section>
+    <section class="card animate-fade-in mt-6">
+        <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Person Receiving PO</h3>
+        </div>
+        <dl class="grid grid-cols-1 gap-x-6 gap-y-5 p-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Full Name</dt>
+                <dd class="mt-1 text-sm font-semibold text-slate-900">{{ $purchaseOrder->receiving_person_name }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Position / Job Title</dt>
+                <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->receiving_person_position }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Department / Branch</dt>
+                <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->receiving_person_branch }}</dd>
+            </div>
+            @if ($purchaseOrder->receiving_person_phone)<div>
+                <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Phone Number</dt>
+                <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->receiving_person_phone }}</dd>
+            </div>@endif
+            @if ($purchaseOrder->receiving_person_email)<div>
+                <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Email Address</dt>
+                <dd class="mt-1 text-sm text-slate-700">{{ $purchaseOrder->receiving_person_email }}</dd>
+            </div>@endif
+        </dl>
+    </section>
+
+    <section class="card animate-fade-in mt-6">
+        <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Purchase Order items</h3>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="w-12 text-right">#</th>
+                        <th>Item</th>
+                        <th>Unit</th>
+                        <th class="text-right">Quantity</th>
+                        <th class="text-right">Unit Price</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>@foreach ($purchaseOrder->items as $index => $item)<tr>
+                        <td class="text-right font-medium tabular-nums text-slate-500">{{ $index + 1 }}</td>
+                        <td class="font-medium text-slate-900">{{ $item->description }}</td>
+                        <td>{{ $item->unit ?? '—' }}</td>
+                        <td class="text-right tabular-nums">{{ $item->quantity }}</td>
+                        <td class="text-right tabular-nums">K {{ number_format((float) $item->unit_price, 2) }}</td>
+                        <td class="text-right font-medium tabular-nums">K {{ number_format((float) $item->total, 2) }}</td>
+                    </tr>@endforeach</tbody>
+            </table>
+        </div>
+    </section>
 
     @can('delete', $purchaseOrder)<form method="POST" action="{{ route('procurement.destroy', $purchaseOrder) }}" class="mt-6 text-right">@csrf @method('DELETE')<button class="btn btn-ghost text-rose-600 hover:bg-rose-50 hover:text-rose-700" onclick="return confirm('Delete this draft Purchase Order?')"><i data-lucide="trash-2" class="h-4 w-4"></i> Delete Draft</button></form>@endcan
 </x-app-layout>

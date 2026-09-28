@@ -21,6 +21,11 @@ class StorePurchaseOrderRequest extends FormRequest
             'order_date' => ['required', 'date'],
             'expected_delivery_date' => ['nullable', 'date', 'after_or_equal:order_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'receiving_person_name' => ['required', 'string', 'max:255'],
+            'receiving_person_position' => ['required', 'string', 'max:255'],
+            'receiving_person_branch' => ['required', 'string', 'max:255'],
+            'receiving_person_phone' => ['nullable', 'string', 'max:50'],
+            'receiving_person_email' => ['nullable', 'email', 'max:255'],
             'action' => ['required', Rule::in(['save_draft', 'place_order'])],
         ];
     }

@@ -69,6 +69,11 @@
                 <th>Amount (PGK)</th>
                 <th>Status</th>
                 <th>Created By</th>
+                <th>Receiving Person Name</th>
+                <th>Receiving Person Position</th>
+                <th>Receiving Person Branch</th>
+                <th>Receiving Person Phone</th>
+                <th>Receiving Person Email</th>
             </tr>
         </thead>
         <tbody>
@@ -82,10 +87,15 @@
                 <td class="amount">K {{ number_format((float) $order->total_amount, 2) }}</td>
                 <td>{{ ucfirst($order->status) }}</td>
                 <td>{{ $order->creator?->name ?? '—' }}</td>
+                <td>{{ $order->receiving_person_name }}</td>
+                <td>{{ $order->receiving_person_position }}</td>
+                <td>{{ $order->receiving_person_branch }}</td>
+                <td>{{ $order->receiving_person_phone ?? '—' }}</td>
+                <td>{{ $order->receiving_person_email ?? '—' }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="8">No purchase orders found.</td>
+                <td colspan="13">No purchase orders found.</td>
             </tr>
             @endforelse
         </tbody>
