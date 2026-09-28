@@ -9,7 +9,11 @@
                 <p class="mt-0.5 text-sm text-slate-500">Line items remain linked to the approved source GE Order.</p>
             </div>
             <div class="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3">
-                <x-form-field name="po_number" label="PO Number" :value="old('po_number', $purchaseOrder->po_number)" :errors="$errors" placeholder="e.g. PO-2026-001" required />
+                <div>
+                    <p class="text-sm font-medium text-slate-700">PO Number</p>
+                    <p class="mt-1.5 rounded-lg bg-slate-50 px-3.5 py-2.5 font-mono text-sm font-semibold text-slate-700">{{ $purchaseOrder->po_number }}</p>
+                    <p class="mt-1 text-xs text-slate-500">System-generated and locked.</p>
+                </div>
                 <x-form-field name="order_date" label="Order Date" type="date" :value="old('order_date', $purchaseOrder->order_date->format('Y-m-d'))" :errors="$errors" required />
                 <x-form-field name="expected_delivery_date" label="Expected Delivery" type="date" :value="old('expected_delivery_date', $purchaseOrder->expected_delivery_date?->format('Y-m-d'))" :errors="$errors" />
                 <div><label for="status" class="block text-sm font-medium text-slate-700">Status <span class="text-rose-500">*</span></label><select id="status" name="status" class="input mt-1.5" required>@foreach (['draft' => 'Draft', 'ordered' => 'Ordered', 'backorder' => 'Backorder', 'partially received' => 'Partially Received', 'fully received' => 'Fully Received', 'cancelled' => 'Cancelled'] as $value => $label)<option value="{{ $value }}" @selected(old('status', $purchaseOrder->status) === $value)>{{ $label }}</option>@endforeach</select>@error('status')<p class="mt-1 text-xs font-medium text-rose-600">{{ $message }}</p>@enderror</div>
