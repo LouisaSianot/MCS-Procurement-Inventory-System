@@ -227,6 +227,8 @@ class GEOrderController extends Controller
 
     public function reject(RejectGEOrderRequest $request, GEOrder $ge_order)
     {
+        $this->authorize('reject', $ge_order);
+
         $ge_order->update([
             'status'           => GEOrder::STATUS_REJECTED,
             'approval_status'  => GEOrder::APPROVAL_REJECTED,

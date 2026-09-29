@@ -63,8 +63,13 @@ class GEOrderPolicy
             return false;
         }
 
-        return $user->can('ge-orders.approve')
-            || in_array($user->role ?? null, ['admin', 'head_of_school', 'approver'], true);
+        return $user->hasRole('super_admin')
+            || $user->can('ge-orders.approve');
+    }
+
+    public function reject(User $user, GEOrder $order): bool
+    {
+        return $this->approve($user, $order);
     }
 
     public function cancel(User $user, GEOrder $order): bool

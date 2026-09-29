@@ -22,17 +22,23 @@ class DatabaseSeeder extends Seeder
     {
         Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
 
-        $permissions = collect([
+        $basePermissions = collect([
             'ge-orders.create',
             'ge-orders.view',
             'ge-orders.update',
             'ge-orders.delete',
             'ge-orders.submit',
-            'ge-orders.approve',
-            'ge-orders.reject',
             'ge-orders.cancel',
             'master-data.manage',
             'users.manage',
+        ])->map(fn(string $name) => Permission::firstOrCreate([
+            'name' => $name,
+            'guard_name' => 'web',
+        ]));
+
+        $approvalPermissions = collect([
+            'ge-orders.approve',
+            'ge-orders.reject',
         ])->map(fn(string $name) => Permission::firstOrCreate([
             'name' => $name,
             'guard_name' => 'web',
@@ -42,29 +48,32 @@ class DatabaseSeeder extends Seeder
             'name' => 'super_admin',
             'guard_name' => 'web',
         ]);
-        $superAdmin->syncPermissions($permissions);
+        $superAdmin->syncPermissions($basePermissions->merge($approvalPermissions));
 
         $administrator = Role::firstOrCreate(['name' => 'Administrator', 'guard_name' => 'web']);
-        $administrator->syncPermissions($permissions);
-        Role::firstOrCreate(['name' => 'Purchasing Officer', 'guard_name' => 'web'])->syncPermissions(['master-data.manage']);
+        $administrator->syncPermissions($basePermissions);
+
+        $purchasingOfficer = Role::firstOrCreate(['name' => 'Purchasing Officer', 'guard_name' => 'web']);
+        $purchasingOfficer->syncPermissions($basePermissions->merge($approvalPermissions));
+
         Role::firstOrCreate(['name' => 'Inventory Officer', 'guard_name' => 'web'])->syncPermissions(['master-data.manage']);
         Role::firstOrCreate(['name' => 'EndUser', 'guard_name' => 'web']);
 
         $user = User::firstOrCreate([
-            'email' => 'test@example.com',
+            'email' => 'admin@example.com',
         ], [
-            'name'              => 'Test User',
-            'password'          => Hash::make('password'),
+            'name'              => 'Admin User',
+            'password'          => Hash::make('password123'),
             'email_verified_at' => now(),
             'user_identifier'   => (string) Str::uuid(),
             'is_active'         => true,
         ]);
 
-        $user->assignRole($superAdmin);
+        $user->assignRole($administrator);
 
-        User::whereIn('email', ['mkalua44@gmail.com', 'test@example.com'])
+        User::whereIn('email', ['mkalua44@gmail.com', 'admin@example.com'])
             ->get()
-            ->each(fn(User $user) => $user->assignRole($superAdmin));
+            ->each(fn(User $user) => $user->assignRole($administrator));
 
         $this->call(GEOrderDemoSeeder::class);
     }
