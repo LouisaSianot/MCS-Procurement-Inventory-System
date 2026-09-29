@@ -196,3 +196,123 @@ it('blocks unauthorized direct approval requests and invalid transitions', funct
         ->post(route('ge-orders.approve', $approvedOrder))
         ->assertForbidden();
 });
+
+it('allows a purchasing officer with approval permission to approve a pending ge order', function () {
+    $user = User::factory()->create([
+        'name' => 'Purchasing Officer',
+        'email' => 'purchasing@example.com',
+        'password' => Hash::make('password'),
+    ]);
+
+    $role = Role::firstOrCreate(['name' => 'Purchasing Officer', 'guard_name' => 'web']);
+    $permission = Permission::firstOrCreate(['name' => 'ge-orders.approve', 'guard_name' => 'web']);
+    $role->givePermissionTo($permission);
+    $user->assignRole($role);
+
+    $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
+    $supplier = Supplier::create([
+        'name' => 'Purchasing Supplier',
+        'address' => 'Test address',
+        'contact' => 'sales@purchasing.com',
+        'payment_term' => 'CREDIT',
+        'currency' => 'PGK',
+    ]);
+
+    $order = GEOrder::create([
+        'order_number' => 'GE-00104',
+        'user_id' => User::factory()->create()->id,
+        'supplier_id' => $supplier->id,
+        'branch_id' => $branch->id,
+        'account_code' => '5001-Office Supplies',
+        'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
+        'order_date' => now()->toDateString(),
+        'description' => 'Purchasing approval test',
+        'status' => GEOrder::STATUS_PENDING,
+        'approval_status' => GEOrder::APPROVAL_PENDING_APPROVAL,
+        'total_amount' => 400,
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('ge-orders.approve', $order))
+        ->assertRedirect(route('ge-orders.show', $order));
+
+    $order->refresh();
+    expect($order->status)->toBe(GEOrder::STATUS_APPROVED)
+        ->and($order->approval_status)->toBe(GEOrder::APPROVAL_APPROVED);
+});
+
+it('blocks a procurement officer from approving a ge order', function () {
+    $user = User::factory()->create([
+        'name' => 'Procurement Officer',
+        'email' => 'procurement@example.com',
+        'password' => Hash::make('password'),
+    ]);
+
+    $role = Role::firstOrCreate(['name' => 'procurement_officer', 'guard_name' => 'web']);
+    $user->assignRole($role);
+
+    $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
+    $supplier = Supplier::create([
+        'name' => 'Procurement Supplier',
+        'address' => 'Test address',
+        'contact' => 'sales@procurement.com',
+        'payment_term' => 'CREDIT',
+        'currency' => 'PGK',
+    ]);
+
+    $order = GEOrder::create([
+        'order_number' => 'GE-00105',
+        'user_id' => User::factory()->create()->id,
+        'supplier_id' => $supplier->id,
+        'branch_id' => $branch->id,
+        'account_code' => '5001-Office Supplies',
+        'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
+        'order_date' => now()->toDateString(),
+        'description' => 'Procurement approval test',
+        'status' => GEOrder::STATUS_PENDING,
+        'approval_status' => GEOrder::APPROVAL_PENDING_APPROVAL,
+        'total_amount' => 500,
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('ge-orders.approve', $order))
+        ->assertForbidden();
+});
+
+it('blocks an admin without explicit approval permission from approving a ge order', function () {
+    $user = User::factory()->create([
+        'name' => 'Admin Without Permission',
+        'email' => 'adminnoperm@example.com',
+        'password' => Hash::make('password'),
+    ]);
+
+    $role = Role::firstOrCreate(['name' => 'Administrator', 'guard_name' => 'web']);
+    $user->assignRole($role);
+
+    $branch = Branch::firstOrCreate(['id' => 201], ['name' => 'Main Campus']);
+    $supplier = Supplier::create([
+        'name' => 'Admin Supplier',
+        'address' => 'Test address',
+        'contact' => 'sales@admin.com',
+        'payment_term' => 'CREDIT',
+        'currency' => 'PGK',
+    ]);
+
+    $order = GEOrder::create([
+        'order_number' => 'GE-00106',
+        'user_id' => User::factory()->create()->id,
+        'supplier_id' => $supplier->id,
+        'branch_id' => $branch->id,
+        'account_code' => '5001-Office Supplies',
+        'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
+        'order_date' => now()->toDateString(),
+        'description' => 'Admin no permission test',
+        'status' => GEOrder::STATUS_PENDING,
+        'approval_status' => GEOrder::APPROVAL_PENDING_APPROVAL,
+        'total_amount' => 600,
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('ge-orders.approve', $order))
+        ->assertForbidden();
+});
