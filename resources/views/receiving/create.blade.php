@@ -1,5 +1,5 @@
 <x-app-layout title="Receive Purchase Order">
-    <x-page-header title="Receive Purchase Order" description="Record delivered quantities. STOCK lines increase branch inventory; NON-STOCK lines do not.">
+    <x-page-header title="Receive Purchase Order" description="Record delivered quantities. STOCK lines increase inventory at the selected branch location; NON-STOCK lines do not.">
         <x-slot name="actions"><a href="{{ route('receiving.index') }}" class="btn btn-secondary">Back to Receipts</a></x-slot>
     </x-page-header>
 
@@ -53,6 +53,19 @@
                     <p class="text-sm font-medium text-slate-700">Inventory handling</p>
                     <p class="mt-1.5 rounded-lg bg-slate-50 px-3.5 py-2.5 text-sm">{{ $isStock ? 'STOCK — inventory will be updated' : 'NON-STOCK — no inventory update' }}</p>
                 </div>
+                @if($isStock)
+                <div>
+                    <x-form-field name="location_id" label="Receiving location" type="select" :errors="$errors" required>
+                        <option value="">Select a location</option>
+                        @foreach($locations as $location)
+                        <option value="{{ $location->id }}" @selected((string) old('location_id') === (string) $location->id)>{{ $location->name }}</option>
+                        @endforeach
+                    </x-form-field>
+                    @if($locations->isEmpty())
+                    <p class="mt-1 text-xs text-rose-600">No locations are configured for this branch. Create one before posting this receipt.</p>
+                    @endif
+                </div>
+                @endif
                 <div class="sm:col-span-2 lg:col-span-3"><x-form-field name="notes" label="Notes" type="textarea" :value="old('notes')" :errors="$errors" placeholder="Record shortages, damage, or delivery notes" /></div>
             </div>
         </section>
@@ -106,7 +119,7 @@
                 </table>
             </div>
         </section>
-        <div class="mt-6 flex justify-end gap-3"><a href="{{ route('receiving.create') }}" class="btn btn-secondary">Choose another PO</a><button class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Post Receipt</button></div>
+        <div class="mt-6 flex justify-end gap-3"><a href="{{ route('receiving.create') }}" class="btn btn-secondary">Choose another PO</a><button class="btn btn-primary" @disabled($isStock && $locations->isEmpty())><i data-lucide="package-check" class="h-4 w-4"></i> Post Receipt</button></div>
     </form>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

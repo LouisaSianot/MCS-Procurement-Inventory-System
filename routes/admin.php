@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MasterDataController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,7 @@ Route::middleware(["auth", "verified"])->prefix("admin")->as("admin.")->group(fu
             Route::put("items/{item}", "updateItem")->name("items.update");
             Route::delete("items/{item}", "destroyItem")->name("items.destroy");
         });
+        Route::resource('locations', LocationController::class)->except(['show']);
     });
     Route::middleware("can:manage-users")->controller(UserManagementController::class)->group(function () {
         Route::get("users", "index")->name("users.index");

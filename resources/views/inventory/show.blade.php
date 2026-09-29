@@ -1,5 +1,10 @@
-<x-app-layout title="Inventory: {{ $itemBranch->item->description }}">
-    <x-page-header title="{{ $itemBranch->item->description }}" description="Item #{{ $itemBranch->item_id }} at {{ $itemBranch->branchRecord->name }}" :breadcrumbs="[['label' => 'Inventory', 'url' => route('inventory.index')], ['label' => $itemBranch->item->description]]"><x-slot name="actions"><a href="{{ route('inventory.index') }}" class="btn btn-secondary"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Inventory</a></x-slot></x-page-header>
+<x-app-layout title="Inventory Order Information: {{ $itemBranch->item->description }}">
+    <x-page-header title="Inventory Order Information" description="{{ $itemBranch->item->description }} · Item #{{ $itemBranch->item_id }}" :breadcrumbs="[['label' => 'Inventory', 'url' => route('inventory.index')], ['label' => $itemBranch->item->description]]">
+        <x-slot name="actions">
+            @can('transfer', App\Models\ItemBranch::class)<a href="{{ route('inventory.transfers.create', ['item_id' => $itemBranch->item_id]) }}" class="btn btn-primary"><i data-lucide="arrow-left-right" class="h-4 w-4"></i> Move Stock</a>@endcan
+            <a href="{{ route('inventory.index') }}" class="btn btn-secondary"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Inventory</a>
+        </x-slot>
+    </x-page-header>
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <section class="card xl:col-span-2">
@@ -10,6 +15,10 @@
                 <div>
                     <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Item ID</dt>
                     <dd class="mt-1 font-mono text-sm text-slate-800">{{ $itemBranch->item_id }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                    <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Item description</dt>
+                    <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->item->description }}</dd>
                 </div>
                 <div>
                     <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">UOM</dt>
@@ -33,7 +42,7 @@
                 </div>
                 <div>
                     <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">Location</dt>
-                    <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->location ?: 'Not set' }}</dd>
+                    <dd class="mt-1 text-sm text-slate-800">{{ $itemBranch->locationRecord?->name ?? $itemBranch->location ?? 'Not set' }}</dd>
                 </div>
             </dl>
         </section>
@@ -43,8 +52,9 @@
             </div>
             <div class="space-y-4 p-5">
                 <div>
-                    <p class="text-xs uppercase tracking-wider text-slate-400">Current Stock</p>
-                    <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900">{{ $itemBranch->current_stock }}</p>
+                    <p class="text-xs uppercase tracking-wider text-slate-400">Total Stock</p>
+                    <p class="mt-1 text-3xl font-bold tracking-tight text-slate-900">{{ number_format($totalStock, 2) }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Current stock: {{ $itemBranch->current_stock }} at {{ $itemBranch->locationRecord?->name ?? 'this location' }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-3 border-t border-slate-100 pt-4">
                     <div>
@@ -67,6 +77,117 @@
             </div>
         </section>
     </div>
+
+    <section class="card mt-6">
+        <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Related GE orders</h3>
+            <p class="mt-1 text-sm text-slate-500">GE order lines matched to this item, across branches.</p>
+        </div>
+        @forelse($geOrders as $geOrderData)
+        @php($geOrder = $geOrderData['order'])
+        <article class="border-b border-slate-100 p-5 last:border-b-0">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="{{ route('ge-orders.show', $geOrder) }}" class="font-mono text-sm font-semibold text-brand-600 hover:text-brand-700">{{ $geOrder->order_number }}</a>
+                @if($geOrder->status)<x-status-badge :status="$geOrder->status" />@endif
+            </div>
+            <p class="mt-2 text-sm text-slate-600">Branch: {{ $geOrder->branch?->name ?? 'Not assigned' }} · Supplier: {{ $geOrder->supplier?->name ?? 'Not assigned' }}@if($geOrder->supplier?->contact) · {{ $geOrder->supplier->contact }}@endif</p>
+            <div class="table-wrap mt-4">
+                <table class="data-table">
+                    <thead><tr><th>Order line</th><th>UOM</th><th class="text-right">Requested quantity</th></tr></thead>
+                    <tbody>
+                        @foreach($geOrderData['items'] as $orderItem)
+                        <tr>
+                            <td>{{ $orderItem->description ?: $itemBranch->item->description }}</td>
+                            <td>{{ $orderItem->unit ?: $itemBranch->uom ?: $itemBranch->item->uom ?: '—' }}</td>
+                            <td class="text-right font-medium tabular-nums">{{ number_format((float) $orderItem->quantity, 2) }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </article>
+        @empty
+        <div class="p-5 text-sm text-slate-500">No GE order lines are linked to this item.</div>
+        @endforelse
+    </section>
+
+    <section class="card mt-6">
+        <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Related purchase orders</h3>
+            <p class="mt-1 text-sm text-slate-500">Ordered and received quantities are shown per order and item line.</p>
+        </div>
+        @forelse($purchaseOrders as $purchaseOrderData)
+        @php($purchaseOrder = $purchaseOrderData['order'])
+        <article class="border-b border-slate-100 p-5 last:border-b-0">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="{{ route('procurement.show', $purchaseOrder) }}" class="font-mono text-sm font-semibold text-brand-600 hover:text-brand-700">{{ $purchaseOrder->po_number }}</a>
+                @if($purchaseOrder->status)<x-status-badge :status="$purchaseOrder->status" />@endif
+            </div>
+            <p class="mt-2 text-sm text-slate-600">
+                Branch: {{ $purchaseOrder->branch?->name ?? 'Not assigned' }} · Supplier: {{ $purchaseOrder->supplier?->name ?? 'Not assigned' }}@if($purchaseOrder->supplier?->contact) · {{ $purchaseOrder->supplier->contact }}@endif
+                @if($purchaseOrder->geOrder) · GE order: <a href="{{ route('ge-orders.show', $purchaseOrder->geOrder) }}" class="font-medium text-brand-600 hover:text-brand-700">{{ $purchaseOrder->geOrder->order_number }}</a>@endif
+            </p>
+            <p class="mt-2 text-xs font-medium text-slate-500">{{ number_format($purchaseOrderData['ordered_quantity'], 2) }} ordered · {{ number_format($purchaseOrderData['received_quantity'], 2) }} received on this purchase order</p>
+            <div class="table-wrap mt-4">
+                <table class="data-table">
+                    <thead><tr><th>Order line</th><th>UOM</th><th class="text-right">Ordered</th><th class="text-right">Received</th><th>Receipt deliveries</th></tr></thead>
+                    <tbody>
+                        @foreach($purchaseOrderData['items'] as $orderItem)
+                        <tr>
+                            <td>{{ $orderItem->description ?: $itemBranch->item->description }}</td>
+                            <td>{{ $orderItem->unit ?: $itemBranch->uom ?: $itemBranch->item->uom ?: '—' }}</td>
+                            <td class="text-right font-medium tabular-nums">{{ number_format((float) $orderItem->quantity, 2) }}</td>
+                            <td class="text-right font-medium tabular-nums">{{ number_format($orderItem->receiptItems->sum(fn($receiptItem) => (float) $receiptItem->quantity_received), 2) }}</td>
+                            <td>
+                                @if($orderItem->receiptItems->isNotEmpty())
+                                <ul class="space-y-1">
+                                    @foreach($orderItem->receiptItems as $receiptItem)
+                                    <li class="text-sm">
+                                        @if($receiptItem->receipt)
+                                        <a href="{{ route('receiving.show', $receiptItem->receipt) }}" class="font-medium text-brand-600 hover:text-brand-700">{{ $receiptItem->receipt->receipt_number }}</a>
+                                        @else
+                                        Receipt details unavailable
+                                        @endif
+                                        · {{ number_format((float) $receiptItem->quantity_received, 2) }} {{ $orderItem->unit ?: $itemBranch->uom ?: $itemBranch->item->uom }}
+                                        @if($receiptItem->receipt?->received_at) · {{ $receiptItem->receipt->received_at->format('d M Y') }}@endif
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                @else
+                                <span class="text-sm text-slate-500">Not received</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </article>
+        @empty
+        <div class="p-5 text-sm text-slate-500">No purchase order lines are linked to this item.</div>
+        @endforelse
+    </section>
+
+    <section class="card mt-6">
+        <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Location breakdown</h3>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead><tr><th>Branch</th><th>Location</th><th class="text-right">Stock</th></tr></thead>
+                <tbody>
+                    @foreach($locationStocks as $stockRecord)
+                    <tr>
+                        <td>{{ $stockRecord->branchRecord->name }}</td>
+                        <td>{{ $stockRecord->locationRecord?->name ?? $stockRecord->location ?? '—' }}</td>
+                        <td class="text-right font-semibold tabular-nums">{{ $stockRecord->current_stock }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+                <tfoot><tr><th colspan="2" class="text-right">Total</th><th class="text-right tabular-nums">{{ number_format($totalStock, 2) }}</th></tr></tfoot>
+            </table>
+        </div>
+    </section>
 
     @if($itemBranch->item->is_serialized)
     <section class="card mt-6">
@@ -100,7 +221,7 @@
     <section class="card mt-6">
         <div class="border-b border-slate-200 p-5">
             <h3 class="text-base font-semibold text-slate-900">Movement history</h3>
-            <p class="mt-1 text-sm text-slate-500">Receipt movements are shown now; issues and adjustments will use this same audit trail.</p>
+            <p class="mt-1 text-sm text-slate-500">Receipts and transfers for this item, across all locations.</p>
         </div>
         @if($movements->isNotEmpty())<x-table-section title="Movement history" :count="$movements->count()" :open="true">
             <div class="table-wrap">
@@ -109,21 +230,29 @@
                         <tr>
                             <th>Date</th>
                             <th>Type</th>
-                            <th>Reference</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Purchase order</th>
                             <th>Receipt</th>
+                            <th>Performed by</th>
                             <th class="text-right">Quantity</th>
                             <th class="text-right">Unit Cost</th>
                             <th class="text-right">Stock After</th>
+                            <th class="text-right">Destination Stock After</th>
                         </tr>
                     </thead>
-                    <tbody>@foreach($movements as $movement)@php($receipt = $movement->purchaseReceiptItem?->receipt) <tr>
+                        <tbody>@foreach($movements as $movement)@php($receipt = $movement->purchaseReceiptItem?->receipt) <tr>
                             <td>{{ $movement->created_at->format('d M Y') }}</td>
                             <td>{{ ucwords(str_replace('_', ' ', $movement->type)) }}</td>
+                            <td>{{ $movement->fromLocation?->name ?? $movement->itemBranch->locationRecord?->name ?? '—' }}</td>
+                            <td>{{ $movement->toLocation?->name ?? '—' }}</td>
                             <td>{{ $receipt?->purchaseOrder?->po_number ?? '—' }}</td>
                             <td>{{ $receipt?->receipt_number ?? '—' }}</td>
-                            <td class="text-right font-medium text-emerald-700">+{{ $movement->quantity }}</td>
+                            <td>{{ $movement->performer?->name ?? '—' }}</td>
+                            <td class="text-right font-medium {{ $movement->type === App\Models\InventoryMovement::TYPE_RECEIPT ? 'text-emerald-700' : 'text-slate-700' }}">{{ $movement->type === App\Models\InventoryMovement::TYPE_RECEIPT ? '+' : '' }}{{ $movement->quantity }}</td>
                             <td class="text-right">K {{ number_format((float) $movement->unit_cost, 2) }}</td>
                             <td class="text-right font-semibold">{{ $movement->stock_after }}</td>
+                            <td class="text-right">{{ $movement->destination_stock_after ?? '—' }}</td>
                         </tr>@endforeach</tbody>
                 </table>
             </div>
