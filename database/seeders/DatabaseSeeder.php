@@ -51,20 +51,20 @@ class DatabaseSeeder extends Seeder
         Role::firstOrCreate(['name' => 'EndUser', 'guard_name' => 'web']);
 
         $user = User::firstOrCreate([
-            'email' => 'test@example.com',
+            'email' => 'admin@example.com',
         ], [
-            'name'              => 'Test User',
-            'password'          => Hash::make('password'),
+            'name'              => 'Admin User',
+            'password'          => Hash::make('password123'),
             'email_verified_at' => now(),
             'user_identifier'   => (string) Str::uuid(),
             'is_active'         => true,
         ]);
 
-        $user->assignRole($superAdmin);
+        $user->assignRole($administrator);
 
-        User::whereIn('email', ['mkalua44@gmail.com', 'test@example.com'])
+        User::whereIn('email', ['mkalua44@gmail.com', 'admin@example.com'])
             ->get()
-            ->each(fn(User $user) => $user->assignRole($superAdmin));
+            ->each(fn(User $user) => $user->assignRole($administrator));
 
         $this->call(GEOrderDemoSeeder::class);
     }

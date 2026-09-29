@@ -226,7 +226,7 @@
                 <p class="mt-1 text-sm text-slate-500">As an authorised approver you can approve or reject this order.</p>
 
                 {{-- Approve --}}
-                <form method="POST" action="{{ route('ge-orders.approve', $order->id) }}" class="mt-4">
+                <form method="POST" action="{{ route('ge-orders.approve', $order->id) }}" class="mt-4" onsubmit="return confirm('Approve GE Order {{ $order->order_number }} for procurement?\n\nSupplier: {{ addslashes($order->supplier?->name ?? '—') }}\nAmount: K {{ number_format((float) ($order->total_amount ?? 0), 2) }}\n\nThis action will set the order status to Approved.')">
                     @csrf
                     <button type="submit" class="btn w-full bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500">
                         <i data-lucide="check" class="h-4 w-4"></i>
@@ -235,7 +235,7 @@
                 </form>
 
                 {{-- Reject (with reason) --}}
-                <form method="POST" action="{{ route('ge-orders.reject', $order->id) }}" class="mt-3">
+                <form method="POST" action="{{ route('ge-orders.reject', $order->id) }}" class="mt-3" onsubmit="return confirm('Reject GE Order {{ $order->order_number }}?\n\nThis action will set the order status to Rejected and requires a valid rejection reason.')">
                     @csrf
                     <label for="rejection_reason" class="block text-sm font-medium text-slate-700">Rejection reason</label>
                     <textarea id="rejection_reason" name="rejection_reason" rows="3" required

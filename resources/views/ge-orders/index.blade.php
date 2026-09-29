@@ -171,10 +171,18 @@
                     @endphp
                     <tr>
                         <td>
-                            <a href="{{ route('ge-orders.show', $order->id) }}"
-                                class="font-mono text-xs font-semibold text-brand-600 hover:text-brand-700">
-                                {{ $order->order_number ?? ('GE-'.str_pad($order->id, 5, '0', STR_PAD_LEFT)) }}
-                            </a>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('ge-orders.show', $order->id) }}"
+                                    class="font-mono text-xs font-semibold text-brand-600 hover:text-brand-700">
+                                    {{ $order->order_number ?? ('GE-'.str_pad($order->id, 5, '0', STR_PAD_LEFT)) }}
+                                </a>
+                                @if (($order->status ?? null) === \App\Models\GEOrder::STATUS_PENDING)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-inset ring-amber-200">
+                                    <i data-lucide="clock-3" class="h-3 w-3"></i>
+                                    Pending approval
+                                </span>
+                                @endif
+                            </div>
                         </td>
                         <td>{{ $order->requester?->name ?? $order->user?->name ?? '—' }}</td>
                         <td class="text-slate-500">{{ optional($order->order_date ?? $order->created_at)->format('d M Y') }}</td>
@@ -247,6 +255,12 @@
                                 {{ $order->order_number ?? ('GE-'.str_pad($order->id, 5, '0', STR_PAD_LEFT)) }}
                             </a>
                             <p class="mt-0.5 truncate text-xs text-slate-500">{{ $order->description ?? '—' }}</p>
+                            @if (($order->status ?? null) === \App\Models\GEOrder::STATUS_PENDING)
+                            <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 ring-1 ring-inset ring-amber-200">
+                                <i data-lucide="clock-3" class="h-3 w-3"></i>
+                                Pending approval
+                            </p>
+                            @endif
                         </div>
                         <x-status-badge :status="$order->status" />
                     </div>

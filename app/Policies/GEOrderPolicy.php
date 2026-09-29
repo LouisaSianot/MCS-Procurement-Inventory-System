@@ -64,7 +64,18 @@ class GEOrderPolicy
         }
 
         return $user->can('ge-orders.approve')
-            || in_array($user->role ?? null, ['admin', 'head_of_school', 'approver'], true);
+            || $user->hasAnyRole([
+                'super_admin',
+                'Administrator',
+                'Purchasing Officer',
+                'procurement_officer',
+                'purchasing_officer',
+            ]);
+    }
+
+    public function reject(User $user, GEOrder $order): bool
+    {
+        return $this->approve($user, $order);
     }
 
     public function cancel(User $user, GEOrder $order): bool
