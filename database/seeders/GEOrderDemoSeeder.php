@@ -5,7 +5,10 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\GEOrder;
 use App\Models\GEOrderItem;
+use App\Models\ItemBranch;
 use App\Models\Item;
+use App\Models\Location;
+use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -158,6 +161,19 @@ class GEOrderDemoSeeder extends Seeder
                     ['item' => '5KVA Generator AVR', 'unit' => 'unit', 'quantity' => 1, 'unit_price' => 3200.00],
                 ],
             ],
+            [
+                'number' => 'GE-00006',
+                'status' => GEOrder::STATUS_APPROVED,
+                'approval_status' => GEOrder::APPROVAL_APPROVED,
+                'inventory_flag' => GEOrder::INVENTORY_FLAG_STOCK,
+                'supplier' => 'Pacific General Traders',
+                'description' => 'Security equipment replenishment for campus facilities.',
+                'notes' => 'Approved for the next facilities security upgrade.',
+                'items' => [
+                    ['item' => '4MP Outdoor CCTV Camera', 'unit' => 'unit', 'quantity' => 3, 'unit_price' => 690.00],
+                    ['item' => '5KVA Generator AVR', 'unit' => 'unit', 'quantity' => 1, 'unit_price' => 3200.00],
+                ],
+            ],
         ];
 
         foreach ($orders as $definition) {
@@ -221,6 +237,82 @@ class GEOrderDemoSeeder extends Seeder
             }
 
             $order->recalcTotal();
+        }
+
+        $purchaseOrderSources = [
+            'PO-DEMO-0001' => 'GE-00003',
+            'PO-DEMO-0002' => 'GE-00006',
+        ];
+
+        foreach ($purchaseOrderSources as $poNumber => $geOrderNumber) {
+            $sourceOrder = GEOrder::with('items')->where('order_number', $geOrderNumber)->firstOrFail();
+            $purchaseOrder = PurchaseOrder::updateOrCreate(
+                ['po_number' => $poNumber],
+                [
+                    'ge_order_id' => $sourceOrder->id,
+                    'supplier_id' => $sourceOrder->supplier_id,
+                    'branch_id' => $sourceOrder->branch_id,
+                    'user_id' => $sourceOrder->user_id,
+                    'order_date' => $sourceOrder->order_date,
+                    'expected_delivery_date' => now()->addDays(14)->toDateString(),
+                    'notes' => $sourceOrder->description,
+                    'status' => PurchaseOrder::STATUS_ORDERED,
+                    'total_amount' => $sourceOrder->items->sum('total'),
+                    'ordered_at' => now(),
+                ]
+            );
+
+            foreach ($sourceOrder->items as $sourceItem) {
+                $purchaseOrder->items()->updateOrCreate(
+                    ['item_id' => $sourceItem->item_id],
+                    [
+                        'description' => $sourceItem->description,
+                        'unit' => $sourceItem->unit,
+                        'quantity' => $sourceItem->quantity,
+                        'unit_price' => $sourceItem->unit_price,
+                        'total' => $sourceItem->total,
+                    ]
+                );
+            }
+        }
+
+        $locations = collect([
+            'Central Stores' => 'Main campus central inventory store.',
+            'ICT Store' => 'Secure storage for computing and security equipment.',
+            'Facilities Store' => 'Facilities and cleaning supplies store.',
+        ])->mapWithKeys(function (string $description, string $name) use ($branch): array {
+            $location = Location::updateOrCreate(
+                ['branch_id' => $branch->id, 'name' => $name],
+                ['description' => $description]
+            );
+
+            return [$name => $location];
+        });
+
+        $inventory = [
+            ['item' => 'A4 Copy Paper 80gsm', 'location' => 'Central Stores', 'stock' => 32, 'cost' => 42.00, 'reorder_level' => 12],
+            ['item' => 'Brother Toner TN-2430', 'location' => 'Central Stores', 'stock' => 8, 'cost' => 260.00, 'reorder_level' => 3],
+            ['item' => 'Dell Latitude 5440 Laptop', 'location' => 'ICT Store', 'stock' => 2, 'cost' => 3850.00, 'reorder_level' => 1],
+            ['item' => 'HP LaserJet Pro M404dn', 'location' => 'ICT Store', 'stock' => 1, 'cost' => 1850.00, 'reorder_level' => 1],
+            ['item' => '4MP Outdoor CCTV Camera', 'location' => 'ICT Store', 'stock' => 3, 'cost' => 690.00, 'reorder_level' => 1],
+            ['item' => 'Industrial Floor Cleaner 20L', 'location' => 'Facilities Store', 'stock' => 6, 'cost' => 185.00, 'reorder_level' => 3],
+            ['item' => 'Toilet Tissue Roll Pack', 'location' => 'Facilities Store', 'stock' => 20, 'cost' => 32.50, 'reorder_level' => 10],
+        ];
+
+        foreach ($inventory as $stock) {
+            $item = $items[$stock['item']];
+
+            ItemBranch::updateOrCreate(
+                ['item_id' => $item->id, 'location_id' => $locations[$stock['location']]->id],
+                [
+                    'branch_id' => $branch->id,
+                    'uom' => $item->uom,
+                    'current_stock' => $stock['stock'],
+                    'unit_cost' => $stock['cost'],
+                    'reorder_level' => $stock['reorder_level'],
+                    'reorder_quantity' => max(1, $stock['reorder_level']),
+                ]
+            );
         }
     }
 }

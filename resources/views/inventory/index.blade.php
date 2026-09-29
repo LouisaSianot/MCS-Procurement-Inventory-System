@@ -71,7 +71,10 @@
                                 <p class="text-xs text-slate-400">Qty {{ $itemBranch->reorder_quantity }}</p>
                             </td>
                             <td><x-status-badge :status="$itemBranch->stockStatusLabel()" /></td>
-                            <td class="text-right"><a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View item"><i data-lucide="eye" class="h-4 w-4"></i></a></td>
+                            <td class="text-right">
+                                <a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View item" aria-label="View item {{ $itemBranch->item->description }}"><i data-lucide="eye" class="h-4 w-4"></i></a>
+                                <a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View order information" aria-label="View order information for {{ $itemBranch->item->description }}"><i data-lucide="clipboard-list" class="h-4 w-4"></i></a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

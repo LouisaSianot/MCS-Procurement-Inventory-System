@@ -7,7 +7,9 @@ use App\Models\Branch;
 use App\Models\Item;
 use App\Models\ItemBranch;
 use App\Models\InventoryMovement;
+use App\Models\GEOrderItem;
 use App\Models\Location;
+use App\Models\PurchaseOrderItem;
 
 class InventoryController extends Controller
 {
@@ -76,6 +78,34 @@ class InventoryController extends Controller
             ->latest()
             ->paginate(20);
 
-        return view('inventory.show', compact('itemBranch', 'locationStocks', 'totalStock', 'movements'));
+        $purchaseOrderItems = PurchaseOrderItem::query()
+            ->where('item_id', $itemBranch->item_id)
+            ->whereHas('purchaseOrder')
+            ->with(['purchaseOrder.branch', 'purchaseOrder.supplier', 'purchaseOrder.geOrder', 'receiptItems.receipt'])
+            ->orderBy('purchase_order_id')
+            ->orderBy('id')
+            ->get();
+        $purchaseOrders = $purchaseOrderItems->groupBy('purchase_order_id')->map(function ($orderItems): array {
+            return [
+                'order' => $orderItems->first()->purchaseOrder,
+                'items' => $orderItems,
+                'ordered_quantity' => $orderItems->sum(fn(PurchaseOrderItem $orderItem) => (float) $orderItem->quantity),
+                'received_quantity' => $orderItems->sum(fn(PurchaseOrderItem $orderItem) => $orderItem->receiptItems->sum(fn($receiptItem) => (float) $receiptItem->quantity_received)),
+            ];
+        });
+
+        $geOrderItems = GEOrderItem::query()
+            ->where('item_id', $itemBranch->item_id)
+            ->whereHas('geOrder')
+            ->with(['geOrder.branch', 'geOrder.supplier'])
+            ->orderBy('ge_order_id')
+            ->orderBy('id')
+            ->get();
+        $geOrders = $geOrderItems->groupBy('ge_order_id')->map(fn($orderItems) => [
+            'order' => $orderItems->first()->geOrder,
+            'items' => $orderItems,
+        ]);
+
+        return view('inventory.show', compact('itemBranch', 'locationStocks', 'totalStock', 'movements', 'purchaseOrders', 'geOrders'));
     }
 }
