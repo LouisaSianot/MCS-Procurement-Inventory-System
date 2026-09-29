@@ -5,6 +5,7 @@ use App\Models\GEOrder;
 use App\Models\InventoryMovement;
 use App\Models\Item;
 use App\Models\ItemBranch;
+use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseReceipt;
@@ -32,10 +33,13 @@ function inventoryRecord(array $overrides = []): ItemBranch
         'sub_category' => 'Stationery',
         'supplier_id' => $supplier->id,
     ]);
+    $locationName = $overrides['location'] ?? 'Store Room A';
+    $location = Location::firstOrCreate(['branch_id' => $branch->id, 'name' => $locationName]);
 
     return ItemBranch::create([
         'item_id' => $item->id,
         'branch_id' => $branch->id,
+        'location_id' => $location->id,
         'branch' => $branch->name,
         'uom' => 'ream',
         'location' => $overrides['location'] ?? 'Store Room A',
@@ -78,6 +82,7 @@ it('filters inventory by item search location branch category and stock status',
 
     $this->actingAs($user)->get(route('inventory.index', ['search' => 'Laser']))->assertSee('Laser Toner')->assertDontSee('Office Desk');
     $this->actingAs($user)->get(route('inventory.index', ['search' => 'Secure Cabinet']))->assertSee('Laser Toner')->assertDontSee('Office Desk');
+    $this->actingAs($user)->get(route('inventory.index', ['location' => $main->location_id]))->assertSee('Laser Toner')->assertDontSee('Office Desk');
     $this->actingAs($user)->get(route('inventory.index', ['branch' => $main->branch_id]))->assertSee('Laser Toner')->assertDontSee('Office Desk');
     $this->actingAs($user)->get(route('inventory.index', ['category' => 'Asset']))->assertSee('Office Desk')->assertDontSee('Laser Toner');
     $this->actingAs($user)->get(route('inventory.index', ['status' => 'low_stock']))->assertSee('Laser Toner')->assertDontSee('Office Desk');
@@ -120,3 +125,123 @@ it('does not permit negative current stock values', function () {
     $itemBranch->current_stock = -1;
     $itemBranch->save();
 })->throws(InvalidArgumentException::class);
+
+it('transfers stock atomically and records both location balances and the acting user', function () {
+    $user = inventoryUser();
+    $source = inventoryRecord(['current_stock' => 100]);
+    $destination = Location::create(['branch_id' => $source->branch_id, 'name' => 'Admin Store']);
+
+    $this->actingAs($user)->get(route('inventory.transfers.create'))
+        ->assertOk()
+        ->assertSee($source->item->description)
+        ->assertSee($source->locationRecord->name)
+        ->assertSee($destination->name);
+
+    $this->actingAs($user)->post(route('inventory.transfers.store'), [
+        'item_id' => $source->item_id,
+        'from_location_id' => $source->location_id,
+        'to_location_id' => $destination->id,
+        'quantity' => 30,
+    ])->assertRedirect(route('inventory.index'))->assertSessionHas('success');
+
+    $source->refresh();
+    $destinationStock = ItemBranch::where('item_id', $source->item_id)->where('location_id', $destination->id)->firstOrFail();
+    expect((float) $source->current_stock)->toBe(70.0)
+        ->and((float) $destinationStock->current_stock)->toBe(30.0)
+        ->and((float) $source->current_stock + (float) $destinationStock->current_stock)->toBe(100.0);
+
+    $this->assertDatabaseHas('inventory_movements', [
+        'item_branch_id' => $source->id,
+        'type' => InventoryMovement::TYPE_TRANSFER,
+        'from_location_id' => $source->location_id,
+        'to_location_id' => $destination->id,
+        'performed_by' => $user->id,
+        'stock_after' => 70,
+        'destination_stock_after' => 30,
+    ]);
+});
+
+it('rejects transfers exceeding available stock and leaves both locations unchanged', function () {
+    $user = inventoryUser();
+    $source = inventoryRecord(['current_stock' => 100]);
+    $destination = Location::create(['branch_id' => $source->branch_id, 'name' => 'Admin Store']);
+    ItemBranch::create(['item_id' => $source->item_id, 'branch_id' => $source->branch_id, 'branch' => $source->branch, 'location_id' => $destination->id, 'location' => $destination->name, 'uom' => 'ream', 'current_stock' => 30]);
+
+    $this->actingAs($user)->from(route('inventory.transfers.create'))->post(route('inventory.transfers.store'), [
+        'item_id' => $source->item_id,
+        'from_location_id' => $destination->id,
+        'to_location_id' => $source->location_id,
+        'quantity' => 100,
+    ])->assertRedirect(route('inventory.transfers.create'))->assertSessionHasErrors('quantity');
+
+    expect((float) $source->fresh()->current_stock)->toBe(100.0)
+        ->and((float) ItemBranch::where('item_id', $source->item_id)->where('location_id', $destination->id)->value('current_stock'))->toBe(30.0);
+    $this->assertDatabaseCount('inventory_movements', 0);
+});
+
+it('rejects cross-branch transfers and blocks transfers for view-only users', function () {
+    $officer = inventoryUser();
+    $source = inventoryRecord(['current_stock' => 100]);
+    $otherBranch = Branch::create(['name' => 'Other Inventory Branch']);
+    $foreignLocation = Location::create(['branch_id' => $otherBranch->id, 'name' => 'Foreign Store']);
+
+    $this->actingAs($officer)->from(route('inventory.transfers.create'))->post(route('inventory.transfers.store'), [
+        'item_id' => $source->item_id,
+        'from_location_id' => $source->location_id,
+        'to_location_id' => $foreignLocation->id,
+        'quantity' => 10,
+    ])->assertRedirect(route('inventory.transfers.create'))->assertSessionHasErrors('to_location_id');
+
+    expect((float) $source->fresh()->current_stock)->toBe(100.0);
+
+    $viewer = inventoryUser('EndUser');
+    $this->actingAs($viewer)->post(route('inventory.transfers.store'), [
+        'item_id' => $source->item_id,
+        'from_location_id' => $source->location_id,
+        'to_location_id' => $foreignLocation->id,
+        'quantity' => 10,
+    ])->assertForbidden();
+    $this->assertDatabaseCount('inventory_movements', 0);
+});
+
+it('allows authorized users to manage unique locations and prevents deleting referenced locations', function () {
+    $user = inventoryUser();
+    $branch = Branch::create(['name' => 'Location Management Branch']);
+
+    $this->actingAs($user)->post(route('admin.locations.store'), [
+        'branch_id' => $branch->id,
+        'name' => 'Procurement Store',
+        'description' => 'Main receiving area',
+    ])->assertSessionHasNoErrors()->assertRedirect(route('admin.locations.index'));
+
+    $this->actingAs($user)->get(route('admin.locations.index'))
+        ->assertOk()
+        ->assertSee('Procurement Store');
+
+    $location = Location::where('branch_id', $branch->id)->where('name', 'Procurement Store')->firstOrFail();
+    $this->actingAs($user)->from(route('admin.locations.create'))->post(route('admin.locations.store'), [
+        'branch_id' => $branch->id,
+        'name' => 'Procurement Store',
+    ])->assertRedirect(route('admin.locations.create'))->assertSessionHasErrors('name');
+
+    $item = Item::create(['description' => 'Location Test Item', 'uom' => 'each', 'category' => 'Consumable', 'sub_category' => 'General']);
+    ItemBranch::create([
+        'item_id' => $item->id,
+        'branch_id' => $branch->id,
+        'branch' => $branch->name,
+        'location_id' => $location->id,
+        'location' => $location->name,
+        'current_stock' => 1,
+    ]);
+
+    $this->from(route('admin.locations.index'))->actingAs($user)->delete(route('admin.locations.destroy', $location))
+        ->assertRedirect(route('admin.locations.index'))
+        ->assertSessionHas('error');
+    $this->assertDatabaseHas('locations', ['id' => $location->id]);
+
+    $viewer = inventoryUser('EndUser');
+    $this->actingAs($viewer)->post(route('admin.locations.store'), [
+        'branch_id' => $branch->id,
+        'name' => 'Unauthorized Store',
+    ])->assertForbidden();
+});

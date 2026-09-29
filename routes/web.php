@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryTransferController;
 use App\Http\Controllers\ReportsController;
 use App\Models\GEOrder;
 use App\Models\ItemBranch;
@@ -64,7 +65,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
-    Route::get('/inventory/{itemBranch}', [InventoryController::class, 'show'])->name('inventory.show');
+    Route::get('/inventory/transfers/create', [InventoryTransferController::class, 'create'])->name('inventory.transfers.create');
+    Route::post('/inventory/transfers', [InventoryTransferController::class, 'store'])->name('inventory.transfers.store');
+    Route::get('/inventory/{itemBranch}', [InventoryController::class, 'show'])->whereNumber('itemBranch')->name('inventory.show');
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::get('/reports/export/{format}', [ReportsController::class, 'export'])->whereIn('format', ['xlsx', 'pdf'])->name('reports.export');

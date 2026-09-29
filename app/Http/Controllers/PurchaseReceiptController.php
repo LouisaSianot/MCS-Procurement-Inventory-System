@@ -8,6 +8,7 @@ use App\Models\GEOrder;
 use App\Models\InventoryMovement;
 use App\Models\ItemBranch;
 use App\Models\ItemSerial;
+use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseReceipt;
@@ -55,6 +56,9 @@ class PurchaseReceiptController extends Controller
         return view('receiving.create', [
             'purchaseOrders' => $purchaseOrders,
             'selectedPurchaseOrder' => $selectedPurchaseOrder,
+            'locations' => $selectedPurchaseOrder
+                ? Location::where('branch_id', $selectedPurchaseOrder->branch_id)->orderBy('name')->get()
+                : collect(),
             'receiptNumber' => PurchaseReceipt::generateNumber(),
             'defaultDate' => now()->toDateString(),
         ]);
@@ -72,6 +76,19 @@ class PurchaseReceiptController extends Controller
 
             if (! in_array($purchaseOrder->status, [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_PARTIALLY_RECEIVED], true)) {
                 throw ValidationException::withMessages(['purchase_order_id' => 'Only ordered or partially received purchase orders can be received.']);
+            }
+
+            $location = null;
+            if ($purchaseOrder->geOrder->inventory_flag === GEOrder::INVENTORY_FLAG_STOCK) {
+                $location = Location::query()
+                    ->whereKey($data['location_id'])
+                    ->where('branch_id', $purchaseOrder->branch_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $location) {
+                    throw ValidationException::withMessages(['location_id' => 'Choose a location belonging to the purchase order branch.']);
+                }
             }
 
             $lines = $purchaseOrder->items->keyBy('id');
@@ -137,6 +154,7 @@ class PurchaseReceiptController extends Controller
                     $itemBranch = ItemBranch::query()
                         ->where('item_id', $line->item_id)
                         ->where('branch_id', $purchaseOrder->branch_id)
+                        ->where('location_id', $location->id)
                         ->lockForUpdate()
                         ->first();
 
@@ -144,8 +162,10 @@ class PurchaseReceiptController extends Controller
                         $itemBranch = ItemBranch::create([
                             'item_id' => $line->item_id,
                             'branch_id' => $purchaseOrder->branch_id,
+                            'location_id' => $location->id,
                             // Retained only for legacy rows while branch_id becomes authoritative.
                             'branch' => $purchaseOrder->branch->name,
+                            'location' => $location->name,
                             'uom' => $line->unit,
                         ]);
                     }
@@ -155,6 +175,7 @@ class PurchaseReceiptController extends Controller
                     $newStock = $oldStock + $quantity;
                     $itemBranch->update([
                         'current_stock' => $newStock,
+                        'location' => $location->name,
                         'unit_cost' => $newStock > 0
                             ? (($oldStock * (float) $itemBranch->unit_cost) + ($quantity * (float) $row['unit_cost'])) / $newStock
                             : 0,
@@ -167,6 +188,7 @@ class PurchaseReceiptController extends Controller
                         'quantity' => $quantity,
                         'unit_cost' => $row['unit_cost'],
                         'stock_after' => $newStock,
+                        'performed_by' => $request->user()->id,
                     ]);
 
                     if ($line->item?->is_serialized) {

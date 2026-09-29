@@ -4,6 +4,7 @@ use App\Models\Branch;
 use App\Models\GEOrder;
 use App\Models\Item;
 use App\Models\ItemBranch;
+use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
@@ -73,7 +74,8 @@ it('calculates report aggregates and applies combined filters', function () {
     reportPurchaseOrder($user, $excludedSupplier, $other, 'REPORT-002', '2026-08-10', PurchaseOrder::STATUS_FULLY_RECEIVED, 300, 'Excluded Item');
 
     $stockItem = Item::create(['description' => 'Low Stock Item', 'uom' => 'each', 'category' => 'Consumable', 'sub_category' => 'General', 'supplier_id' => $includedSupplier->id]);
-    ItemBranch::create(['item_id' => $stockItem->id, 'branch_id' => $main->id, 'branch' => $main->name, 'uom' => 'each', 'current_stock' => 2, 'unit_cost' => 25, 'reorder_level' => 5, 'reorder_quantity' => 10]);
+    $location = Location::create(['branch_id' => $main->id, 'name' => 'Reports Store']);
+    ItemBranch::create(['item_id' => $stockItem->id, 'branch_id' => $main->id, 'branch' => $main->name, 'location_id' => $location->id, 'location' => $location->name, 'uom' => 'each', 'current_stock' => 2, 'unit_cost' => 25, 'reorder_level' => 5, 'reorder_quantity' => 10]);
 
     $response = $this->actingAs($user)->get(route('reports.index', [
         'date_from' => '2026-09-01',

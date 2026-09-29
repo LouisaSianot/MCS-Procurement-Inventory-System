@@ -15,7 +15,7 @@ class ItemBranch extends Model
 
     protected $table = 'item_branches';
 
-    public const COMPOSITE_KEY = ['item_id', 'branch_id'];
+    public const COMPOSITE_KEY = ['item_id', 'location_id'];
 
     public const STATUS_IN_STOCK = 'in_stock';
 
@@ -23,7 +23,7 @@ class ItemBranch extends Model
 
     public const STATUS_OUT_OF_STOCK = 'out_of_stock';
 
-    protected $fillable = ['branch', 'branch_id', 'item_id', 'uom', 'current_stock', 'unit_cost', 'location', 'reorder_level', 'reorder_quantity'];
+    protected $fillable = ['branch', 'branch_id', 'item_id', 'location_id', 'uom', 'current_stock', 'unit_cost', 'location', 'reorder_level', 'reorder_quantity'];
 
     public function getItemIDAttribute(): int
     {
@@ -50,6 +50,11 @@ class ItemBranch extends Model
     public function branchRecord(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'branch_id');
+    }
+
+    public function locationRecord(): BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'location_id');
     }
 
     public function movements(): HasMany

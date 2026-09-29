@@ -23,6 +23,21 @@ it('shows the Assets system link for authenticated users', function () {
         ->assertDontSee('>Users &amp; Roles</span>', false);
 });
 
+it('shows the Locations link to Administrators and hides it from view-only users', function () {
+    $administrator = sidebarUser('Administrator');
+    $administratorResponse = $this->actingAs($administrator)->get(route('dashboard'));
+
+    $administratorResponse
+        ->assertOk()
+        ->assertSee('href="' . route('admin.locations.index') . '"', false)
+        ->assertSee('>Locations</span>', false);
+
+    $viewer = sidebarUser('EndUser');
+    $this->actingAs($viewer)->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('>Locations</span>', false);
+});
+
 it('keeps the Users and Roles page protected without permission', function () {
     $user = sidebarUser('EndUser');
 
