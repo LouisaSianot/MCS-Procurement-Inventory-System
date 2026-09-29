@@ -10,6 +10,7 @@ Route::middleware(["auth", "verified"])->prefix("admin")->as("admin.")->group(fu
         Route::controller(MasterDataController::class)->group(function () {
             Route::get("suppliers", "suppliers")->name("suppliers.index");
             Route::get("suppliers/create", "createSupplier")->name("suppliers.create");
+            Route::get("suppliers/{supplier}", "showSupplier")->name("suppliers.show");
             Route::post("suppliers", "storeSupplier")->name("suppliers.store");
             Route::get("suppliers/{supplier}/edit", "editSupplier")->name("suppliers.edit");
             Route::put("suppliers/{supplier}", "updateSupplier")->name("suppliers.update");
