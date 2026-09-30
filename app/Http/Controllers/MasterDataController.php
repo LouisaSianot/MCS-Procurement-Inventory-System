@@ -89,7 +89,23 @@ class MasterDataController extends Controller
     public function items(Request $request)
     {
         $search = trim((string) $request->query('search'));
-        $items = Item::with('supplier')->when($search, fn($q) => $q->where('description', 'like', "%{$search}%")->orWhere('category', 'like', "%{$search}%"))->orderBy('description')->paginate(12)->withQueryString();
+        $search = mb_substr($search, 0, 100);
+
+        $items = Item::query()
+            ->with('supplier')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($itemQuery) use ($search) {
+                    $itemQuery
+                        ->where('description', 'ilike', "%{$search}%")
+                        ->orWhere('category', 'ilike', "%{$search}%")
+                        ->orWhere('sub_category', 'ilike', "%{$search}%")
+                        ->orWhere('model_number', 'ilike', "%{$search}%")
+                        ->orWhere('uom', 'ilike', "%{$search}%");
+                });
+            })
+            ->orderBy('description')
+            ->paginate(12)
+            ->withQueryString();
 
         return view('admin.items.index', compact('items', 'search'));
     }

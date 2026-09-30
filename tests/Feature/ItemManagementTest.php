@@ -40,6 +40,49 @@ it('renders and creates an item from the admin form', function () {
         ->category->toBe('Asset');
 });
 
+it('searches items by partial description and model number in the admin listing', function () {
+    $user = itemManager();
+    $supplier = Supplier::create(['name' => 'Test Supplier']);
+
+    Item::create([
+        'description' => 'Industrial Safety Gloves',
+        'uom' => 'pair',
+        'category' => 'Consumable',
+        'sub_category' => 'General',
+        'supplier_id' => $supplier->id,
+        'model_number' => 'GLOVE-XL-2024',
+        'is_serialized' => false,
+    ]);
+
+    Item::create([
+        'description' => 'Laptop Docking Station',
+        'uom' => 'each',
+        'category' => 'Asset',
+        'sub_category' => 'Computer',
+        'supplier_id' => $supplier->id,
+        'model_number' => 'DOCK-900',
+        'is_serialized' => false,
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('admin.items.index', ['search' => 'glov']))
+        ->assertOk()
+        ->assertSee('Industrial Safety Gloves')
+        ->assertDontSee('Laptop Docking Station');
+
+    $this->actingAs($user)
+        ->get(route('admin.items.index', ['search' => 'GLOVE']))
+        ->assertOk()
+        ->assertSee('Industrial Safety Gloves')
+        ->assertDontSee('Laptop Docking Station');
+
+    $this->actingAs($user)
+        ->get(route('admin.items.index', ['search' => '2024']))
+        ->assertOk()
+        ->assertSee('Industrial Safety Gloves')
+        ->assertDontSee('Laptop Docking Station');
+});
+
 it('rejects a sub-category from another category', function () {
     $user = itemManager();
     $supplier = Supplier::create(['name' => 'Test Supplier']);
