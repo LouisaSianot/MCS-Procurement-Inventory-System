@@ -11,6 +11,7 @@ use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Gate;
 
 class MasterDataController extends Controller
 {
@@ -22,6 +23,33 @@ class MasterDataController extends Controller
         $suppliers = Supplier::query()->when($search, fn($q) => $q->where('name', 'like', "%{$search}%")->orWhere('contact', 'like', "%{$search}%"))->orderBy('name')->paginate(12)->withQueryString();
 
         return view('admin.suppliers.index', compact('suppliers', 'search'));
+    }
+
+    public function showSupplier(Supplier $supplier)
+    {
+        $supplier->load(['geOrders.items.item', 'geOrders.purchaseOrder']);
+        $supplierId = $supplier->getKey();
+
+        $orders = $supplier->geOrders
+            ->filter(fn (GEOrder $order) => Gate::allows('view', $order))
+            ->map(function (GEOrder $order) use ($supplierId) {
+                $purchaseOrder = $order->purchaseOrder;
+                $order->setAttribute('has_purchase_order', $purchaseOrder !== null);
+                $order->setAttribute(
+                    'purchase_order_visible',
+                    $purchaseOrder !== null
+                        && (int) $purchaseOrder->supplier_id === (int) $supplierId
+                        && Gate::allows('view', $purchaseOrder)
+                );
+
+                if ($purchaseOrder !== null && ! $order->purchase_order_visible) {
+                    $order->setRelation('purchaseOrder', null);
+                }
+
+                return $order;
+            });
+
+        return view('admin.suppliers.show', compact('supplier', 'orders'));
     }
 
     public function createSupplier()

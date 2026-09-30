@@ -25,7 +25,7 @@
                         <td>{{ $supplier->payment_term }}</td>
                         <td>{{ $supplier->currency }}</td>
                         <td>
-                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.edit', $supplier) }}">Edit</a>
+                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.show', $supplier) }}">View</a><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.edit', $supplier) }}">Edit</a>
                                 <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('Delete this supplier? This cannot be undone.');">@csrf @method("DELETE")<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>
                             </div>
                         </td>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Concerns\UsesV4TableName;
 
 class Supplier extends Model
@@ -25,5 +26,10 @@ class Supplier extends Model
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+
+    public function geOrders(): HasMany
+    {
+        return $this->hasMany(GEOrder::class, 'supplier_id');
     }
 }
