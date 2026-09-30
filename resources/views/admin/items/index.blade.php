@@ -1,7 +1,7 @@
 <x-app-layout title="Item Management"><x-page-header title="Items" description="Maintain stock and asset master records."><x-slot name="actions"><a href="{{ route('admin.items.create') }}" class="btn btn-primary" aria-label="Add item" title="Add item"><i data-lucide="plus" class="h-4 w-4"></i></a></x-slot></x-page-header>
     <section class="card overflow-hidden">
-        <form class="border-b border-slate-200 p-4">
-            <div class="flex gap-3"><input class="input max-w-md" name="search" value="{{ $search }}" placeholder="Search item or category"><button class="btn btn-secondary">Search</button></div>
+        <form method="GET" action="{{ route('admin.items.index') }}" class="border-b border-slate-200 p-4">
+            <div class="flex gap-3"><input class="input max-w-md" name="search" value="{{ $search }}" placeholder="Search item, model, category, or UOM"><button class="btn btn-secondary">Search</button></div>
         </form>
         <div class="table-wrap">
             <table class="data-table">
