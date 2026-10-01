@@ -100,7 +100,7 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
         <ul class="space-y-1">
 
             <li>
-                <a href="{{ route('inventory.index') }}" aria-current="{{ str_starts_with($current, 'inventory') ? 'page' : 'false' }}" class="nav-link">
+                <a href="{{ route('assets.index') }}" aria-current="{{ str_starts_with($current, 'inventory') || str_starts_with($current, 'assets') ? 'page' : 'false' }}" class="nav-link">
                     <i data-lucide="package" class="nav-link-icon"></i>
                     <span class="collapsible-label">Assets</span>
                 </a>

@@ -18,7 +18,7 @@ it('shows the Assets system link for authenticated users', function () {
 
     $response
         ->assertOk()
-        ->assertSee('href="' . route('inventory.index') . '"', false)
+        ->assertSee('href="' . route('assets.index') . '"', false)
         ->assertSee('>Assets</span>', false)
         ->assertDontSee('>Users &amp; Roles</span>', false);
 });

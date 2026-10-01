@@ -56,8 +56,9 @@ class DatabaseSeeder extends Seeder
         $purchasingOfficer = Role::firstOrCreate(['name' => 'Purchasing Officer', 'guard_name' => 'web']);
         $purchasingOfficer->syncPermissions($basePermissions->merge($approvalPermissions));
 
-        Role::firstOrCreate(['name' => 'Inventory Officer', 'guard_name' => 'web'])->syncPermissions(['master-data.manage']);
-        Role::firstOrCreate(['name' => 'EndUser', 'guard_name' => 'web']);
+        $inventoryOfficer = Role::firstOrCreate(['name' => 'Inventory Officer', 'guard_name' => 'web']);
+        $inventoryOfficer->syncPermissions(['master-data.manage']);
+        $endUser = Role::firstOrCreate(['name' => 'EndUser', 'guard_name' => 'web']);
 
         $user = User::firstOrCreate([
             'email' => 'admin@example.com',
@@ -70,6 +71,22 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user->assignRole($administrator);
+
+        foreach ([
+            ['name' => 'Purchasing Officer User', 'email' => 'purchasing@example.com', 'role' => $purchasingOfficer],
+            ['name' => 'Inventory Officer User', 'email' => 'inventory@example.com', 'role' => $inventoryOfficer],
+            ['name' => 'End User', 'email' => 'enduser@example.com', 'role' => $endUser],
+        ] as $account) {
+            $roleUser = User::firstOrCreate(['email' => $account['email']], [
+                'name'              => $account['name'],
+                'password'          => Hash::make('password123'),
+                'email_verified_at' => now(),
+                'user_identifier'   => (string) Str::uuid(),
+                'is_active'         => true,
+            ]);
+
+            $roleUser->syncRoles([$account['role']]);
+        }
 
         User::whereIn('email', ['mkalua44@gmail.com', 'admin@example.com'])
             ->get()

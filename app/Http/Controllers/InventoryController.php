@@ -10,6 +10,7 @@ use App\Models\InventoryMovement;
 use App\Models\GEOrderItem;
 use App\Models\Location;
 use App\Models\PurchaseOrderItem;
+use Illuminate\Support\Facades\Cache;
 
 class InventoryController extends Controller
 {
@@ -48,12 +49,16 @@ class InventoryController extends Controller
 
         return view('inventory.index', [
             'inventory' => $inventory,
-            'branches' => Branch::orderBy('name')->get(['id', 'name']),
-            'locations' => Location::query()
-                ->with('branch')
-                ->when($filters['branch'] ?? null, fn($query, int $branchId) => $query->where('branch_id', $branchId))
-                ->orderBy('name')->get(),
-            'categories' => Item::query()->distinct()->orderBy('category')->pluck('category'),
+            'branches' => Cache::remember('lookup.branches.v3', now()->addMinutes(10), fn () => Branch::orderBy('name')->get(['id', 'name'])->toArray()),
+            'locations' => Cache::remember(
+                'lookup.locations.v3.' . ($filters['branch'] ?? 'all'),
+                now()->addMinutes(10),
+                fn () => Location::query()
+                    ->with('branch')
+                    ->when($filters['branch'] ?? null, fn($query, int $branchId) => $query->where('branch_id', $branchId))
+                    ->orderBy('name')->get()->toArray()
+            ),
+            'categories' => Cache::remember('lookup.categories.v3', now()->addMinutes(10), fn () => Item::query()->distinct()->orderBy('category')->pluck('category')->all()),
             'filters' => $filters,
         ]);
     }

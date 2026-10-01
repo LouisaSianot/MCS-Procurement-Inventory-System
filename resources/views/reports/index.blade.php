@@ -24,7 +24,7 @@
                     <select id="branch_id" name="branch_id" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500">
                         <option value="">All branches</option>
                         @foreach ($branches as $branch)
-                        <option value="{{ $branch->id }}" @selected((string) ($filters['branch_id'] ?? '' )===(string) $branch->id)>{{ $branch->name }}</option>
+                        <option value="{{ $branch['id'] }}" @selected((string) ($filters['branch_id'] ?? '' )===(string) $branch['id'])>{{ $branch['name'] }}</option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('branch_id')" class="mt-1" />
@@ -34,7 +34,7 @@
                     <select id="supplier_id" name="supplier_id" class="mt-1 block w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-brand-500 focus:ring-brand-500">
                         <option value="">All suppliers</option>
                         @foreach ($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}" @selected((string) ($filters['supplier_id'] ?? '' )===(string) $supplier->id)>{{ $supplier->name }}</option>
+                        <option value="{{ $supplier['id'] }}" @selected((string) ($filters['supplier_id'] ?? '' )===(string) $supplier['id'])>{{ $supplier['name'] }}</option>
                         @endforeach
                     </select>
                     <x-input-error :messages="$errors->get('supplier_id')" class="mt-1" />

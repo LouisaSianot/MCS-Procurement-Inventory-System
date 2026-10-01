@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PurchaseReceiptsExport;
+use App\Jobs\GenerateExport;
 use App\Http\Requests\StorePurchaseReceiptRequest;
 use App\Models\GEOrder;
+use App\Models\ExportRequest;
 use App\Models\InventoryMovement;
 use App\Models\ItemBranch;
 use App\Models\ItemSerial;
@@ -30,15 +32,26 @@ class PurchaseReceiptController extends Controller
         return view('receiving.index', compact('receipts'));
     }
 
-    public function export(string $format)
+    public function export(Request $request, string $format)
     {
         $this->authorize('viewAny', PurchaseReceipt::class);
-        $receipts = PurchaseReceipt::with(['purchaseOrder.supplier', 'receiver'])->latest('received_at')->latest('id')->get();
-        $filename = 'purchase-receipts-' . now()->format('Y-m-d');
 
         if ($format === 'xlsx') {
-            return Excel::download(new PurchaseReceiptsExport($receipts), "{$filename}.xlsx");
+            $export = ExportRequest::create([
+                'user_id' => $request->user()->id,
+                'type' => 'purchase_receipts',
+                'filters' => [],
+                'status' => ExportRequest::STATUS_PENDING,
+                'filename' => 'purchase-receipts-' . now()->format('Y-m-d-His') . '.xlsx',
+            ]);
+
+            GenerateExport::dispatch($export->id);
+
+            return back()->with('success', 'Your Excel export has been queued. It will be available shortly.');
         }
+
+        $receipts = PurchaseReceipt::with(['purchaseOrder.supplier', 'receiver'])->latest('received_at')->latest('id')->get();
+        $filename = 'purchase-receipts-' . now()->format('Y-m-d');
 
         return Pdf::loadView('receiving.exports.pdf', compact('receipts'))->setPaper('a4', 'landscape')->download("{$filename}.pdf");
     }
@@ -50,6 +63,7 @@ class PurchaseReceiptController extends Controller
         $purchaseOrders = PurchaseOrder::with(['supplier', 'branch', 'geOrder', 'items.receiptItems', 'items.item'])
             ->whereIn('status', [PurchaseOrder::STATUS_ORDERED, PurchaseOrder::STATUS_PARTIALLY_RECEIVED])
             ->latest('ordered_at')
+            ->limit(100)
             ->get();
         $selectedPurchaseOrder = $purchaseOrders->firstWhere('id', (int) $request->integer('purchase_order_id'));
 
