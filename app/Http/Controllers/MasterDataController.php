@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MasterDataController extends Controller
 {
@@ -90,17 +92,18 @@ class MasterDataController extends Controller
     {
         $search = trim((string) $request->query('search'));
         $search = mb_substr($search, 0, 100);
+        $searchOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
         $items = Item::query()
             ->with('supplier')
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($itemQuery) use ($search) {
+            ->when($search !== '', function ($query) use ($search, $searchOperator) {
+                $query->where(function ($itemQuery) use ($search, $searchOperator) {
                     $itemQuery
-                        ->where('description', 'ilike', "%{$search}%")
-                        ->orWhere('category', 'ilike', "%{$search}%")
-                        ->orWhere('sub_category', 'ilike', "%{$search}%")
-                        ->orWhere('model_number', 'ilike', "%{$search}%")
-                        ->orWhere('uom', 'ilike', "%{$search}%");
+                        ->where('description', $searchOperator, "%{$search}%")
+                        ->orWhere('category', $searchOperator, "%{$search}%")
+                        ->orWhere('sub_category', $searchOperator, "%{$search}%")
+                        ->orWhere('model_number', $searchOperator, "%{$search}%")
+                        ->orWhere('uom', $searchOperator, "%{$search}%");
                 });
             })
             ->orderBy('description')
@@ -154,7 +157,11 @@ class MasterDataController extends Controller
 
     private function itemForm(Item $item)
     {
-        return view('admin.items.form', ['item' => $item, 'suppliers' => Supplier::orderBy('name')->get(), 'categories' => self::CATEGORIES]);
+        return view('admin.items.form', [
+            'item' => $item,
+            'suppliers' => Cache::remember('lookup.suppliers', now()->addMinutes(10), fn () => Supplier::orderBy('name')->get()),
+            'categories' => self::CATEGORIES,
+        ]);
     }
 
     private function supplierData(Request $r): array

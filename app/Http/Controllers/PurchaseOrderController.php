@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PurchaseOrdersExport;
+use App\Jobs\GenerateExport;
 use App\Http\Requests\StorePurchaseOrderRequest;
 use App\Http\Requests\UpdatePurchaseOrderRequest;
 use App\Models\GEOrder;
+use App\Models\ExportRequest;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -39,12 +41,23 @@ class PurchaseOrderController extends Controller
     {
         $this->authorize('viewAny', PurchaseOrder::class);
         $filters = $request->only(['search', 'status']);
-        $orders = $this->filteredOrders($filters)->latest('order_date')->get();
-        $filename = 'purchase-orders-' . now()->format('Y-m-d');
 
         if ($format === 'xlsx') {
-            return Excel::download(new PurchaseOrdersExport($orders), "{$filename}.xlsx");
+            $export = ExportRequest::create([
+                'user_id' => $request->user()->id,
+                'type' => 'purchase_orders',
+                'filters' => $filters,
+                'status' => ExportRequest::STATUS_PENDING,
+                'filename' => 'purchase-orders-' . now()->format('Y-m-d-His') . '.xlsx',
+            ]);
+
+            GenerateExport::dispatch($export->id);
+
+            return back()->with('success', 'Your Excel export has been queued. It will be available shortly.');
         }
+
+        $orders = $this->filteredOrders($filters)->latest('order_date')->get();
+        $filename = 'purchase-orders-' . now()->format('Y-m-d');
 
         return Pdf::loadView('procurement.exports.pdf', compact('orders', 'filters'))->setPaper('a4', 'landscape')->download("{$filename}.pdf");
     }
@@ -176,6 +189,7 @@ class PurchaseOrderController extends Controller
             ->where('status', GEOrder::STATUS_APPROVED)
             ->whereDoesntHave('purchaseOrder')
             ->latest('approved_at')
+            ->limit(100)
             ->get();
     }
 

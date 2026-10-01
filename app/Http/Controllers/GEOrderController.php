@@ -19,14 +19,15 @@ class GEOrderController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'status', 'approval', 'requester', 'from', 'to']);
+        $searchOperator = DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
 
         $query = GEOrder::with(['requester', 'supplier', 'branch', 'items'])
-            ->when($filters['search'] ?? null, function ($q, $v) {
-                $q->where(function ($sub) use ($v) {
-                    $sub->where('order_number', 'ilike', "%{$v}%")
-                        ->orWhere('description', 'ilike', "%{$v}%")
-                        ->orWhere('po_number', 'ilike', "%{$v}%")
-                        ->orWhereHas('supplier', fn($s) => $s->where('name', 'ilike', "%{$v}%"));
+            ->when($filters['search'] ?? null, function ($q, $v) use ($searchOperator) {
+                $q->where(function ($sub) use ($v, $searchOperator) {
+                    $sub->where('order_number', $searchOperator, "%{$v}%")
+                        ->orWhere('description', $searchOperator, "%{$v}%")
+                        ->orWhere('po_number', $searchOperator, "%{$v}%")
+                        ->orWhereHas('supplier', fn($s) => $s->where('name', $searchOperator, "%{$v}%"));
                 });
             })
             ->when($filters['status'] ?? null, fn($q, $v) => $q->where('status', $v))
