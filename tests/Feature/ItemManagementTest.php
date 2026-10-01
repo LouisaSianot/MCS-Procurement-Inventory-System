@@ -4,6 +4,7 @@ use App\Models\Item;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -38,6 +39,23 @@ it('renders and creates an item from the admin form', function () {
     expect(Item::query()->where('description', 'Laptop computer')->first())
         ->not->toBeNull()
         ->category->toBe('Asset');
+});
+
+it('renders the item form when the legacy supplier cache entry is invalid', function () {
+    $user = itemManager();
+    Supplier::create(['name' => 'Supplier Cache Fallback']);
+
+    Cache::put('lookup.suppliers', 'invalid supplier cache');
+
+    try {
+        $this->actingAs($user)
+            ->get(route('admin.items.create'))
+            ->assertOk()
+            ->assertSee('Supplier Cache Fallback');
+    } finally {
+        Cache::forget('lookup.suppliers');
+        Cache::forget('lookup.suppliers.v2');
+    }
 });
 
 it('searches items by partial description and model number in the admin listing', function () {

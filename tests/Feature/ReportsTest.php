@@ -9,6 +9,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\Supplier;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 function reportPurchaseOrder(User $user, Supplier $supplier, Branch $branch, string $number, string $date, string $status, float $amount, string $itemDescription): PurchaseOrder
 {
@@ -61,6 +62,25 @@ it('renders reports safely when no reportable records exist', function () {
         ->assertSee('Total Purchase Orders')
         ->assertSee('No purchase orders found')
         ->assertSee('No low-stock items');
+});
+
+it('renders report filters when legacy lookup cache entries are invalid', function () {
+    $user = User::factory()->create();
+    Branch::create(['name' => 'Cached Branch Fallback']);
+    Supplier::create(['name' => 'Cached Supplier Fallback']);
+
+    Cache::put('lookup.branches.v2', 'invalid branch cache');
+    Cache::put('lookup.suppliers.v2', 'invalid supplier cache');
+
+    try {
+        $this->actingAs($user)->get(route('reports.index'))
+            ->assertOk()
+            ->assertSee('Cached Branch Fallback')
+            ->assertSee('Cached Supplier Fallback');
+    } finally {
+        Cache::forget('lookup.branches.v2');
+        Cache::forget('lookup.suppliers.v2');
+    }
 });
 
 it('calculates report aggregates and applies combined filters', function () {

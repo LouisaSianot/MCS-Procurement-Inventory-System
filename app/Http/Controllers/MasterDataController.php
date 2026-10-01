@@ -159,7 +159,7 @@ class MasterDataController extends Controller
     {
         return view('admin.items.form', [
             'item' => $item,
-            'suppliers' => Cache::remember('lookup.suppliers', now()->addMinutes(10), fn () => Supplier::orderBy('name')->get()),
+            'suppliers' => Cache::remember('lookup.suppliers.v2', now()->addMinutes(10), fn () => Supplier::orderBy('name')->get(['id', 'name'])->toArray()),
             'categories' => self::CATEGORIES,
         ]);
     }

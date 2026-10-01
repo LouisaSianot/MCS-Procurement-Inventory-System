@@ -25,7 +25,7 @@
             <x-form-field name="supplier_id" label="Primary supplier" type="select" :errors="$errors" required>
                 <option value="">Select supplier</option>
                 @foreach($suppliers as $supplier)
-                <option value="{{ $supplier->id }}" @selected((string) old('supplier_id', $item->supplier_id) === (string) $supplier->id)>{{ $supplier->name }}</option>
+                <option value="{{ $supplier['id'] }}" @selected((string) old('supplier_id', $item->supplier_id) === (string) $supplier['id'])>{{ $supplier['name'] }}</option>
                 @endforeach
             </x-form-field>
             <x-form-field name="model_number" label="Model number" :value="old('model_number', $item->model_number)" :errors="$errors" placeholder="e.g. Latitude 5440" />

@@ -19,10 +19,10 @@
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-6">
                 <div class="relative xl:col-span-2"><i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i><input class="input pl-9" type="search" name="search" value="{{ $search }}" placeholder="Search item, item ID, or location"></div>
                 <select name="branch" class="input">
-                    <option value="">All branches</option>@foreach($branches as $branch)<option value="{{ $branch->id }}" @selected($selectedBranch===(string) $branch->id)>{{ $branch->name }}</option>@endforeach
+                    <option value="">All branches</option>@foreach($branches as $branch)<option value="{{ $branch['id'] }}" @selected($selectedBranch===(string) $branch['id'])>{{ $branch['name'] }}</option>@endforeach
                 </select>
                 <select name="location" class="input">
-                    <option value="">All locations</option>@foreach($locations as $location)<option value="{{ $location->id }}" @selected((string) ($filters['location'] ?? '') === (string) $location->id)>{{ $location->branch->name }} · {{ $location->name }}</option>@endforeach
+                    <option value="">All locations</option>@foreach($locations as $location)<option value="{{ $location['id'] }}" @selected((string) ($filters['location'] ?? '') === (string) $location['id'])>{{ $location['branch']['name'] }} · {{ $location['name'] }}</option>@endforeach
                 </select>
                 <select name="category" class="input">
                     <option value="">All categories</option>@foreach($categories as $category)<option value="{{ $category }}" @selected($selectedCategory===$category)>{{ strtoupper($category) }}</option>@endforeach

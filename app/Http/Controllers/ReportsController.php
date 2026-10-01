@@ -22,8 +22,8 @@ class ReportsController extends Controller
         return view('reports.index', [
             'title' => 'Reports',
             'filters' => $filters,
-            'branches' => Cache::remember('lookup.branches.v2', now()->addMinutes(10), fn () => Branch::orderBy('name')->get(['id', 'name'])),
-            'suppliers' => Cache::remember('lookup.suppliers.v2', now()->addMinutes(10), fn () => Supplier::orderBy('name')->get(['id', 'name'])),
+            'branches' => Cache::remember('lookup.branches.v3', now()->addMinutes(10), fn () => Branch::orderBy('name')->get(['id', 'name'])->toArray()),
+            'suppliers' => Cache::remember('lookup.suppliers.v3', now()->addMinutes(10), fn () => Supplier::orderBy('name')->get(['id', 'name'])->toArray()),
             ...$reports->build($filters),
         ]);
     }
