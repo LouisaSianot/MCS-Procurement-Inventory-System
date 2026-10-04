@@ -13,6 +13,7 @@ use App\Models\PurchaseReceipt;
 use App\Models\PurchaseReceiptItem;
 use App\Models\Supplier;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 
 function inventoryUser(string $role = 'Inventory Officer'): User
@@ -64,6 +65,30 @@ it('lists valid item branch records with related item, branch, value, and reorde
         ->assertSee($itemBranch->branchRecord->name)
         ->assertSee('K 126.00')
         ->assertSee('In Stock');
+});
+
+it('renders inventory lookups when legacy lookup cache entries are invalid', function () {
+    $user = inventoryUser();
+    inventoryRecord();
+
+    Cache::put('lookup.branches.v2', 'invalid branch cache');
+    Cache::put('lookup.locations.v2.all', 'invalid location cache');
+    Cache::put('lookup.categories.v2', 'invalid category cache');
+
+    try {
+        $this->actingAs($user)->get(route('inventory.index'))
+            ->assertOk()
+            ->assertSee('Inventory Main')
+            ->assertSee('Store Room A')
+            ->assertSee('CONSUMABLE');
+    } finally {
+        Cache::forget('lookup.branches.v2');
+        Cache::forget('lookup.locations.v2.all');
+        Cache::forget('lookup.categories.v2');
+        Cache::forget('lookup.branches.v3');
+        Cache::forget('lookup.locations.v3.all');
+        Cache::forget('lookup.categories.v3');
+    }
 });
 
 it('derives out of stock low stock and in stock consistently', function () {
