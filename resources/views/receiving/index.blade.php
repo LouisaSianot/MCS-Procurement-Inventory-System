@@ -31,7 +31,7 @@
                         <td>{{ $receipt->purchaseOrder->supplier->name }}</td>
                         <td>{{ $receipt->received_at->format('d M Y') }}</td>
                         <td>{{ $receipt->receiver->name }}</td>
-                        <td class="text-right"><a href="{{ route('receiving.show', $receipt) }}" class="text-sm font-medium text-brand-600">View</a></td>
+                        <td class="text-right"><a href="{{ route('receiving.show', $receipt) }}" class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" aria-label="View receipt" title="View receipt"><i data-lucide="eye" class="h-4 w-4"></i></a></td>
                     </tr>
                     @endforeach
                 </tbody>

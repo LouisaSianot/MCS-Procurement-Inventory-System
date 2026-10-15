@@ -18,8 +18,8 @@
                         <td>{{ $location->item_branches_count }}</td>
                         <td>
                             <div class="flex justify-end gap-2">
-                                @can('update', $location)<a href="{{ route('admin.locations.edit', $location) }}" class="btn btn-ghost !px-2.5 !py-1.5">Edit</a>@endcan
-                                @can('delete', $location)<form method="POST" action="{{ route('admin.locations.destroy', $location) }}" onsubmit="return confirm('Delete this location? Locations used by stock or movement history cannot be deleted.');">@csrf @method('DELETE')<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>@endcan
+                                @can('update', $location)<a href="{{ route('admin.locations.edit', $location) }}" class="btn btn-ghost !px-2.5 !py-1.5" aria-label="Edit location" title="Edit location"><i data-lucide="pencil" class="h-4 w-4"></i></a>@endcan
+                                @can('delete', $location)<form method="POST" action="{{ route('admin.locations.destroy', $location) }}" onsubmit="return confirm('Delete this location? Locations used by stock or movement history cannot be deleted.');">@csrf @method('DELETE')<button type="submit" class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600" aria-label="Delete location" title="Delete location"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form>@endcan
                             </div>
                         </td>
                     </tr>

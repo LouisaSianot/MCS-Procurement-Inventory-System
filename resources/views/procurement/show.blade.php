@@ -5,7 +5,7 @@
             @if (in_array($purchaseOrder->status, [App\Models\PurchaseOrder::STATUS_ORDERED, App\Models\PurchaseOrder::STATUS_PARTIALLY_RECEIVED], true))
             @can('create', App\Models\PurchaseReceipt::class)<a href="{{ route('receiving.create', ['purchase_order_id' => $purchaseOrder->id]) }}" class="btn btn-primary"><i data-lucide="package-check" class="h-4 w-4"></i> Receive</a>@endcan
             @endif
-            @can('update', $purchaseOrder)<a href="{{ route('procurement.edit', $purchaseOrder) }}" class="btn btn-primary"><i data-lucide="pencil" class="h-4 w-4"></i> Edit</a>@endcan
+            @can('update', $purchaseOrder)<a href="{{ route('procurement.edit', $purchaseOrder) }}" class="btn btn-primary" aria-label="Edit purchase order" title="Edit purchase order"><i data-lucide="pencil" class="h-4 w-4"></i></a>@endcan
         </x-slot>
     </x-page-header>
 
@@ -113,5 +113,5 @@
         </div>
     </section>
 
-    @can('delete', $purchaseOrder)<form method="POST" action="{{ route('procurement.destroy', $purchaseOrder) }}" class="mt-6 text-right">@csrf @method('DELETE')<button class="btn btn-ghost text-rose-600 hover:bg-rose-50 hover:text-rose-700" onclick="return confirm('Delete this draft Purchase Order?')"><i data-lucide="trash-2" class="h-4 w-4"></i> Delete Draft</button></form>@endcan
+    @can('delete', $purchaseOrder)<form method="POST" action="{{ route('procurement.destroy', $purchaseOrder) }}" class="mt-6 text-right">@csrf @method('DELETE')<button type="submit" class="btn btn-ghost text-rose-600 hover:bg-rose-50 hover:text-rose-700" onclick="return confirm('Delete this draft Purchase Order?')" aria-label="Delete draft purchase order" title="Delete draft purchase order"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form>@endcan
 </x-app-layout>

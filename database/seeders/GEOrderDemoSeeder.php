@@ -39,6 +39,13 @@ class GEOrderDemoSeeder extends Seeder
 
         $suppliers = collect([
             [
+                'name' => 'Theodist',
+                'address' => 'Downtown, Lae',
+                'contact' => 'theodist@gmail.com',
+                'payment_term' => 'CASH',
+                'currency' => 'PGK',
+            ],
+            [
                 'name' => 'PNG Office Systems',
                 'address' => 'Hohola, Port Moresby, NCD',
                 'contact' => 'sales@pngofficesystems.com.pg',
