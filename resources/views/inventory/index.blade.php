@@ -22,7 +22,7 @@
                     <option value="">All branches</option>@foreach($branches as $branch)<option value="{{ $branch['id'] }}" @selected($selectedBranch===(string) $branch['id'])>{{ $branch['name'] }}</option>@endforeach
                 </select>
                 <select name="location" class="input">
-                    <option value="">All locations</option>@foreach($locations as $location)<option value="{{ $location['id'] }}" @selected((string) ($filters['location'] ?? '') === (string) $location['id'])>{{ $location['branch']['name'] }} · {{ $location['name'] }}</option>@endforeach
+                    <option value="">All locations</option>@foreach($locations as $location)<option value="{{ $location['id'] }}" @selected((string) ($filters['location'] ?? '' )===(string) $location['id'])>{{ $location['branch']['name'] }} · {{ $location['name'] }}</option>@endforeach
                 </select>
                 <select name="category" class="input">
                     <option value="">All categories</option>@foreach($categories as $category)<option value="{{ $category }}" @selected($selectedCategory===$category)>{{ strtoupper($category) }}</option>@endforeach
@@ -72,6 +72,7 @@
                             </td>
                             <td><x-status-badge :status="$itemBranch->stockStatusLabel()" /></td>
                             <td class="text-right">
+                                @can('issue-inventory')<a href="{{ route('inventory.issues.create', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="Issue stock" aria-label="Issue stock for {{ $itemBranch->item->description }}"><i data-lucide="package-minus" class="h-4 w-4"></i></a>@endcan
                                 <a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View item" aria-label="View item {{ $itemBranch->item->description }}"><i data-lucide="eye" class="h-4 w-4"></i></a>
                                 <a href="{{ route('inventory.show', $itemBranch) }}" class="inline-flex rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" title="View order information" aria-label="View order information for {{ $itemBranch->item->description }}"><i data-lucide="clipboard-list" class="h-4 w-4"></i></a>
                             </td>

@@ -224,7 +224,7 @@
                             <th scope="col" class="w-12 text-right">#</th>
                             <th class="min-w-56">Item / Line Description</th>
                             <th class="text-right">Quantity</th>
-                            <th>UOM</th>
+                            <th data-stock-only class="{{ old('inventory_flag', 'STOCK') === 'STOCK' ? '' : 'hidden' }}">UOM</th>
                             <th class="text-right">Unit Cost</th>
                             <th class="text-right">Total</th>
                             <th class="text-right">Action</th>
@@ -281,6 +281,7 @@
             // Item options from PHP — used to populate selects and validate STOCK items.
             const inventoryItems = JSON.parse(atob(tbody.closest('form').dataset.inventoryItems));
             const inventoryFlagEl = document.getElementById('inventory_flag');
+            const uomHeader = document.querySelector('#items-table [data-stock-only]');
 
             const fmtMoney = (n) => 'K ' + (Number(n) || 0).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -321,6 +322,7 @@
             function buildRow(index, data) {
                 data = data || {};
                 const isStock = (inventoryFlagEl?.value || 'STOCK') === 'STOCK';
+                if (uomHeader) uomHeader.classList.toggle('hidden', !isStock);
                 const itemOptions = inventoryItems.map((it) =>
                     `<option value="${it.id}" data-uom="${it.uom}" data-description="${it.name}" ${String(data.item_id ?? '') === String(it.id) ? 'selected' : ''}>${it.name}</option>`
                 ).join('');
@@ -332,9 +334,9 @@
                 <td class="align-top">
                       <div class="flex w-full min-w-0 flex-col gap-1.5">
                        ${isStock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select>` : ''}
-                       <input type="text" name="items[${index}][item_id_text]" data-field="item_id_text"
+                       ${isStock ? `<input type="text" name="items[${index}][item_id_text]" data-field="item_id_text"
                            value="${data.item_id ?? ''}" placeholder="Item ID"
-                           class="input block w-full min-w-0 py-2 ${isStock ? 'bg-slate-50' : ''}" ${isStock ? 'readonly' : ''}>
+                           class="input block w-full min-w-0 py-2 bg-slate-50" readonly>` : ''}
                        <input type="text" name="items[${index}][description]" data-field="description"
                            value="${data.description ?? ''}" placeholder="Line description"
                            class="input block w-full min-w-0 py-2" required>
@@ -345,11 +347,11 @@
                            value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0"
                            class="input py-2 w-24 text-right tabular-nums" required>
                 </td>
-                <td class="align-top">
+                ${isStock ? `<td class="align-top" data-stock-only>
                     <input type="text" name="items[${index}][unit]" data-field="unit"
                            value="${data.unit ?? ''}" placeholder="UOM"
                            class="input py-2 w-24">
-                </td>
+                </td>` : ''}
                 <td class="align-top text-right">
                     <input type="number" name="items[${index}][unit_price]" data-field="unit_price"
                            value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00"

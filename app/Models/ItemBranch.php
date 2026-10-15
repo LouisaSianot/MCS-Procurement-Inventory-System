@@ -62,6 +62,11 @@ class ItemBranch extends Model
         return $this->hasMany(InventoryMovement::class);
     }
 
+    public function issues(): HasMany
+    {
+        return $this->hasMany(InventoryIssue::class);
+    }
+
     public function serials(): HasMany
     {
         return $this->hasMany(ItemSerial::class);

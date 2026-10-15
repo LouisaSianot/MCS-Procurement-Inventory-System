@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\InventoryIssueController;
 use App\Http\Controllers\InventoryTransferController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\GeOrderController;
@@ -20,6 +21,9 @@ Route::middleware('auth')->group(function () {
 
     Route::redirect('/assets', '/inventory?category=Asset')->name('assets.index');
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/{itemBranch}/issues/create', [InventoryIssueController::class, 'create'])->whereNumber('itemBranch')->name('inventory.issues.create');
+    Route::post('/inventory/{itemBranch}/issues', [InventoryIssueController::class, 'store'])->whereNumber('itemBranch')->name('inventory.issues.store');
+    Route::post('/inventory/issues/{inventoryIssue}/returns', [InventoryIssueController::class, 'return'])->whereNumber('inventoryIssue')->name('inventory.issues.return');
     Route::get('/inventory/transfers/create', [InventoryTransferController::class, 'create'])->name('inventory.transfers.create');
     Route::post('/inventory/transfers', [InventoryTransferController::class, 'store'])->name('inventory.transfers.store');
     Route::get('/inventory/{itemBranch}', [InventoryController::class, 'show'])->whereNumber('itemBranch')->name('inventory.show');

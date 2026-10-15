@@ -26,10 +26,6 @@ $item = $item ?? [];
             <input type="text" name="items[{{ $i }}][item_id_text]" data-field="item_id_text"
                 value="{{ $item['item_id'] ?? '' }}" placeholder="Item ID"
                 class="input block w-full min-w-0 py-2 bg-slate-50" readonly>
-            @else
-            <input type="text" name="items[{{ $i }}][item_id_text]" data-field="item_id_text"
-                value="{{ $item['item_id'] ?? '' }}" placeholder="Item ID"
-                class="input block w-full min-w-0 py-2">
             @endif
             <input type="text" name="items[{{ $i }}][description]" data-field="description"
                 value="{{ $item['description'] ?? '' }}" placeholder="Line description"
@@ -41,11 +37,13 @@ $item = $item ?? [];
             value="{{ $item['quantity'] ?? '' }}" min="0" step="0.01" placeholder="0"
             class="input py-2 w-24 text-right tabular-nums" required>
     </td>
-    <td class="align-top">
+    @if ($isStock)
+    <td class="align-top" data-stock-only>
         <input type="text" name="items[{{ $i }}][unit]" data-field="unit"
             value="{{ $item['unit'] ?? '' }}" placeholder="UOM"
             class="input py-2 w-24">
     </td>
+    @endif
     <td class="align-top text-right">
         <input type="number" name="items[{{ $i }}][unit_price]" data-field="unit_price"
             value="{{ $item['unit_price'] ?? '' }}" min="0" step="0.01" placeholder="0.00"

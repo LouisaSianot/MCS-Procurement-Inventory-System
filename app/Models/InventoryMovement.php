@@ -14,7 +14,11 @@ class InventoryMovement extends Model
 
     public const TYPE_TRANSFER = 'transfer';
 
-    protected $fillable = ['item_branch_id', 'purchase_receipt_item_id', 'type', 'quantity', 'unit_cost', 'stock_after', 'from_location_id', 'to_location_id', 'performed_by', 'destination_stock_after'];
+    public const TYPE_ISSUE_OUT = 'issue_out';
+
+    public const TYPE_ISSUE_RETURN = 'issue_return';
+
+    protected $fillable = ['item_branch_id', 'purchase_receipt_item_id', 'inventory_issue_id', 'type', 'quantity', 'unit_cost', 'stock_after', 'from_location_id', 'to_location_id', 'performed_by', 'destination_stock_after'];
 
     protected $casts = [
         'quantity' => 'decimal:2',
@@ -31,6 +35,11 @@ class InventoryMovement extends Model
     public function purchaseReceiptItem(): BelongsTo
     {
         return $this->belongsTo(PurchaseReceiptItem::class);
+    }
+
+    public function inventoryIssue(): BelongsTo
+    {
+        return $this->belongsTo(InventoryIssue::class);
     }
 
     public function fromLocation(): BelongsTo
