@@ -25,8 +25,8 @@
                         <td>{{ $supplier->payment_term }}</td>
                         <td>{{ $supplier->currency }}</td>
                         <td>
-                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.show', $supplier) }}">View</a><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.edit', $supplier) }}">Edit</a>
-                                <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('Delete this supplier? This cannot be undone.');">@csrf @method("DELETE")<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>
+                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.show', $supplier) }}" aria-label="View supplier" title="View supplier"><i data-lucide="eye" class="h-4 w-4"></i></a><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.suppliers.edit', $supplier) }}" aria-label="Edit supplier" title="Edit supplier"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                                <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('Delete this supplier? This cannot be undone.');">@csrf @method("DELETE")<button type="submit" class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600" aria-label="Delete supplier" title="Delete supplier"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form>
                             </div>
                         </td>
                     </tr>@empty<tr>

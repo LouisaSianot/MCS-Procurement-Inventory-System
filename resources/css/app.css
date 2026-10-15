@@ -149,6 +149,11 @@
         @apply border-b-0;
     }
 
+    .ge-order-items-table thead th,
+    .ge-order-items-table tbody td {
+        @apply px-3 py-3;
+    }
+
     .table-section {
         @apply overflow-hidden;
     }

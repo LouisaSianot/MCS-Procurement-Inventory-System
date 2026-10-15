@@ -4,8 +4,10 @@ use App\Models\Branch;
 use App\Models\GEOrder;
 use App\Models\GEOrderItem;
 use App\Models\InventoryMovement;
+use App\Models\InventoryIssue;
 use App\Models\Item;
 use App\Models\ItemBranch;
+use App\Models\ItemSerial;
 use App\Models\Location;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
@@ -141,10 +143,12 @@ it('shows item-matched orders and sums receipts by purchase order line across br
     $otherBranch = Branch::create(['name' => 'Order Information Remote']);
     $supplierId = $itemBranch->item->supplier_id;
 
-    foreach ([
-        ['branch' => $itemBranch->branchRecord, 'suffix' => 'ONE', 'ordered' => 10, 'received' => [2, 3], 'supplier_id' => $supplierId],
-        ['branch' => $otherBranch, 'suffix' => 'TWO', 'ordered' => 20, 'received' => [4], 'supplier_id' => $supplierId],
-    ] as $orderData) {
+    foreach (
+        [
+            ['branch' => $itemBranch->branchRecord, 'suffix' => 'ONE', 'ordered' => 10, 'received' => [2, 3], 'supplier_id' => $supplierId],
+            ['branch' => $otherBranch, 'suffix' => 'TWO', 'ordered' => 20, 'received' => [4], 'supplier_id' => $supplierId],
+        ] as $orderData
+    ) {
         $geOrder = GEOrder::create([
             'order_number' => 'GE-INFO-' . $orderData['suffix'],
             'user_id' => $user->id,
@@ -373,4 +377,125 @@ it('allows authorized users to manage unique locations and prevents deleting ref
         'branch_id' => $branch->id,
         'name' => 'Unauthorized Store',
     ])->assertForbidden();
+});
+
+it('issues stock, records the recipient and purpose, and decreases the location balance', function () {
+    $user = inventoryUser();
+    $itemBranch = inventoryRecord(['current_stock' => 12]);
+
+    $this->actingAs($user)->get(route('inventory.issues.create', $itemBranch))->assertOk();
+    $this->actingAs($user)->post(route('inventory.issues.store', $itemBranch), [
+        'type' => InventoryIssue::TYPE_CONSUMABLE,
+        'quantity' => 3.5,
+        'recipient_name' => 'Facilities Team',
+        'purpose' => 'Routine maintenance',
+    ])->assertRedirect(route('inventory.show', $itemBranch));
+
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(8.5);
+    $issue = InventoryIssue::firstOrFail();
+    expect($issue->recipient_name)->toBe('Facilities Team')
+        ->and($issue->purpose)->toBe('Routine maintenance');
+    $this->assertDatabaseHas('inventory_movements', [
+        'inventory_issue_id' => $issue->id,
+        'type' => InventoryMovement::TYPE_ISSUE_OUT,
+        'quantity' => 3.5,
+        'stock_after' => 8.5,
+        'performed_by' => $user->id,
+    ]);
+
+    $this->actingAs($user)->get(route('inventory.show', $itemBranch))
+        ->assertOk()
+        ->assertSee('Facilities Team')
+        ->assertSee('Routine maintenance')
+        ->assertSee('8.50');
+    $this->actingAs($user)->get(route('inventory.index'))
+        ->assertOk()
+        ->assertSee($itemBranch->item->description)
+        ->assertSee('8.50');
+});
+
+it('returns only outstanding checkout quantities and rejects returns for consumed issues', function () {
+    $user = inventoryUser();
+    $itemBranch = inventoryRecord(['current_stock' => 10]);
+
+    $this->actingAs($user)->post(route('inventory.issues.store', $itemBranch), [
+        'type' => InventoryIssue::TYPE_CHECKOUT,
+        'quantity' => 5,
+        'recipient_name' => 'Maintenance',
+        'purpose' => 'Temporary repair work',
+    ])->assertRedirect(route('inventory.show', $itemBranch));
+    $checkout = InventoryIssue::firstOrFail();
+    $this->actingAs($user)->get(route('inventory.show', $itemBranch))
+        ->assertOk()
+        ->assertSee('5.00 outstanding')
+        ->assertSee('Return quantity');
+
+    $this->actingAs($user)->post(route('inventory.issues.return', $checkout), ['quantity' => 2])
+        ->assertRedirect(route('inventory.show', $itemBranch));
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(7.0)
+        ->and((float) $checkout->fresh()->returned_quantity)->toBe(2.0);
+
+    $this->from(route('inventory.show', $itemBranch))->actingAs($user)
+        ->post(route('inventory.issues.return', $checkout), ['quantity' => 4])
+        ->assertRedirect(route('inventory.show', $itemBranch))
+        ->assertSessionHasErrors('quantity');
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(7.0);
+
+    $consumed = InventoryIssue::create([
+        'item_branch_id' => $itemBranch->id,
+        'type' => InventoryIssue::TYPE_CONSUMABLE,
+        'quantity' => 1,
+        'returned_quantity' => 0,
+        'purpose' => 'Consumed test issue',
+    ]);
+    $this->from(route('inventory.show', $itemBranch))->actingAs($user)
+        ->post(route('inventory.issues.return', $consumed), ['quantity' => 1])
+        ->assertRedirect(route('inventory.show', $itemBranch))
+        ->assertSessionHasErrors('quantity');
+});
+
+it('tracks serialized checkouts and restores the same serial on return', function () {
+    $user = inventoryUser();
+    $itemBranch = inventoryRecord(['current_stock' => 2]);
+    $itemBranch->item->update(['is_serialized' => true]);
+    $serials = collect(['SERIAL-ISSUE-1', 'SERIAL-ISSUE-2'])->map(fn($number) => ItemSerial::create([
+        'item_id' => $itemBranch->item_id,
+        'item_branch_id' => $itemBranch->id,
+        'serial_number' => $number,
+        'status' => ItemSerial::STATUS_ACTIVE,
+    ]));
+
+    $this->actingAs($user)->post(route('inventory.issues.store', $itemBranch), [
+        'type' => InventoryIssue::TYPE_CHECKOUT,
+        'quantity' => 1,
+        'serial_ids' => [$serials[0]->id],
+        'purpose' => 'Equipment loan',
+    ])->assertRedirect(route('inventory.show', $itemBranch));
+    $issue = InventoryIssue::firstOrFail();
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(1.0)
+        ->and($serials[0]->fresh()->status)->toBe(ItemSerial::STATUS_CHECKED_OUT)
+        ->and($serials[1]->fresh()->status)->toBe(ItemSerial::STATUS_ACTIVE);
+    $this->actingAs($user)->get(route('inventory.show', $itemBranch))
+        ->assertOk()
+        ->assertSee('SERIAL-ISSUE-1')
+        ->assertSee('Select serialized units to return');
+
+    $this->actingAs($user)->post(route('inventory.issues.return', $issue), ['serial_ids' => [$serials[0]->id]])
+        ->assertRedirect(route('inventory.show', $itemBranch));
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(2.0)
+        ->and($serials[0]->fresh()->status)->toBe(ItemSerial::STATUS_ACTIVE)
+        ->and($issue->serials()->first()->pivot->returned_at)->not->toBeNull();
+});
+
+it('restricts issuing to inventory officers and administrators', function () {
+    $itemBranch = inventoryRecord();
+    $purchasingOfficer = inventoryUser('Purchasing Officer');
+
+    $this->actingAs($purchasingOfficer)->get(route('inventory.issues.create', $itemBranch))->assertForbidden();
+    $this->actingAs($purchasingOfficer)->post(route('inventory.issues.store', $itemBranch), [
+        'type' => InventoryIssue::TYPE_CONSUMABLE,
+        'quantity' => 1,
+        'purpose' => 'Unauthorized attempt',
+    ])->assertForbidden();
+    expect((float) $itemBranch->fresh()->current_stock)->toBe(12.0);
 });

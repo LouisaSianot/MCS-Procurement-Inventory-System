@@ -49,16 +49,16 @@ class InventoryController extends Controller
 
         return view('inventory.index', [
             'inventory' => $inventory,
-            'branches' => Cache::remember('lookup.branches.v3', now()->addMinutes(10), fn () => Branch::orderBy('name')->get(['id', 'name'])->toArray()),
+            'branches' => Cache::remember('lookup.branches.v3', now()->addMinutes(10), fn() => Branch::orderBy('name')->get(['id', 'name'])->toArray()),
             'locations' => Cache::remember(
                 'lookup.locations.v3.' . ($filters['branch'] ?? 'all'),
                 now()->addMinutes(10),
-                fn () => Location::query()
+                fn() => Location::query()
                     ->with('branch')
                     ->when($filters['branch'] ?? null, fn($query, int $branchId) => $query->where('branch_id', $branchId))
                     ->orderBy('name')->get()->toArray()
             ),
-            'categories' => Cache::remember('lookup.categories.v3', now()->addMinutes(10), fn () => Item::query()->distinct()->orderBy('category')->pluck('category')->all()),
+            'categories' => Cache::remember('lookup.categories.v3', now()->addMinutes(10), fn() => Item::query()->distinct()->orderBy('category')->pluck('category')->all()),
             'filters' => $filters,
         ]);
     }
@@ -69,7 +69,7 @@ class InventoryController extends Controller
 
         abort_unless($itemBranch->branch_id && $itemBranch->item && $itemBranch->branchRecord, 404);
 
-        $itemBranch->load(['item.supplier', 'branchRecord', 'locationRecord', 'serials']);
+        $itemBranch->load(['item.supplier', 'branchRecord', 'locationRecord', 'serials', 'issues.recipient', 'issues.issuer', 'issues.serials']);
         $locationStocks = ItemBranch::query()
             ->where('item_id', $itemBranch->item_id)
             ->with(['branchRecord', 'locationRecord'])
@@ -79,7 +79,7 @@ class InventoryController extends Controller
         $totalStock = $locationStocks->sum(fn(ItemBranch $record) => (float) $record->current_stock);
         $movements = InventoryMovement::query()
             ->whereHas('itemBranch', fn($query) => $query->where('item_id', $itemBranch->item_id))
-            ->with(['itemBranch.locationRecord', 'purchaseReceiptItem.receipt.purchaseOrder.supplier', 'fromLocation', 'toLocation', 'performer'])
+            ->with(['itemBranch.locationRecord', 'purchaseReceiptItem.receipt.purchaseOrder.supplier', 'inventoryIssue.recipient', 'fromLocation', 'toLocation', 'performer'])
             ->latest()
             ->paginate(20);
 

@@ -270,7 +270,7 @@
                     </div>
                     <div class="mt-2 flex items-center justify-between">
                         <x-status-badge :status="$order->approval_status ?? $order->approval ?? 'not submitted'" />
-                        <a href="{{ route('ge-orders.show', $order->id) }}" class="text-sm font-medium text-brand-600">View</a>
+                        <a href="{{ route('ge-orders.show', $order->id) }}" class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-brand-600" aria-label="View GE Order" title="View GE Order"><i data-lucide="eye" class="h-4 w-4"></i></a>
                     </div>
                 </div>
                 @endforeach

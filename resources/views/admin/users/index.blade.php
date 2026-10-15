@@ -27,7 +27,7 @@
                         <td>{{ $user->getRoleNames()->join(', ') ?: '—' }}</td>
                         <td><span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $user->is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }}">{{ $user->is_active ? 'Active' : 'Inactive' }}</span></td>
                         <td>
-                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.users.edit', $user) }}">Edit</a>@if(!$user->is(auth()->user()))<form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete this user account?');">@csrf @method('DELETE')<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>@endif</div>
+                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.users.edit', $user) }}" aria-label="Edit user" title="Edit user"><i data-lucide="pencil" class="h-4 w-4"></i></a>@if(!$user->is(auth()->user()))<form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Delete this user account?');">@csrf @method('DELETE')<button type="submit" class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600" aria-label="Delete user" title="Delete user"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form>@endif</div>
                         </td>
                     </tr>@empty<tr>
                         <td colspan="7" class="py-10 text-center text-slate-500">No users found.</td>

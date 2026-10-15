@@ -1,6 +1,7 @@
 <x-app-layout title="Inventory Order Information: {{ $itemBranch->item->description }}">
     <x-page-header title="Inventory Order Information" description="{{ $itemBranch->item->description }} · Item #{{ $itemBranch->item_id }}" :breadcrumbs="[['label' => 'Inventory', 'url' => route('inventory.index')], ['label' => $itemBranch->item->description]]">
         <x-slot name="actions">
+            @can('issue-inventory')<a href="{{ route('inventory.issues.create', $itemBranch) }}" class="btn btn-primary"><i data-lucide="package-minus" class="h-4 w-4"></i> Issue Stock</a>@endcan
             @can('transfer', App\Models\ItemBranch::class)<a href="{{ route('inventory.transfers.create', ['item_id' => $itemBranch->item_id]) }}" class="btn btn-primary"><i data-lucide="arrow-left-right" class="h-4 w-4"></i> Move Stock</a>@endcan
             <a href="{{ route('inventory.index') }}" class="btn btn-secondary"><i data-lucide="arrow-left" class="h-4 w-4"></i> Back to Inventory</a>
         </x-slot>
@@ -93,7 +94,13 @@
             <p class="mt-2 text-sm text-slate-600">Branch: {{ $geOrder->branch?->name ?? 'Not assigned' }} · Supplier: {{ $geOrder->supplier?->name ?? 'Not assigned' }}@if($geOrder->supplier?->contact) · {{ $geOrder->supplier->contact }}@endif</p>
             <div class="table-wrap mt-4">
                 <table class="data-table">
-                    <thead><tr><th>Order line</th><th>UOM</th><th class="text-right">Requested quantity</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Order line</th>
+                            <th>UOM</th>
+                            <th class="text-right">Requested quantity</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @foreach($geOrderData['items'] as $orderItem)
                         <tr>
@@ -130,7 +137,15 @@
             <p class="mt-2 text-xs font-medium text-slate-500">{{ number_format($purchaseOrderData['ordered_quantity'], 2) }} ordered · {{ number_format($purchaseOrderData['received_quantity'], 2) }} received on this purchase order</p>
             <div class="table-wrap mt-4">
                 <table class="data-table">
-                    <thead><tr><th>Order line</th><th>UOM</th><th class="text-right">Ordered</th><th class="text-right">Received</th><th>Receipt deliveries</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Order line</th>
+                            <th>UOM</th>
+                            <th class="text-right">Ordered</th>
+                            <th class="text-right">Received</th>
+                            <th>Receipt deliveries</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         @foreach($purchaseOrderData['items'] as $orderItem)
                         <tr>
@@ -174,7 +189,13 @@
         </div>
         <div class="table-wrap">
             <table class="data-table">
-                <thead><tr><th>Branch</th><th>Location</th><th class="text-right">Stock</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Branch</th>
+                        <th>Location</th>
+                        <th class="text-right">Stock</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @foreach($locationStocks as $stockRecord)
                     <tr>
@@ -184,7 +205,12 @@
                     </tr>
                     @endforeach
                 </tbody>
-                <tfoot><tr><th colspan="2" class="text-right">Total</th><th class="text-right tabular-nums">{{ number_format($totalStock, 2) }}</th></tr></tfoot>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-right">Total</th>
+                        <th class="text-right tabular-nums">{{ number_format($totalStock, 2) }}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </section>
@@ -220,8 +246,55 @@
 
     <section class="card mt-6">
         <div class="border-b border-slate-200 p-5">
+            <h3 class="text-base font-semibold text-slate-900">Issue and checkout history</h3>
+            <p class="mt-1 text-sm text-slate-500">Issues recorded for this item at this location.</p>
+        </div>
+        @forelse($itemBranch->issues->sortByDesc('created_at') as $issue)
+        @php($outstanding = (float) $issue->quantity - (float) $issue->returned_quantity)
+        <article class="border-b border-slate-100 p-5 last:border-b-0">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="font-medium text-slate-900">{{ $issue->type === App\Models\InventoryIssue::TYPE_CHECKOUT ? 'Checkout' : 'Consumable issue' }} · {{ number_format((float) $issue->quantity, 2) }} {{ $itemBranch->uom ?? $itemBranch->item->uom }}</p>
+                    <p class="mt-1 text-sm text-slate-600">{{ $issue->recipient?->name ?? $issue->recipient_name ?? 'No recipient recorded' }} · {{ $issue->purpose }}</p>
+                    <p class="mt-1 text-xs text-slate-500">Issued by {{ $issue->issuer?->name ?? '—' }} · {{ $issue->created_at->format('d M Y') }}</p>
+                </div>
+                @if($issue->type === App\Models\InventoryIssue::TYPE_CHECKOUT)
+                <span class="text-sm font-medium tabular-nums text-slate-700">{{ number_format($outstanding, 2) }} outstanding</span>
+                @endif
+            </div>
+            @if($issue->type === App\Models\InventoryIssue::TYPE_CHECKOUT && $outstanding > 0)
+            @can('issue-inventory')
+            <form method="POST" action="{{ route('inventory.issues.return', $issue) }}" class="mt-4 border-t border-slate-100 pt-4">
+                @csrf
+                @if($itemBranch->item->is_serialized)
+                <p class="mb-2 text-xs font-medium text-slate-600">Select serialized units to return</p>
+                <div class="grid gap-2 sm:grid-cols-2">
+                    @foreach($issue->serials->whereNull('pivot.returned_at') as $serial)
+                    <label class="flex items-center gap-3 border border-slate-200 px-3 py-2 text-sm"><input type="checkbox" name="serial_ids[]" value="{{ $serial->id }}" class="rounded border-slate-300 text-brand-600"><span class="font-mono">{{ $serial->serial_number }}</span></label>
+                    @endforeach
+                </div>
+                @error('serial_ids')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
+                @else
+                <div class="flex flex-wrap items-end gap-3">
+                    <label class="block text-sm font-medium text-slate-700">Return quantity<input class="input mt-1 w-40" type="number" name="quantity" min="0.01" max="{{ $outstanding }}" step="0.01" required></label>
+                    <button type="submit" class="btn btn-secondary"><i data-lucide="package-check" class="h-4 w-4"></i> Record return</button>
+                </div>
+                @error('quantity')<p class="mt-2 text-sm text-rose-600">{{ $message }}</p>@enderror
+                @endif
+                @if($itemBranch->item->is_serialized)<button type="submit" class="btn btn-secondary mt-3"><i data-lucide="package-check" class="h-4 w-4"></i> Record return</button>@endif
+            </form>
+            @endcan
+            @endif
+        </article>
+        @empty
+        <div class="p-5 text-sm text-slate-500">No issues or checkouts recorded at this location.</div>
+        @endforelse
+    </section>
+
+    <section class="card mt-6">
+        <div class="border-b border-slate-200 p-5">
             <h3 class="text-base font-semibold text-slate-900">Movement history</h3>
-            <p class="mt-1 text-sm text-slate-500">Receipts and transfers for this item, across all locations.</p>
+            <p class="mt-1 text-sm text-slate-500">Receipts, transfers, issues, and returns for this item, across all locations.</p>
         </div>
         @if($movements->isNotEmpty())<x-table-section title="Movement history" :count="$movements->count()" :open="true">
             <div class="table-wrap">
@@ -234,6 +307,7 @@
                             <th>To</th>
                             <th>Purchase order</th>
                             <th>Receipt</th>
+                            <th>Recipient / purpose</th>
                             <th>Performed by</th>
                             <th class="text-right">Quantity</th>
                             <th class="text-right">Unit Cost</th>
@@ -241,15 +315,16 @@
                             <th class="text-right">Destination Stock After</th>
                         </tr>
                     </thead>
-                        <tbody>@foreach($movements as $movement)@php($receipt = $movement->purchaseReceiptItem?->receipt) <tr>
+                    <tbody>@foreach($movements as $movement)@php($receipt = $movement->purchaseReceiptItem?->receipt)@php($issue = $movement->inventoryIssue) <tr>
                             <td>{{ $movement->created_at->format('d M Y') }}</td>
                             <td>{{ ucwords(str_replace('_', ' ', $movement->type)) }}</td>
                             <td>{{ $movement->fromLocation?->name ?? $movement->itemBranch->locationRecord?->name ?? '—' }}</td>
                             <td>{{ $movement->toLocation?->name ?? '—' }}</td>
                             <td>{{ $receipt?->purchaseOrder?->po_number ?? '—' }}</td>
                             <td>{{ $receipt?->receipt_number ?? '—' }}</td>
+                            <td>{{ $issue ? ($issue->recipient?->name ?? $issue->recipient_name ?? '—') . ' · ' . $issue->purpose : '—' }}</td>
                             <td>{{ $movement->performer?->name ?? '—' }}</td>
-                            <td class="text-right font-medium {{ $movement->type === App\Models\InventoryMovement::TYPE_RECEIPT ? 'text-emerald-700' : 'text-slate-700' }}">{{ $movement->type === App\Models\InventoryMovement::TYPE_RECEIPT ? '+' : '' }}{{ $movement->quantity }}</td>
+                            <td class="text-right font-medium {{ in_array($movement->type, [App\Models\InventoryMovement::TYPE_RECEIPT, App\Models\InventoryMovement::TYPE_ISSUE_RETURN], true) ? 'text-emerald-700' : 'text-slate-700' }}">{{ in_array($movement->type, [App\Models\InventoryMovement::TYPE_RECEIPT, App\Models\InventoryMovement::TYPE_ISSUE_RETURN], true) ? '+' : ($movement->type === App\Models\InventoryMovement::TYPE_ISSUE_OUT ? '-' : '') }}{{ $movement->quantity }}</td>
                             <td class="text-right">K {{ number_format((float) $movement->unit_cost, 2) }}</td>
                             <td class="text-right font-semibold">{{ $movement->stock_after }}</td>
                             <td class="text-right">{{ $movement->destination_stock_after ?? '—' }}</td>

@@ -28,7 +28,7 @@ $current = request()->route() ? ltrim(request()->route()->getName(), '.') : '';
                 <i data-lucide="layers-3" class="h-5 w-5"></i>
             </span>
             <span class="collapsible-label whitespace-nowrap text-[15px] font-bold tracking-tight text-slate-900">
-                Procure<span class="text-brand-600">Desk</span>
+                MCSPI
             </span>
         </a>
 

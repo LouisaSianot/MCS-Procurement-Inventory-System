@@ -1,0 +1,51 @@
+                      List of relations
+ Schema |             Name              |   Type   |  Owner   
+--------+-------------------------------+----------+----------
+ public | BRANCH                        | table    | postgres
+ public | ITEM                          | table    | postgres
+ public | ITEMBRANCH                    | table    | postgres
+ public | ORDERS                        | table    | postgres
+ public | RECEIPT                       | table    | postgres
+ public | SUPPLIER                      | table    | postgres
+ public | USERS                         | table    | postgres
+ public | branches_id_seq               | sequence | postgres
+ public | cache                         | table    | postgres
+ public | cache_locks                   | table    | postgres
+ public | failed_jobs                   | table    | postgres
+ public | failed_jobs_id_seq            | sequence | postgres
+ public | ge_order_items                | table    | postgres
+ public | ge_order_items_id_seq         | sequence | postgres
+ public | ge_orders                     | table    | postgres
+ public | ge_orders_id_seq              | sequence | postgres
+ public | inventory_movements           | table    | postgres
+ public | inventory_movements_id_seq    | sequence | postgres
+ public | item_branches_id_seq          | sequence | postgres
+ public | item_serials                  | table    | postgres
+ public | item_serials_id_seq           | sequence | postgres
+ public | items_id_seq                  | sequence | postgres
+ public | job_batches                   | table    | postgres
+ public | jobs                          | table    | postgres
+ public | jobs_id_seq                   | sequence | postgres
+ public | locations                     | table    | postgres
+ public | locations_id_seq              | sequence | postgres
+ public | migrations                    | table    | postgres
+ public | migrations_id_seq             | sequence | postgres
+ public | model_has_permissions         | table    | postgres
+ public | model_has_roles               | table    | postgres
+ public | password_reset_tokens         | table    | postgres
+ public | permissions                   | table    | postgres
+ public | permissions_id_seq            | sequence | postgres
+ public | purchase_order_items          | table    | postgres
+ public | purchase_order_items_id_seq   | sequence | postgres
+ public | purchase_orders_id_seq        | sequence | postgres
+ public | purchase_receipt_items        | table    | postgres
+ public | purchase_receipt_items_id_seq | sequence | postgres
+ public | purchase_receipts_id_seq      | sequence | postgres
+ public | role_has_permissions          | table    | postgres
+ public | roles                         | table    | postgres
+ public | roles_id_seq                  | sequence | postgres
+ public | sessions                      | table    | postgres
+ public | suppliers_id_seq              | sequence | postgres
+ public | users_id_seq                  | sequence | postgres
+(46 rows)
+

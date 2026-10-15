@@ -14,6 +14,8 @@ class ItemSerial extends Model
 
     public const STATUS_INACTIVE = 'inactive';
 
+    public const STATUS_CHECKED_OUT = 'checked_out';
+
     protected $fillable = ['item_id', 'item_branch_id', 'serial_number', 'status'];
 
     public function item(): BelongsTo

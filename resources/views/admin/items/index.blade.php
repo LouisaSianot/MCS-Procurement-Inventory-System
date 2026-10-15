@@ -26,8 +26,8 @@
                         <td>{{ $item->sub_category }}</td>
                         <td>{{ $item->supplier?->name }}</td>
                         <td>
-                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.items.edit', $item) }}">Edit</a>
-                                <form method="POST" action="{{ route('admin.items.destroy', $item) }}" onsubmit="return confirm('Delete this item? This cannot be undone.');">@csrf @method('DELETE')<button class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600">Delete</button></form>
+                            <div class="flex justify-end gap-2"><a class="btn btn-ghost !px-2.5 !py-1.5" href="{{ route('admin.items.edit', $item) }}" aria-label="Edit item" title="Edit item"><i data-lucide="pencil" class="h-4 w-4"></i></a>
+                                <form method="POST" action="{{ route('admin.items.destroy', $item) }}" onsubmit="return confirm('Delete this item? This cannot be undone.');">@csrf @method('DELETE')<button type="submit" class="btn btn-ghost !px-2.5 !py-1.5 text-rose-600" aria-label="Delete item" title="Delete item"><i data-lucide="trash-2" class="h-4 w-4"></i></button></form>
                             </div>
                         </td>
                     </tr>@empty<tr>
