@@ -10,7 +10,7 @@ $item = $item ?? [];
 @endphp
 
 <tr data-item-row>
-    <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500">{{ $i + 1 }}</td>
+    <td data-field="line_number" class="text-right font-medium tabular-nums text-slate-500">{{ $i + 1 }}</td>
     <td class="align-top">
         <div class="flex w-full min-w-0 flex-col gap-1.5">
             @if ($isStock)
@@ -35,19 +35,19 @@ $item = $item ?? [];
     <td class="align-top">
         <input type="number" name="items[{{ $i }}][quantity]" data-field="quantity"
             value="{{ $item['quantity'] ?? '' }}" min="0" step="0.01" placeholder="0"
-            class="input py-2 w-24 text-right tabular-nums" required>
+            class="input w-full py-2 text-right tabular-nums" required>
     </td>
-    @if ($isStock)
-    <td class="align-top" data-stock-only>
+    <td class="align-top {{ $isStock ? '' : 'invisible' }}" data-stock-only>
+        @if ($isStock)
         <input type="text" name="items[{{ $i }}][unit]" data-field="unit"
             value="{{ $item['unit'] ?? '' }}" placeholder="UOM"
-            class="input py-2 w-24">
+            class="input w-full py-2">
+        @endif
     </td>
-    @endif
     <td class="align-top text-right">
         <input type="number" name="items[{{ $i }}][unit_price]" data-field="unit_price"
             value="{{ $item['unit_price'] ?? '' }}" min="0" step="0.01" placeholder="0.00"
-            class="input py-2 w-28 text-right tabular-nums" required>
+            class="input w-full py-2 text-right tabular-nums" required>
     </td>
     <td class="align-top text-right">
         @php

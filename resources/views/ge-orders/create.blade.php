@@ -216,13 +216,21 @@
                 </button>
             </div>
 
-            {{-- Desktop table --}}
-            <div class="table-wrap hidden md:block">
-                <table class="data-table min-w-[60rem]" id="items-table">
+            <div class="table-wrap">
+                <table class="data-table ge-order-items-table table-fixed w-[70rem] min-w-[70rem]" id="items-table">
+                    <colgroup>
+                        <col class="w-12">
+                        <col class="w-[25rem]">
+                        <col class="w-36">
+                        <col class="w-32">
+                        <col class="w-40">
+                        <col class="w-40">
+                        <col class="w-20">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th scope="col" class="w-12 text-right">#</th>
-                            <th class="min-w-56">Item / Line Description</th>
+                            <th scope="col" class="text-right">#</th>
+                            <th>Item / Line Description</th>
                             <th class="text-right">Quantity</th>
                             <th data-stock-only class="{{ old('inventory_flag', 'STOCK') === 'STOCK' ? '' : 'hidden' }}">UOM</th>
                             <th class="text-right">Unit Cost</th>
@@ -236,11 +244,6 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
-
-            {{-- Mobile cards --}}
-            <div id="items-cards" class="divide-y divide-slate-100 md:hidden">
-                {{-- Mobile rendering is handled by JS from the same data source --}}
             </div>
 
             {{-- Order total --}}
@@ -274,14 +277,13 @@
         // GE Order line-item management: add/remove rows + live totals.
         (function() {
             const tbody = document.getElementById('items-tbody');
-            const cardsEl = document.getElementById('items-cards');
             const totalEl = document.getElementById('order-total');
             if (!tbody) return;
 
             // Item options from PHP — used to populate selects and validate STOCK items.
             const inventoryItems = JSON.parse(atob(tbody.closest('form').dataset.inventoryItems));
             const inventoryFlagEl = document.getElementById('inventory_flag');
-            const uomHeader = document.querySelector('#items-table [data-stock-only]');
+            const uomHeader = document.querySelector('#items-table thead [data-stock-only]');
 
             const fmtMoney = (n) => 'K ' + (Number(n) || 0).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -308,7 +310,6 @@
                 });
                 if (totalEl) totalEl.textContent = fmtMoney(sum);
                 renumberRows();
-                renderMobile();
             }
 
             function renumberRows() {
@@ -330,32 +331,32 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
-                <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500"></td>
+                <td data-field="line_number" class="text-right font-medium tabular-nums text-slate-500"></td>
                 <td class="align-top">
-                      <div class="flex w-full min-w-0 flex-col gap-1.5">
-                       ${isStock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select>` : ''}
-                       ${isStock ? `<input type="text" name="items[${index}][item_id_text]" data-field="item_id_text"
-                           value="${data.item_id ?? ''}" placeholder="Item ID"
-                           class="input block w-full min-w-0 py-2 bg-slate-50" readonly>` : ''}
-                       <input type="text" name="items[${index}][description]" data-field="description"
-                           value="${data.description ?? ''}" placeholder="Line description"
-                           class="input block w-full min-w-0 py-2" required>
-                      </div>
+                    <div class="flex w-full min-w-0 flex-col gap-1.5">
+                        ${isStock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select>` : ''}
+                        ${isStock ? `<input type="text" name="items[${index}][item_id_text]" data-field="item_id_text"
+                            value="${data.item_id ?? ''}" placeholder="Item ID"
+                            class="input block w-full min-w-0 py-2 bg-slate-50" readonly>` : ''}
+                        <input type="text" name="items[${index}][description]" data-field="description"
+                            value="${data.description ?? ''}" placeholder="Line description"
+                            class="input block w-full min-w-0 py-2" required>
+                    </div>
                 </td>
                 <td class="align-top">
                     <input type="number" name="items[${index}][quantity]" data-field="quantity"
                            value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0"
-                           class="input py-2 w-24 text-right tabular-nums" required>
+                           class="input w-full py-2 text-right tabular-nums" required>
                 </td>
-                ${isStock ? `<td class="align-top" data-stock-only>
-                    <input type="text" name="items[${index}][unit]" data-field="unit"
+                <td class="align-top ${isStock ? '' : 'invisible'}" data-stock-only>
+                    ${isStock ? `<input type="text" name="items[${index}][unit]" data-field="unit"
                            value="${data.unit ?? ''}" placeholder="UOM"
-                           class="input py-2 w-24">
-                </td>` : ''}
+                           class="input w-full py-2">` : ''}
+                </td>
                 <td class="align-top text-right">
                     <input type="number" name="items[${index}][unit_price]" data-field="unit_price"
                            value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00"
-                           class="input py-2 w-28 text-right tabular-nums" required>
+                           class="input w-full py-2 text-right tabular-nums" required>
                 </td>
                 <td class="align-top text-right">
                     <span data-field="total_display" class="font-medium tabular-nums text-slate-700">K 0.00</span>
@@ -411,34 +412,6 @@
                 removeButton.closest('tr[data-item-row]')?.remove();
                 recalcTotal();
             });
-
-            // Mobile: render compact cards from the same rows.
-            function renderMobile() {
-                if (!cardsEl) return;
-                cardsEl.innerHTML = '';
-                tbody.querySelectorAll('tr[data-item-row]').forEach((row, idx) => {
-                    const desc = row.querySelector('[data-field="description"]');
-                    const qty = row.querySelector('[data-field="quantity"]')?.value || '0';
-                    const price = row.querySelector('[data-field="unit_price"]')?.value || '0';
-                    const total = row.querySelector('[data-field="total_display"]')?.textContent || 'K 0.00';
-                    const card = document.createElement('div');
-                    card.className = 'p-4';
-                    card.innerHTML = `
-                    <div class="flex items-start justify-between gap-2">
-                        <p class="text-sm font-semibold text-slate-900">Item ${idx + 1}</p>
-                        <button type="button" class="text-slate-400 hover:text-rose-600" onclick="this.closest('div').remove()">
-                            <i data-lucide="trash-2" class="h-4 w-4"></i>
-                        </button>
-                    </div>
-                    <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
-                        <span class="text-slate-500">Qty</span><span class="text-right font-medium">${qty}</span>
-                        <span class="text-slate-500">Unit Price</span><span class="text-right font-medium">${price}</span>
-                        <span class="text-slate-500">Total</span><span class="text-right font-semibold tabular-nums">${total}</span>
-                    </div>`;
-                    cardsEl.appendChild(card);
-                });
-                if (window.lucide?.createIcons) window.lucide.createIcons();
-            }
 
             function isStock() {
                 return (inventoryFlagEl?.value || 'STOCK') === 'STOCK';

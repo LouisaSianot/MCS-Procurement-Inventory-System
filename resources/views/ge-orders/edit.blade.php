@@ -195,12 +195,21 @@
                 </button>
             </div>
 
-            <div class="table-wrap hidden md:block">
-                <table class="data-table min-w-[60rem]" id="items-table">
+            <div class="table-wrap">
+                <table class="data-table ge-order-items-table table-fixed w-[70rem] min-w-[70rem]" id="items-table">
+                    <colgroup>
+                        <col class="w-12">
+                        <col class="w-[25rem]">
+                        <col class="w-36">
+                        <col class="w-32">
+                        <col class="w-40">
+                        <col class="w-40">
+                        <col class="w-20">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th scope="col" class="w-12 text-right">#</th>
-                            <th class="min-w-56">Item / Line Description</th>
+                            <th scope="col" class="text-right">#</th>
+                            <th>Item / Line Description</th>
                             <th class="text-right">Quantity</th>
                             <th data-stock-only class="{{ $inventoryFlag === 'STOCK' ? '' : 'hidden' }}">UOM</th>
                             <th class="text-right">Unit Cost</th>
@@ -215,7 +224,6 @@
                     </tbody>
                 </table>
             </div>
-            <div id="items-cards" class="divide-y divide-slate-100 md:hidden"></div>
 
             <div class="flex items-center justify-end gap-6 border-t border-slate-200 p-5">
                 <div class="text-right">
@@ -249,13 +257,12 @@
         // Same line-item JS as the create page (duplicated here so edit works standalone).
         (function() {
             const tbody = document.getElementById('items-tbody');
-            const cardsEl = document.getElementById('items-cards');
             const totalEl = document.getElementById('order-total');
             if (!tbody) return;
 
             const inventoryItems = JSON.parse(atob(tbody.closest('form').dataset.inventoryItems));
             const inventoryFlagEl = document.getElementById('inventory_flag');
-            const uomHeader = document.querySelector('#items-table [data-stock-only]');
+            const uomHeader = document.querySelector('#items-table thead [data-stock-only]');
             const fmtMoney = (n) => 'K ' + (Number(n) || 0).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -310,11 +317,11 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-item-row', '');
                 tr.innerHTML = `
-                <td data-field="line_number" class="w-12 text-right font-medium tabular-nums text-slate-500"></td>
+                <td data-field="line_number" class="text-right font-medium tabular-nums text-slate-500"></td>
                 <td class="align-top"><div class="flex w-full min-w-0 flex-col gap-1.5">${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select><input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="Item ID" class="input block w-full min-w-0 py-2 bg-slate-50" readonly>` : ''}<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Line description" class="input block w-full min-w-0 py-2" required></div></td>
-                <td><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input py-2 w-24 text-right tabular-nums" required></td>
-                ${stock ? `<td class="align-top" data-stock-only><input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="UOM" class="input py-2 w-24"></td>` : ''}
-                <td><input type="number" name="items[${index}][unit_price]" data-field="unit_price" value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00" class="input py-2 w-28 text-right tabular-nums" required></td>
+                <td class="align-top"><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input w-full py-2 text-right tabular-nums" required></td>
+                <td class="align-top ${stock ? '' : 'invisible'}" data-stock-only>${stock ? `<input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="UOM" class="input w-full py-2">` : ''}</td>
+                <td class="align-top text-right"><input type="number" name="items[${index}][unit_price]" data-field="unit_price" value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00" class="input w-full py-2 text-right tabular-nums" required></td>
                 <td class="align-top text-right"><span data-field="total_display" class="font-medium tabular-nums text-slate-700">K 0.00</span><input type="hidden" name="items[${index}][total]" data-field="total" value="0"></td>
                 <td class="align-top text-right"><button type="button" data-remove-row class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
             `;
