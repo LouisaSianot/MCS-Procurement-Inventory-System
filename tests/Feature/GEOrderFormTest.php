@@ -27,5 +27,8 @@ it('shows item id and uom fields only for stock ge order lines', function () {
     $nonStockResponse->assertOk()
         ->assertDontSee('name="items[0][item_id_text]"', false)
         ->assertDontSee('name="items[0][unit]"', false)
-        ->assertSee('<th data-stock-only class="hidden">UOM</th>', false);
+        ->assertSee('table-fixed w-[62rem] min-w-[62rem]', false)
+        ->assertSee('<col data-stock-only class="w-32 hidden">', false)
+        ->assertSee('<th data-stock-only class="hidden">UOM</th>', false)
+        ->assertSee('<td class="align-top hidden" data-stock-only>', false);
 });

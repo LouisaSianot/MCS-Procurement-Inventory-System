@@ -217,12 +217,12 @@
             </div>
 
             <div class="table-wrap">
-                <table class="data-table ge-order-items-table table-fixed w-[70rem] min-w-[70rem]" id="items-table">
+                <table class="data-table ge-order-items-table table-fixed {{ old('inventory_flag', 'STOCK') === 'STOCK' ? 'w-[70rem] min-w-[70rem]' : 'w-[62rem] min-w-[62rem]' }}" id="items-table">
                     <colgroup>
                         <col class="w-12">
                         <col class="w-[25rem]">
                         <col class="w-36">
-                        <col class="w-32">
+                        <col data-stock-only class="w-32 {{ old('inventory_flag', 'STOCK') === 'STOCK' ? '' : 'hidden' }}">
                         <col class="w-40">
                         <col class="w-40">
                         <col class="w-20">
@@ -283,7 +283,20 @@
             // Item options from PHP — used to populate selects and validate STOCK items.
             const inventoryItems = JSON.parse(atob(tbody.closest('form').dataset.inventoryItems));
             const inventoryFlagEl = document.getElementById('inventory_flag');
-            const uomHeader = document.querySelector('#items-table thead [data-stock-only]');
+            const itemsTable = document.getElementById('items-table');
+            const stockOnlyColumns = document.querySelectorAll('#items-table [data-stock-only]');
+
+            function syncStockColumns(isStock) {
+                stockOnlyColumns.forEach((column) => column.classList.toggle('hidden', !isStock));
+                if (itemsTable) {
+                    itemsTable.classList.toggle('w-[70rem]', isStock);
+                    itemsTable.classList.toggle('min-w-[70rem]', isStock);
+                    itemsTable.classList.toggle('w-[62rem]', !isStock);
+                    itemsTable.classList.toggle('min-w-[62rem]', !isStock);
+                }
+            }
+
+            syncStockColumns((inventoryFlagEl?.value || 'STOCK') === 'STOCK');
 
             const fmtMoney = (n) => 'K ' + (Number(n) || 0).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -323,7 +336,6 @@
             function buildRow(index, data) {
                 data = data || {};
                 const isStock = (inventoryFlagEl?.value || 'STOCK') === 'STOCK';
-                if (uomHeader) uomHeader.classList.toggle('hidden', !isStock);
                 const itemOptions = inventoryItems.map((it) =>
                     `<option value="${it.id}" data-uom="${it.uom}" data-description="${it.name}" ${String(data.item_id ?? '') === String(it.id) ? 'selected' : ''}>${it.name}</option>`
                 ).join('');
@@ -348,7 +360,7 @@
                            value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0"
                            class="input w-full py-2 text-right tabular-nums" required>
                 </td>
-                <td class="align-top ${isStock ? '' : 'invisible'}" data-stock-only>
+                <td class="align-top ${isStock ? '' : 'hidden'}" data-stock-only>
                     ${isStock ? `<input type="text" name="items[${index}][unit]" data-field="unit"
                            value="${data.unit ?? ''}" placeholder="UOM"
                            class="input w-full py-2">` : ''}
@@ -430,6 +442,7 @@
                     quantity: r.querySelector('[data-field="quantity"]')?.value || '',
                     unit_price: r.querySelector('[data-field="unit_price"]')?.value || '',
                 }));
+                syncStockColumns(isStock());
                 tbody.innerHTML = '';
                 if (existing.length === 0) {
                     addRow();

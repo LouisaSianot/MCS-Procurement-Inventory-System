@@ -196,12 +196,12 @@
             </div>
 
             <div class="table-wrap">
-                <table class="data-table ge-order-items-table table-fixed w-[70rem] min-w-[70rem]" id="items-table">
+                <table class="data-table ge-order-items-table table-fixed {{ $inventoryFlag === 'STOCK' ? 'w-[70rem] min-w-[70rem]' : 'w-[62rem] min-w-[62rem]' }}" id="items-table">
                     <colgroup>
                         <col class="w-12">
                         <col class="w-[25rem]">
                         <col class="w-36">
-                        <col class="w-32">
+                        <col data-stock-only class="w-32 {{ $inventoryFlag === 'STOCK' ? '' : 'hidden' }}">
                         <col class="w-40">
                         <col class="w-40">
                         <col class="w-20">
@@ -262,7 +262,18 @@
 
             const inventoryItems = JSON.parse(atob(tbody.closest('form').dataset.inventoryItems));
             const inventoryFlagEl = document.getElementById('inventory_flag');
-            const uomHeader = document.querySelector('#items-table thead [data-stock-only]');
+            const itemsTable = document.getElementById('items-table');
+            const stockOnlyColumns = document.querySelectorAll('#items-table [data-stock-only]');
+            function syncStockColumns(stock) {
+                stockOnlyColumns.forEach((column) => column.classList.toggle('hidden', !stock));
+                if (itemsTable) {
+                    itemsTable.classList.toggle('w-[70rem]', stock);
+                    itemsTable.classList.toggle('min-w-[70rem]', stock);
+                    itemsTable.classList.toggle('w-[62rem]', !stock);
+                    itemsTable.classList.toggle('min-w-[62rem]', !stock);
+                }
+            }
+            syncStockColumns(isStock());
             const fmtMoney = (n) => 'K ' + (Number(n) || 0).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -310,7 +321,6 @@
             function buildRow(index, data) {
                 data = data || {};
                 const stock = isStock();
-                if (uomHeader) uomHeader.classList.toggle('hidden', !stock);
                 const itemOptions = inventoryItems.map((it) =>
                     `<option value="${it.id}" data-uom="${it.uom}" data-description="${it.name}" ${String(data.item_id ?? '') === String(it.id) ? 'selected' : ''}>${it.name}</option>`
                 ).join('');
@@ -320,7 +330,7 @@
                 <td data-field="line_number" class="text-right font-medium tabular-nums text-slate-500"></td>
                 <td class="align-top"><div class="flex w-full min-w-0 flex-col gap-1.5">${stock ? `<select name="items[${index}][item_id]" data-field="item_id" class="input block w-full min-w-0 py-2 item-select" required><option value="">Select item…</option>${itemOptions}</select><input type="text" name="items[${index}][item_id_text]" data-field="item_id_text" value="${data.item_id ?? ''}" placeholder="Item ID" class="input block w-full min-w-0 py-2 bg-slate-50" readonly>` : ''}<input type="text" name="items[${index}][description]" data-field="description" value="${data.description ?? ''}" placeholder="Line description" class="input block w-full min-w-0 py-2" required></div></td>
                 <td class="align-top"><input type="number" name="items[${index}][quantity]" data-field="quantity" value="${data.quantity ?? ''}" min="0" step="0.01" placeholder="0" class="input w-full py-2 text-right tabular-nums" required></td>
-                <td class="align-top ${stock ? '' : 'invisible'}" data-stock-only>${stock ? `<input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="UOM" class="input w-full py-2">` : ''}</td>
+                <td class="align-top ${stock ? '' : 'hidden'}" data-stock-only>${stock ? `<input type="text" name="items[${index}][unit]" data-field="unit" value="${data.unit ?? ''}" placeholder="UOM" class="input w-full py-2">` : ''}</td>
                 <td class="align-top text-right"><input type="number" name="items[${index}][unit_price]" data-field="unit_price" value="${data.unit_price ?? ''}" min="0" step="0.01" placeholder="0.00" class="input w-full py-2 text-right tabular-nums" required></td>
                 <td class="align-top text-right"><span data-field="total_display" class="font-medium tabular-nums text-slate-700">K 0.00</span><input type="hidden" name="items[${index}][total]" data-field="total" value="0"></td>
                 <td class="align-top text-right"><button type="button" data-remove-row class="inline-flex items-center justify-center rounded-md p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600"><i data-lucide="trash-2" class="h-4 w-4"></i></button></td>
@@ -365,6 +375,7 @@
                     quantity: r.querySelector('[data-field="quantity"]')?.value || '',
                     unit_price: r.querySelector('[data-field="unit_price"]')?.value || '',
                 }));
+                syncStockColumns(isStock());
                 tbody.innerHTML = '';
                 if (existing.length === 0) addRow();
                 else existing.forEach((d) => addRow(d));

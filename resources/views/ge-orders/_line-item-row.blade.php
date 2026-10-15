@@ -37,7 +37,7 @@ $item = $item ?? [];
             value="{{ $item['quantity'] ?? '' }}" min="0" step="0.01" placeholder="0"
             class="input w-full py-2 text-right tabular-nums" required>
     </td>
-    <td class="align-top {{ $isStock ? '' : 'invisible' }}" data-stock-only>
+    <td class="align-top {{ $isStock ? '' : 'hidden' }}" data-stock-only>
         @if ($isStock)
         <input type="text" name="items[{{ $i }}][unit]" data-field="unit"
             value="{{ $item['unit'] ?? '' }}" placeholder="UOM"
